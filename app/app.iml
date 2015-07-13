@@ -69,6 +69,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/dependency-cache" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/dex" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/dex-cache" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/multidex/1.0.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/jacoco" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/javaResources" />
@@ -85,5 +86,12 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 22 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="unirest-java-1.4.6" level="project" />
+    <orderEntry type="library" exported="" name="multidex-1.0.0" level="project" />
+    <orderEntry type="library" exported="" name="httpasyncclient-4.0.2" level="project" />
+    <orderEntry type="library" exported="" name="httpcore-4.3.3" level="project" />
+    <orderEntry type="library" exported="" name="httpcore-nio-4.3.2" level="project" />
+    <orderEntry type="library" exported="" name="httpmime-4.3.6" level="project" />
+    <orderEntry type="module" module-name="sdk" exported="" />
   </component>
 </module>

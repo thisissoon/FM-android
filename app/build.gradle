@@ -1,5 +1,8 @@
 apply plugin: 'com.android.application'
 
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
 android {
     compileSdkVersion 22
     buildToolsVersion "21.1.2"
@@ -10,6 +13,7 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -21,4 +25,6 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:multidex:1.0.0'
+    compile project(':sdk')
 }
