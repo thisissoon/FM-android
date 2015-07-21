@@ -1,4 +1,4 @@
-package com.soon.fm.sdk.entity;
+package com.soon.fm.api.model;
 
 import org.json.JSONException;
 import org.json.JSONObject;

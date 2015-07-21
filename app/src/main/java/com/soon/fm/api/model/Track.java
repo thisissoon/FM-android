@@ -1,7 +1,8 @@
-package com.soon.fm.sdk.entity;
+package com.soon.fm.api.model;
 
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ public class Track {
     private String name;
     private String uri;
 
-    public Track(JSONObject track) {
+    public Track(JSONObject track) throws JSONException {
         name = track.getString("name");
         uri = track.getString("uri");
         duration = track.getInt("duration");

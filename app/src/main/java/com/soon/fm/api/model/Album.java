@@ -1,7 +1,8 @@
-package com.soon.fm.sdk.entity;
+package com.soon.fm.api.model;
 
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ public class Album {
     private String name;
     private String uri;
 
-    public Album(JSONObject album) {
+    public Album(JSONObject album) throws JSONException {
         id = album.getString("id");
         name = album.getString("name");
         uri = album.getString("uri");

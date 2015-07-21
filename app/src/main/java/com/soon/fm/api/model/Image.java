@@ -1,5 +1,6 @@
-package com.soon.fm.sdk.entity;
+package com.soon.fm.api.model;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 
@@ -9,7 +10,7 @@ public class Image {
     private int height;
     private String url;
 
-    public Image(JSONObject jsonObject) {
+    public Image(JSONObject jsonObject) throws JSONException {
         url = jsonObject.getString("url");
         width = jsonObject.getInt("width");
         height = jsonObject.getInt("height");

@@ -1,6 +1,7 @@
-package com.soon.fm.sdk.entity;
+package com.soon.fm.api.model;
 
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 
@@ -10,7 +11,7 @@ public class Artist {
     private String name;
     private String uri;
 
-    public Artist(JSONObject artist) {
+    public Artist(JSONObject artist) throws JSONException {
         id = artist.getString("name");
         name = artist.getString("name");
         uri = artist.getString("uri");

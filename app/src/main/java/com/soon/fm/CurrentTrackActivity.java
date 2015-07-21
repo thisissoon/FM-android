@@ -1,34 +1,54 @@
 package com.soon.fm;
 
-import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.soon.fm.sdk.CurrentTrack;
-import com.soon.fm.sdk.entity.Track;
+import com.soon.fm.api.CurrentTrack;
+import com.soon.fm.api.model.Track;
+import com.soon.fm.api.model.User;
+
+import org.json.JSONException;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
 
 
-public class CurrentTrackActivity extends Activity {
+public class CurrentTrackActivity extends BaseActivity {
 
+    private class CurrentTrackWrapper {
+        public Track track;
+        public User user;
+    }
+
+    private static final String TAG = "CurrentTrackActivity";
     private TextView totalTime;
     private TextView trackName;
     private TextView artistName;
-    private CurrentTrack currentTrackSDK;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (!isDeviceOnline()) {
+            Toast.makeText(getApplicationContext(), "Device is not online", Toast.LENGTH_LONG);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_current_track);
 
-        currentTrackSDK = new CurrentTrack();
         totalTime = (TextView) findViewById(R.id.total_time);
         trackName = (TextView) findViewById(R.id.track_name);
         artistName = (TextView) findViewById(R.id.artist_name);
 
-        updateView();
+        asyncUpdateView();
+    }
+
+    private void asyncUpdateView() {
+        new FetchCurrent().execute();
     }
 
     @Override
@@ -53,10 +73,38 @@ public class CurrentTrackActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateView() {
-        Track currentTrack = currentTrackSDK.getTrack();
-        totalTime.setText(Integer.toString(currentTrack.getDuration()));
-        trackName.setText(currentTrack.getName());
-        artistName.setText(TextUtils.join(", ", currentTrack.getArtists()));
+    private void updateView(CurrentTrackWrapper currentTrack) {
+        totalTime.setText(Integer.toString(currentTrack.track.getDuration()));
+        trackName.setText(currentTrack.track.getName());
+        artistName.setText(TextUtils.join(", ", currentTrack.track.getArtists()));
     }
+
+    private class FetchCurrent extends AsyncTask<Void, Void, CurrentTrackWrapper> {
+
+        protected CurrentTrackWrapper doInBackground(Void... params) {
+            try {
+                CurrentTrackWrapper currentTrackWrapper = new CurrentTrackWrapper();
+                CurrentTrack currentTrack = new CurrentTrack("https://api.thisissoon.fm/");
+                currentTrackWrapper.track = currentTrack.getTrack();
+                currentTrackWrapper.user = currentTrack.getUser();
+                return currentTrackWrapper;
+            } catch (MalformedURLException e) {
+                Log.wtf(TAG, e.getMessage());
+            } catch (IOException e) {
+                // TODO device is offline do something reasonable
+            } catch (JSONException e) {
+                Log.wtf(TAG, e.getMessage());
+            }
+
+            return null;
+        }
+
+        protected void onPostExecute(CurrentTrackWrapper currentTrack) {
+            if (currentTrack != null) {
+                updateView(currentTrack);
+            }
+        }
+
+    }
+
 }
