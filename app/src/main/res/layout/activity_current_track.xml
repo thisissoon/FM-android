@@ -24,12 +24,12 @@
             android:src="@mipmap/logo"/>
     </LinearLayout>
 
-    <ListView
+    <fragment
         android:id="@+id/queue"
         android:layout_below="@id/header"
+        android:name="com.soon.fm.fragment.QueueFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </ListView>
+        android:layout_height="match_parent" />
 
     <LinearLayout
         android:id="@+id/footer"

@@ -13,18 +13,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.soon.fm.api.CurrentTrack;
-import com.soon.fm.api.Queue;
 import com.soon.fm.api.model.UserTrack;
 import com.soon.fm.api.model.field.Duration;
+import com.soon.fm.fragment.QueueFragment;
 
 import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.List;
 
 
-public class CurrentTrackActivity extends BaseActivity {
+public class CurrentTrackActivity extends BaseActivity implements QueueFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "CurrentTrackActivity";
     private TextView totalTime;
@@ -93,7 +92,7 @@ public class CurrentTrackActivity extends BaseActivity {
     }
 
     private void asyncFetchQueue(){
-        new FetchQueue().execute();
+//        new FetchQueue().execute();
     }
 
     private void updateView(final UserTrack currentTrack) {
@@ -129,6 +128,11 @@ public class CurrentTrackActivity extends BaseActivity {
         }.start();
     }
 
+    @Override
+    public void onFragmentInteraction(String id) {
+
+    }
+
     private class FetchCurrent extends AsyncTask<Void, Void, UserTrack> {
 
         protected UserTrack doInBackground(Void... params) {
@@ -155,31 +159,6 @@ public class CurrentTrackActivity extends BaseActivity {
         protected void onPostExecute(UserTrack currentTrack) {
             if (currentTrack != null) {
                 updateView(currentTrack);
-            }
-        }
-
-    }
-
-    private class FetchQueue extends AsyncTask<Void, Void, List<UserTrack>> {
-
-        protected List<UserTrack> doInBackground(Void... params) {
-            try {
-                Queue queue = new Queue("https://api.thisissoon.fm/");
-                return queue.getTracks();
-            } catch (MalformedURLException e) {
-                Log.wtf(TAG, e.getMessage());
-            } catch (IOException e) {
-                // TODO device is offline do something reasonable
-            } catch (JSONException e) {
-                Log.wtf(TAG, e.getMessage());
-            }
-
-            return null;
-        }
-
-        protected void onPostExecute(List<UserTrack> userTrackList) {
-            for (UserTrack userTrack : userTrackList) {
-                Log.i(TAG, userTrack.track.getName());
             }
         }
 
