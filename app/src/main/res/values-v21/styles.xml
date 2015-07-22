@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppTheme" parent="android:Theme.Material.Light"></style>
+    <color name="progressBar">#fffd00</color>
+    <color name="text">#ffffff</color>
+    <color name="foreground">#000000</color>
+    <color name="secondaryForeground">#1A1A1A</color>
+    <color name="secondaryText">#777777</color>
+
+    <style name="AppTheme" parent="android:Theme.Holo.NoActionBar.Fullscreen">
+        <item name="android:colorForeground">@color/foreground</item>
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="footer" parent="AppTheme">
+        <item name="android:background">@color/secondaryForeground</item>
+    </style>
+
+    <style name="secondaryText">
+        <item name="android:textColor">@color/secondaryText</item>
+    </style>
+
+    <style name="control">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:textColor">@color/secondaryText</item>
+        <item name="android:textSize">32dp</item>
+    </style>
+
 </resources>

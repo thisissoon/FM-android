@@ -56,8 +56,8 @@ public class HttpResponse<T> {
         return total.toString();
     }
 
-    private void setStatusCode(int statusCode){
-        switch (statusCode){
+    private void setStatusCode(int statusCode) {
+        switch (statusCode) {
             case 200:
                 this.statusCode = HttpCode.OK;
                 break;
@@ -69,7 +69,7 @@ public class HttpResponse<T> {
     }
 
     public String getRawBody() throws IOException {
-        if(rawBody == null) {
+        if (rawBody == null) {
             rawBody = callRequest();
         }
         return rawBody;

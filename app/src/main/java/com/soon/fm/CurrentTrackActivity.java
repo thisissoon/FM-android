@@ -21,11 +21,6 @@ import java.net.MalformedURLException;
 
 public class CurrentTrackActivity extends BaseActivity {
 
-    private class CurrentTrackWrapper {
-        public Track track;
-        public User user;
-    }
-
     private static final String TAG = "CurrentTrackActivity";
     private TextView totalTime;
     private TextView trackName;
@@ -44,11 +39,8 @@ public class CurrentTrackActivity extends BaseActivity {
         trackName = (TextView) findViewById(R.id.track_name);
         artistName = (TextView) findViewById(R.id.artist_name);
 
-        asyncUpdateView();
-    }
 
-    private void asyncUpdateView() {
-        new FetchCurrent().execute();
+        asyncUpdateView();
     }
 
     @Override
@@ -73,10 +65,19 @@ public class CurrentTrackActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void asyncUpdateView() {
+        new FetchCurrent().execute();
+    }
+
     private void updateView(CurrentTrackWrapper currentTrack) {
         totalTime.setText(Integer.toString(currentTrack.track.getDuration()));
         trackName.setText(currentTrack.track.getName());
         artistName.setText(TextUtils.join(", ", currentTrack.track.getArtists()));
+    }
+
+    private class CurrentTrackWrapper {
+        public Track track;
+        public User user;
     }
 
     private class FetchCurrent extends AsyncTask<Void, Void, CurrentTrackWrapper> {

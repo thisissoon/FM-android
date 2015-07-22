@@ -10,7 +10,7 @@ import java.net.URL;
 
 public class Rest {
 
-    public static HttpRequest<JSONObject> get(URL url){
+    public static HttpRequest<JSONObject> get(URL url) {
         return new HttpRequest<JSONObject>(HttpMethod.GET, url);
     }
 

@@ -9,7 +9,7 @@ public enum HttpMethod {
         method = s;
     }
 
-    public String toString(){
+    public String toString() {
         return method;
     }
 }
