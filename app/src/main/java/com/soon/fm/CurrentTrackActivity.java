@@ -13,14 +13,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.soon.fm.api.CurrentTrack;
-import com.soon.fm.api.model.Track;
-import com.soon.fm.api.model.User;
+import com.soon.fm.api.Queue;
+import com.soon.fm.api.model.UserTrack;
 import com.soon.fm.api.model.field.Duration;
 
 import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.List;
 
 
 public class CurrentTrackActivity extends BaseActivity {
@@ -32,10 +33,12 @@ public class CurrentTrackActivity extends BaseActivity {
     private TextView albumName;
 
     private ProgressBar progressBar;
-    private TextView elapsedTime;
+    private TextView txtElapsedTime;
 
     private ImageView userImage;
     private ImageView trackImage;
+
+    Duration elapsedTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +54,7 @@ public class CurrentTrackActivity extends BaseActivity {
         artistName = (TextView) findViewById(R.id.artist_name);
         albumName = (TextView) findViewById(R.id.album_name);
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        elapsedTime = (TextView) findViewById(R.id.elapsed_time);
+        txtElapsedTime = (TextView) findViewById(R.id.elapsed_time);
         userImage = (ImageView) findViewById(R.id.img_user);
         trackImage = (ImageView) findViewById(R.id.img_album);
 
@@ -81,15 +84,23 @@ public class CurrentTrackActivity extends BaseActivity {
     }
 
     private void asyncUpdateView() {
+        asyncFetchCurrentTrack();
+        asyncFetchQueue();
+    }
+
+    private void asyncFetchCurrentTrack(){
         new FetchCurrent().execute();
     }
 
-    private void updateView(final CurrentTrackWrapper currentTrack) {
+    private void asyncFetchQueue(){
+        new FetchQueue().execute();
+    }
+
+    private void updateView(final UserTrack currentTrack) {
         final Duration trackDuration = currentTrack.track.getDuration();
-        final Duration trackElapsedTime = currentTrack.elapsedTime;
 
         totalTime.setText(trackDuration.toString());
-        elapsedTime.setText(trackElapsedTime.toString());
+        txtElapsedTime.setText(elapsedTime.toString());
         trackName.setText(currentTrack.track.getName());
         artistName.setText(TextUtils.join(", ", currentTrack.track.getArtists()));
         albumName.setText(currentTrack.track.getAlbum().getName());
@@ -103,36 +114,31 @@ public class CurrentTrackActivity extends BaseActivity {
             @Override
             public void onTick(long millisUntilFinished_) {
                 if (currentMilliseconds == 0) {
-                    currentMilliseconds = trackElapsedTime.getMillis();
+                    currentMilliseconds = elapsedTime.getMillis();
                 }
                 currentMilliseconds += 1000;
                 double progress = (currentMilliseconds / (double) trackDuration.getMillis()) * 100.0;
                 progressBar.setProgress((int) progress);
-                elapsedTime.setText(new Duration(currentMilliseconds).toString());
+                txtElapsedTime.setText(new Duration(currentMilliseconds).toString());
             }
 
             @Override
             public void onFinish() {
-                asyncUpdateView();
+                asyncFetchCurrentTrack();
             }
         }.start();
     }
 
-    private class CurrentTrackWrapper {
-        public Track track;
-        public User user;
-        public Duration elapsedTime;
-    }
+    private class FetchCurrent extends AsyncTask<Void, Void, UserTrack> {
 
-    private class FetchCurrent extends AsyncTask<Void, Void, CurrentTrackWrapper> {
-
-        protected CurrentTrackWrapper doInBackground(Void... params) {
+        protected UserTrack doInBackground(Void... params) {
             try {
-                CurrentTrackWrapper currentTrackWrapper = new CurrentTrackWrapper();
+                UserTrack currentTrackWrapper = new UserTrack();
                 CurrentTrack currentTrack = new CurrentTrack("https://api.thisissoon.fm/");
                 currentTrackWrapper.track = currentTrack.getTrack();
                 currentTrackWrapper.user = currentTrack.getUser();
-                currentTrackWrapper.elapsedTime = currentTrack.getElapsedTime();
+
+                elapsedTime = currentTrack.getElapsedTime();
 
                 return currentTrackWrapper;
             } catch (MalformedURLException e) {
@@ -146,9 +152,34 @@ public class CurrentTrackActivity extends BaseActivity {
             return null;
         }
 
-        protected void onPostExecute(CurrentTrackWrapper currentTrack) {
+        protected void onPostExecute(UserTrack currentTrack) {
             if (currentTrack != null) {
                 updateView(currentTrack);
+            }
+        }
+
+    }
+
+    private class FetchQueue extends AsyncTask<Void, Void, List<UserTrack>> {
+
+        protected List<UserTrack> doInBackground(Void... params) {
+            try {
+                Queue queue = new Queue("https://api.thisissoon.fm/");
+                return queue.getTracks();
+            } catch (MalformedURLException e) {
+                Log.wtf(TAG, e.getMessage());
+            } catch (IOException e) {
+                // TODO device is offline do something reasonable
+            } catch (JSONException e) {
+                Log.wtf(TAG, e.getMessage());
+            }
+
+            return null;
+        }
+
+        protected void onPostExecute(List<UserTrack> userTrackList) {
+            for (UserTrack userTrack : userTrackList) {
+                Log.i(TAG, userTrack.track.getName());
             }
         }
 

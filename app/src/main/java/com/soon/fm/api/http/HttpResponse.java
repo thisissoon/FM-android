@@ -1,5 +1,6 @@
 package com.soon.fm.api.http;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -75,14 +76,16 @@ public class HttpResponse<T> {
         return rawBody;
     }
 
-    public T getBody() throws Exception {
+    public T getBody() throws IOException, JSONException {
         if (body == null) {
             if (JSONObject.class.equals(responseClass)) {
                 body = (T) asJson();
+            } else if (JSONArray.class.equals(responseClass)) {
+                body = (T) asJsonArray();
             } else if (String.class.equals(responseClass)) {
                 body = (T) getRawBody();
             } else {
-                throw new Exception("Only String and JsonObject are supported");  // TODO custom exception
+                throw new IOException("Only String and JsonObject are supported");  // TODO custom exception
             }
         }
         return body;
@@ -90,6 +93,10 @@ public class HttpResponse<T> {
 
     public JSONObject asJson() throws IOException, JSONException {
         return new JSONObject(getRawBody().trim());
+    }
+
+    public JSONArray asJsonArray() throws IOException, JSONException {
+        return new JSONArray(getRawBody().trim());
     }
 
 }
