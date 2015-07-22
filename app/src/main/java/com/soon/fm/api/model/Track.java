@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class Track {
     private String name;
     private String uri;
 
-    public Track(JSONObject track) throws JSONException {
+    public Track(JSONObject track) throws JSONException, IOException {
         name = track.getString("name");
         uri = track.getString("uri");
         duration = new Duration(track.getInt("duration"));

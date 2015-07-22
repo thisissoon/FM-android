@@ -2,6 +2,7 @@ package com.soon.fm;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -83,12 +84,38 @@ public class CurrentTrackActivity extends BaseActivity {
         new FetchCurrent().execute();
     }
 
-    private void updateView(CurrentTrackWrapper currentTrack) {
-        totalTime.setText(currentTrack.track.getDuration().toString());
-        elapsedTime.setText(currentTrack.elapsedTime.toString());
+    private void updateView(final CurrentTrackWrapper currentTrack) {
+        final Duration trackDuration = currentTrack.track.getDuration();
+        final Duration trackElapsedTime = currentTrack.elapsedTime;
+
+        totalTime.setText(trackDuration.toString());
+        elapsedTime.setText(trackElapsedTime.toString());
         trackName.setText(currentTrack.track.getName());
         artistName.setText(TextUtils.join(", ", currentTrack.track.getArtists()));
         albumName.setText(currentTrack.track.getAlbum().getName());
+        userImage.setImageBitmap(currentTrack.user.getAvatar());
+        trackImage.setImageBitmap(currentTrack.track.getAlbum().getImage());
+
+        new CountDownTimer(trackDuration.getMillis(), 1000) {
+
+            int currentMilliseconds = 0;
+
+            @Override
+            public void onTick(long millisUntilFinished_) {
+                if (currentMilliseconds == 0) {
+                    currentMilliseconds = trackElapsedTime.getMillis();
+                }
+                currentMilliseconds += 1000;
+                double progress = (currentMilliseconds / (double) trackDuration.getMillis()) * 100.0;
+                progressBar.setProgress((int) progress);
+                elapsedTime.setText(new Duration(currentMilliseconds).toString());
+            }
+
+            @Override
+            public void onFinish() {
+                asyncUpdateView();
+            }
+        }.start();
     }
 
     private class CurrentTrackWrapper {
@@ -106,6 +133,7 @@ public class CurrentTrackActivity extends BaseActivity {
                 currentTrackWrapper.track = currentTrack.getTrack();
                 currentTrackWrapper.user = currentTrack.getUser();
                 currentTrackWrapper.elapsedTime = currentTrack.getElapsedTime();
+
                 return currentTrackWrapper;
             } catch (MalformedURLException e) {
                 Log.wtf(TAG, e.getMessage());

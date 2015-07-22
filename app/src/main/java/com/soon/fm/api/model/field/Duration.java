@@ -9,8 +9,12 @@ public class Duration {
         millis = ms;
     }
 
+    public int getMillis() {
+        return millis;
+    }
+
     @Override
-    public String toString(){
+    public String toString() {
         long second = (millis / 1000) % 60;
         long minute = (millis / (1000 * 60)) % 60;
         long hour = (millis / (1000 * 60 * 60)) % 24;
