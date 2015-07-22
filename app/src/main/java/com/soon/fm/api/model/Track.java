@@ -1,6 +1,8 @@
 package com.soon.fm.api.model;
 
 
+import com.soon.fm.api.model.field.Duration;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,7 +15,7 @@ public class Track {
 
     private Album album;
     private List<Artist> artists = new ArrayList<Artist>();
-    private int duration;
+    private Duration duration;
     private String id;
     private String name;
     private String uri;
@@ -21,7 +23,7 @@ public class Track {
     public Track(JSONObject track) throws JSONException {
         name = track.getString("name");
         uri = track.getString("uri");
-        duration = track.getInt("duration");
+        duration = new Duration(track.getInt("duration"));
         id = track.getString("id");
 
         JSONArray jsonImages = track.getJSONArray("artists");
@@ -35,7 +37,7 @@ public class Track {
         return artists;
     }
 
-    public int getDuration() {
+    public Duration getDuration() {
         return duration;
     }
 

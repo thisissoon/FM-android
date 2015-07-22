@@ -3,6 +3,7 @@ package com.soon.fm.api;
 import com.soon.fm.api.http.HttpResponse;
 import com.soon.fm.api.model.Track;
 import com.soon.fm.api.model.User;
+import com.soon.fm.api.model.field.Duration;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,7 +20,7 @@ public class CurrentTrack {
 
     private Track track;
     private User user;
-    private int elapsedTime;
+    private Duration elapsedTime;
 
     public CurrentTrack(String apiHostName) throws MalformedURLException {
         API_URL = new URL(new URL(apiHostName), URI);
@@ -47,9 +48,9 @@ public class CurrentTrack {
         return user;
     }
 
-    public int getElapsedTime() throws IOException, JSONException {
-        if (user == null) {
-            elapsedTime = getPayload().getJSONObject("player").getInt("elapsed_time");
+    public Duration getElapsedTime() throws IOException, JSONException {
+        if (elapsedTime == null) {
+            elapsedTime = new Duration(getPayload().getJSONObject("player").getInt("elapsed_time"));
         }
         return elapsedTime;
     }
