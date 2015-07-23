@@ -25,18 +25,15 @@ import java.net.MalformedURLException;
 public class CurrentTrackActivity extends BaseActivity {
 
     private static final String TAG = "CurrentTrackActivity";
+    Duration elapsedTime;
     private TextView totalTime;
     private TextView trackName;
     private TextView artistName;
     private TextView albumName;
-
     private ProgressBar progressBar;
     private TextView txtElapsedTime;
-
     private ImageView userImage;
     private ImageView trackImage;
-
-    Duration elapsedTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,11 +83,11 @@ public class CurrentTrackActivity extends BaseActivity {
         asyncFetchQueue();
     }
 
-    private void asyncFetchCurrentTrack(){
+    private void asyncFetchCurrentTrack() {
         new FetchCurrent().execute();
     }
 
-    private void asyncFetchQueue(){
+    private void asyncFetchQueue() {
 //        new FetchQueue().execute();
     }
 

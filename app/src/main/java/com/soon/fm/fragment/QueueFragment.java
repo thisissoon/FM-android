@@ -44,15 +44,6 @@ public class QueueFragment extends Fragment {
         asyncUpdate();
     }
 
-    private void asyncUpdate(){
-        new FetchQueue().execute();
-    }
-
-    private void updateList(List<UserTrack> userTrack) {
-        mAdapter.clear();
-        mAdapter.addAll(userTrack);
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_queue, container, false);
@@ -67,6 +58,15 @@ public class QueueFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    private void asyncUpdate() {
+        new FetchQueue().execute();
+    }
+
+    private void updateList(List<UserTrack> userTrack) {
+        mAdapter.clear();
+        mAdapter.addAll(userTrack);
     }
 
     private class FetchQueue extends AsyncTask<Void, Void, List<UserTrack>> {
@@ -107,8 +107,8 @@ public class QueueFragment extends Fragment {
             }
             TextView trackName = (TextView) convertView.findViewById(R.id.track_name);
             TextView artistName = (TextView) convertView.findViewById(R.id.artist_name);
-            ImageView userAvatar =  (ImageView) convertView.findViewById(R.id.img_user);
-            ImageView albumImage =  (ImageView) convertView.findViewById(R.id.img_album);
+            ImageView userAvatar = (ImageView) convertView.findViewById(R.id.img_user);
+            ImageView albumImage = (ImageView) convertView.findViewById(R.id.img_album);
             trackName.setText(userTrack.track.getName());
             artistName.setText(TextUtils.join(", ", userTrack.track.getArtists()));
             userAvatar.setImageBitmap(userTrack.user.getAvatar());

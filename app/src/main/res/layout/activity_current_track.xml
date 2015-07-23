@@ -9,27 +9,24 @@
 
     <LinearLayout
         android:id="@+id/header"
+        style="@style/header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp">
+        android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/imageView2"
-            android:layout_width="38dp"
-            android:layout_height="77dp"
+            android:id="@+id/logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:paddingBottom="19dp"
-            android:paddingTop="19dp"
             android:src="@mipmap/logo"/>
     </LinearLayout>
 
     <fragment
         android:id="@+id/queue"
-        android:layout_below="@id/header"
         android:name="com.soon.fm.fragment.QueueFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/header"
         android:layout_marginBottom="139dp"
         tools:layout="@layout/fragment_queue"/>
 
@@ -41,6 +38,7 @@
         android:layout_alignParentBottom="true"
         android:orientation="vertical"
         >
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -54,12 +52,14 @@
                 android:layout_gravity="left"
                 android:progress="50"
                 android:progressDrawable="@drawable/progress_bar"/>
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 >
+
                 <TextView
                     android:id="@+id/elapsed_time"
                     android:layout_width="wrap_content"
@@ -67,6 +67,7 @@
                     android:layout_alignParentLeft="true"
                     android:text="00:36"
                     />
+
                 <TextView
                     android:id="@+id/total_time"
                     style="@style/secondaryText"
@@ -87,13 +88,13 @@
 
             <ImageView
                 android:id="@+id/img_user"
-                android:src="@android:drawable/sym_def_app_icon"
-                style="@style/user_avatar" />
+                style="@style/user_avatar"
+                android:src="@android:drawable/sym_def_app_icon"/>
 
             <ImageView
                 android:id="@+id/img_album"
-                android:src="@android:drawable/sym_def_app_icon"
                 style="@style/album_icon"
+                android:src="@android:drawable/sym_def_app_icon"
                 />
 
             <LinearLayout
@@ -101,6 +102,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 >
+
                 <TextView
                     android:id="@+id/track_name"
                     android:layout_width="wrap_content"
