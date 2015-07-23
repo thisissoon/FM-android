@@ -15,7 +15,6 @@ import android.widget.Toast;
 import com.soon.fm.api.CurrentTrack;
 import com.soon.fm.api.model.UserTrack;
 import com.soon.fm.api.model.field.Duration;
-import com.soon.fm.fragment.QueueFragment;
 
 import org.json.JSONException;
 
@@ -23,7 +22,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 
 
-public class CurrentTrackActivity extends BaseActivity implements QueueFragment.OnFragmentInteractionListener {
+public class CurrentTrackActivity extends BaseActivity {
 
     private static final String TAG = "CurrentTrackActivity";
     private TextView totalTime;
@@ -126,11 +125,6 @@ public class CurrentTrackActivity extends BaseActivity implements QueueFragment.
                 asyncFetchCurrentTrack();
             }
         }.start();
-    }
-
-    @Override
-    public void onFragmentInteraction(String id) {
-
     }
 
     private class FetchCurrent extends AsyncTask<Void, Void, UserTrack> {

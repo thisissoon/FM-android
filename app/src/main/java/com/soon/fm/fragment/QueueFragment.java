@@ -1,20 +1,22 @@
 package com.soon.fm.fragment;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.soon.fm.R;
 import com.soon.fm.api.Queue;
 import com.soon.fm.api.model.UserTrack;
-import com.soon.fm.fragment.dummy.DummyContent;
 
 import org.json.JSONException;
 
@@ -24,14 +26,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class QueueFragment extends Fragment implements AbsListView.OnItemClickListener {
+public class QueueFragment extends Fragment {
 
     private static final String TAG = "QueueFragment";
-    private OnFragmentInteractionListener mListener;
 
     private AbsListView mListView;
 
-    private ArrayAdapter mAdapter;
+    private QueueAdapter mAdapter;
 
     public QueueFragment() {
     }
@@ -39,7 +40,7 @@ public class QueueFragment extends Fragment implements AbsListView.OnItemClickLi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
+        mAdapter = new QueueAdapter(getActivity(), new ArrayList<UserTrack>());
         asyncUpdate();
     }
 
@@ -47,11 +48,9 @@ public class QueueFragment extends Fragment implements AbsListView.OnItemClickLi
         new FetchQueue().execute();
     }
 
-    private void updateList(List<DummyContent.DummyItem> usertrack) {
+    private void updateList(List<UserTrack> userTrack) {
         mAdapter.clear();
-        for (DummyContent.DummyItem object : usertrack) {
-            mAdapter.add(object);
-        }
+        mAdapter.addAll(userTrack);
     }
 
     @Override
@@ -62,29 +61,12 @@ public class QueueFragment extends Fragment implements AbsListView.OnItemClickLi
         mListView = (AbsListView) view.findViewById(android.R.id.list);
         mListView.setAdapter(mAdapter);
 
-        // Set OnItemClickListener so we can be notified on item clicks
-        mListView.setOnItemClickListener(this);
         return view;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (null != mListener) {
-            // Notify the active callbacks interface (the activity, if the
-            // fragment is attached to one) that an item has been selected.
-            mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
-        }
-    }
-
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(String id);
     }
 
     private class FetchQueue extends AsyncTask<Void, Void, List<UserTrack>> {
@@ -105,13 +87,33 @@ public class QueueFragment extends Fragment implements AbsListView.OnItemClickLi
         }
 
         protected void onPostExecute(List<UserTrack> userTrackList) {
-            ArrayList<DummyContent.DummyItem> lst = new ArrayList<>();
-            for (UserTrack userTrack : userTrackList) {
-                lst.add(new DummyContent.DummyItem(userTrack.track.getName(), userTrack.track.getName()));
-            }
-            updateList(lst);
+            updateList(userTrackList);
         }
 
     }
 
+    private class QueueAdapter extends ArrayAdapter<UserTrack> {
+
+        public QueueAdapter(Context context, List<UserTrack> objects) {
+            super(context, R.layout.queue_item, objects);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            UserTrack userTrack = getItem(position);
+
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.queue_item, parent, false);
+            }
+            TextView trackName = (TextView) convertView.findViewById(R.id.track_name);
+            TextView artistName = (TextView) convertView.findViewById(R.id.artist_name);
+            ImageView userAvatar =  (ImageView) convertView.findViewById(R.id.img_user);
+            ImageView albumImage =  (ImageView) convertView.findViewById(R.id.img_album);
+            trackName.setText(userTrack.track.getName());
+            artistName.setText(TextUtils.join(", ", userTrack.track.getArtists()));
+            userAvatar.setImageBitmap(userTrack.user.getAvatar());
+            albumImage.setImageBitmap(userTrack.track.getAlbum().getImage());
+            return convertView;
+        }
+    }
 }
