@@ -37,7 +37,7 @@ public class CurrentTrackActivity extends BaseActivity {
     private ProgressBar progressBar;
     private TextView txtElapsedTime;
     private ImageView userImage;
-    private ImageView trackImage;
+    private ImageView albumImage;
 
     private Socket mSocket;
     private CountDownTimer timer;
@@ -102,7 +102,7 @@ public class CurrentTrackActivity extends BaseActivity {
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         txtElapsedTime = (TextView) findViewById(R.id.elapsed_time);
         userImage = (ImageView) findViewById(R.id.img_user);
-        trackImage = (ImageView) findViewById(R.id.img_album);
+        albumImage = (ImageView) findViewById(R.id.img_album);
 
         asyncUpdateView();
         mSocket.on(Constants.SocketEvents.END, onEndOfTrack);
@@ -160,8 +160,9 @@ public class CurrentTrackActivity extends BaseActivity {
         trackName.setText(currentTrack.track.getName());
         artistName.setText(TextUtils.join(", ", currentTrack.track.getArtists()));
         albumName.setText(currentTrack.track.getAlbum().getName());
-//        userImage.setImageBitmap(currentTrack.user.getAvatar());
-//        trackImage.setImageBitmap(currentTrack.track.getAlbum().getImage());
+
+        new ImageLoader(currentTrack.user.getAvatar(), userImage).execute();
+        new ImageLoader(currentTrack.track.getAlbum().getImages().get(0), albumImage).execute();
 
         if (timer != null) {
             timer.cancel();

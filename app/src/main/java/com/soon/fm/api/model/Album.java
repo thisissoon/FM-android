@@ -40,4 +40,7 @@ public class Album {
         return uri;
     }
 
+    public List<Image> getImages() {
+        return images;
+    }
 }

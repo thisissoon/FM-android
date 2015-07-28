@@ -40,4 +40,7 @@ public class User implements APIObject {
         return id;
     }
 
+    public Image getAvatar() {
+        return avatar;
+    }
 }
