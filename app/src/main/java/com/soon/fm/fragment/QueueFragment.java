@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.soon.fm.Constants;
 import com.soon.fm.R;
 import com.soon.fm.api.Queue;
 import com.soon.fm.api.model.UserTrack;
@@ -73,7 +74,7 @@ public class QueueFragment extends Fragment {
 
         protected List<UserTrack> doInBackground(Void... params) {
             try {
-                Queue queue = new Queue("https://api.thisissoon.fm/");
+                Queue queue = new Queue(Constants.FM_API);
                 return queue.getTracks();
             } catch (MalformedURLException e) {
                 Log.wtf(TAG, e.getMessage());
