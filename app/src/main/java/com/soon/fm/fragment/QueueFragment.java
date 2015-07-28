@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.soon.fm.Constants;
@@ -108,12 +107,12 @@ public class QueueFragment extends Fragment {
             }
             TextView trackName = (TextView) convertView.findViewById(R.id.track_name);
             TextView artistName = (TextView) convertView.findViewById(R.id.artist_name);
-            ImageView userAvatar = (ImageView) convertView.findViewById(R.id.img_user);
-            ImageView albumImage = (ImageView) convertView.findViewById(R.id.img_album);
+//            ImageView userAvatar = (ImageView) convertView.findViewById(R.id.img_user);
+//            ImageView albumImage = (ImageView) convertView.findViewById(R.id.img_album);
             trackName.setText(userTrack.track.getName());
             artistName.setText(TextUtils.join(", ", userTrack.track.getArtists()));
-            userAvatar.setImageBitmap(userTrack.user.getAvatar());
-            albumImage.setImageBitmap(userTrack.track.getAlbum().getImage());
+//            userAvatar.setImageBitmap(userTrack.user.getAvatar());
+//            albumImage.setImageBitmap(userTrack.track.getAlbum().getImage());
             return convertView;
         }
     }

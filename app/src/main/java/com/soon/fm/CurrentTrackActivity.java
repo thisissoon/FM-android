@@ -160,8 +160,8 @@ public class CurrentTrackActivity extends BaseActivity {
         trackName.setText(currentTrack.track.getName());
         artistName.setText(TextUtils.join(", ", currentTrack.track.getArtists()));
         albumName.setText(currentTrack.track.getAlbum().getName());
-        userImage.setImageBitmap(currentTrack.user.getAvatar());
-        trackImage.setImageBitmap(currentTrack.track.getAlbum().getImage());
+//        userImage.setImageBitmap(currentTrack.user.getAvatar());
+//        trackImage.setImageBitmap(currentTrack.track.getAlbum().getImage());
 
         if (timer != null) {
             timer.cancel();

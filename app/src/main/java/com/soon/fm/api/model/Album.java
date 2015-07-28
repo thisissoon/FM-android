@@ -1,8 +1,6 @@
 package com.soon.fm.api.model;
 
 
-import android.graphics.Bitmap;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,7 +24,7 @@ public class Album {
 
         JSONArray jsonImages = album.getJSONArray("images");
         for (int i = 0; i < jsonImages.length(); i++) {
-            images.add(new Image(jsonImages.getJSONObject(i), Image.Mode.EAGER));
+            images.add(new Image(jsonImages.getJSONObject(i)));
         }
     }
 
@@ -40,14 +38,6 @@ public class Album {
 
     public String getUri() {
         return uri;
-    }
-
-    public Bitmap getImage() {
-        try {
-            return images.get(0).getBitmap();
-        } catch (IOException e) {
-            return null; // TODO return some generic image for album
-        }
     }
 
 }
