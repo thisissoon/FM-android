@@ -175,7 +175,9 @@ public class CurrentTrackActivity extends BaseActivity {
                 if (currentMilliseconds == 0) {
                     currentMilliseconds = elapsedTime.getMillis();
                 }
-                currentMilliseconds += 1000;
+                if (currentMilliseconds <= trackDuration.getMillis()) {
+                    currentMilliseconds += 1000;
+                }
                 double progress = (currentMilliseconds / (double) trackDuration.getMillis()) * 100.0;
                 progressBar.setProgress((int) progress);
                 txtElapsedTime.setText(new Duration(currentMilliseconds).toString());
