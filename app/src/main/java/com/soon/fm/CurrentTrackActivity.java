@@ -12,6 +12,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
 import com.soon.fm.api.CurrentTrack;
 import com.soon.fm.api.model.UserTrack;
 import com.soon.fm.api.model.field.Duration;
@@ -20,12 +23,13 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 
 
 public class CurrentTrackActivity extends BaseActivity {
 
     private static final String TAG = "CurrentTrackActivity";
-    Duration elapsedTime;
+    private Duration elapsedTime;
     private TextView totalTime;
     private TextView trackName;
     private TextView artistName;
@@ -34,6 +38,53 @@ public class CurrentTrackActivity extends BaseActivity {
     private TextView txtElapsedTime;
     private ImageView userImage;
     private ImageView trackImage;
+
+    private Socket mSocket;
+    private CountDownTimer timer;
+    private Emitter.Listener onEndOfTrack = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            Log.i(TAG, "Track finished");
+            timer.cancel();
+        }
+    };
+    private Emitter.Listener onPause = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            Log.i(TAG, "Paused");
+            if (timer != null) {
+                try {
+                    timer.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+    private Emitter.Listener onPlay = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            Log.i(TAG, "Playing");
+            asyncFetchCurrentTrack();
+        }
+    };
+    private Emitter.Listener onResume = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            Log.i(TAG, "Resumed");
+            if (timer != null) {
+                timer.start();
+            }
+        }
+    };
+
+    {
+        try {
+            mSocket = IO.socket(Constants.SOCKET);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +105,21 @@ public class CurrentTrackActivity extends BaseActivity {
         trackImage = (ImageView) findViewById(R.id.img_album);
 
         asyncUpdateView();
+        mSocket.on(Constants.SocketEvents.END, onEndOfTrack);
+        mSocket.on(Constants.SocketEvents.PLAY, onPlay);
+        mSocket.on(Constants.SocketEvents.PAUSE, onPause);
+        mSocket.on(Constants.SocketEvents.RESUME, onResume);
+        mSocket.connect();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mSocket.off(Constants.SocketEvents.END, onEndOfTrack);
+        mSocket.off(Constants.SocketEvents.PLAY, onPlay);
+        mSocket.off(Constants.SocketEvents.PAUSE, onPause);
+        mSocket.off(Constants.SocketEvents.RESUME, onResume);
+        mSocket.disconnect();
     }
 
     @Override
@@ -80,15 +146,10 @@ public class CurrentTrackActivity extends BaseActivity {
 
     private void asyncUpdateView() {
         asyncFetchCurrentTrack();
-        asyncFetchQueue();
     }
 
     private void asyncFetchCurrentTrack() {
         new FetchCurrent().execute();
-    }
-
-    private void asyncFetchQueue() {
-//        new FetchQueue().execute();
     }
 
     private void updateView(final UserTrack currentTrack) {
@@ -102,7 +163,10 @@ public class CurrentTrackActivity extends BaseActivity {
         userImage.setImageBitmap(currentTrack.user.getAvatar());
         trackImage.setImageBitmap(currentTrack.track.getAlbum().getImage());
 
-        new CountDownTimer(trackDuration.getMillis(), 1000) {
+        if (timer != null) {
+            timer.cancel();
+        }
+        timer = new CountDownTimer(trackDuration.getMillis(), 1000) {
 
             int currentMilliseconds = 0;
 
@@ -119,7 +183,7 @@ public class CurrentTrackActivity extends BaseActivity {
 
             @Override
             public void onFinish() {
-                asyncFetchCurrentTrack();
+
             }
         }.start();
     }
@@ -129,7 +193,7 @@ public class CurrentTrackActivity extends BaseActivity {
         protected UserTrack doInBackground(Void... params) {
             try {
                 UserTrack currentTrackWrapper = new UserTrack();
-                CurrentTrack currentTrack = new CurrentTrack("https://api.thisissoon.fm/");
+                CurrentTrack currentTrack = new CurrentTrack(Constants.FM_API);
                 currentTrackWrapper.track = currentTrack.getTrack();
                 currentTrackWrapper.user = currentTrack.getUser();
 
@@ -152,7 +216,6 @@ public class CurrentTrackActivity extends BaseActivity {
                 updateView(currentTrack);
             }
         }
-
     }
 
 }
