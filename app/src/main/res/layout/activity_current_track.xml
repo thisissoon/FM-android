@@ -89,12 +89,12 @@
             <ImageView
                 android:id="@+id/img_user"
                 style="@style/user_avatar"
-                android:src="@android:drawable/sym_def_app_icon"/>
+                android:src="@drawable/person"/>
 
             <ImageView
                 android:id="@+id/img_album"
                 style="@style/album_icon"
-                android:src="@android:drawable/sym_def_app_icon"
+                android:src="@drawable/album"
                 />
 
             <LinearLayout
