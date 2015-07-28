@@ -107,7 +107,10 @@
                     android:id="@+id/track_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="The Boxer"/>
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:text="The Boxer"
+                    style="@style/singleLineText"/>
 
                 <TextView
                     android:id="@+id/artist_name"

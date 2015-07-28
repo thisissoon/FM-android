@@ -24,8 +24,14 @@
         <item name="android:background">@color/secondaryForeground</item>
     </style>
 
-    <style name="secondaryText">
+    <style name="singleLineText">
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="secondaryText" parent="singleLineText">
         <item name="android:textColor">@color/secondaryText</item>
+
     </style>
 
     <style name="control">
