@@ -11,9 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
 import com.soon.fm.Constants;
+import com.soon.fm.ImageLoader;
 import com.soon.fm.R;
 import com.soon.fm.api.Queue;
 import com.soon.fm.api.model.UserTrack;
@@ -22,6 +27,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +40,23 @@ public class QueueFragment extends Fragment {
 
     private QueueAdapter mAdapter;
 
+    private final Socket mSocket;
+    private Emitter.Listener onQueueChange = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {  // TODO some locker
+            Log.i(TAG, "Queue changed");
+            asyncUpdate();
+        }
+    };
+
+    {
+        try {
+            mSocket = IO.socket(Constants.SOCKET);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public QueueFragment() {
     }
 
@@ -42,6 +65,18 @@ public class QueueFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mAdapter = new QueueAdapter(getActivity(), new ArrayList<UserTrack>());
         asyncUpdate();
+
+        mSocket.on(Constants.SocketEvents.ADD, onQueueChange);
+        mSocket.on(Constants.SocketEvents.PLAY, onQueueChange);
+        mSocket.connect();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mSocket.off(Constants.SocketEvents.ADD, onQueueChange);
+        mSocket.off(Constants.SocketEvents.PLAY, onQueueChange);
+        mSocket.disconnect();
     }
 
     @Override
@@ -107,12 +142,13 @@ public class QueueFragment extends Fragment {
             }
             TextView trackName = (TextView) convertView.findViewById(R.id.track_name);
             TextView artistName = (TextView) convertView.findViewById(R.id.artist_name);
-//            ImageView userAvatar = (ImageView) convertView.findViewById(R.id.img_user);
-//            ImageView albumImage = (ImageView) convertView.findViewById(R.id.img_album);
+            ImageView userAvatar = (ImageView) convertView.findViewById(R.id.img_user);
+            ImageView albumImage = (ImageView) convertView.findViewById(R.id.img_album);
             trackName.setText(userTrack.track.getName());
             artistName.setText(TextUtils.join(", ", userTrack.track.getArtists()));
-//            userAvatar.setImageBitmap(userTrack.user.getAvatar());
-//            albumImage.setImageBitmap(userTrack.track.getAlbum().getImage());
+
+            new ImageLoader(userTrack.user.getAvatar(), userAvatar).execute();
+            new ImageLoader(userTrack.track.getAlbum().getImages().get(0), albumImage).execute();
             return convertView;
         }
     }
