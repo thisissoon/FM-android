@@ -30,4 +30,5 @@ dependencies {
     compile 'com.android.support:multidex:1.0.0'
     compile 'com.beardedhen:androidbootstrap:+'
     compile 'com.github.nkzawa:socket.io-client:0.3.0'
+    compile 'com.google.android.gms:play-services:7.5.0'
 }

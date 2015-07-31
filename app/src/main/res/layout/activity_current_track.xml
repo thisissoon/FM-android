@@ -19,6 +19,19 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:src="@mipmap/logo"/>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <com.google.android.gms.common.SignInButton
+                android:id="@+id/google_sign_in"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:text="@string/google_login"
+                android:layout_alignParentRight="true"
+                />
+        </RelativeLayout>
+
     </LinearLayout>
 
     <fragment
