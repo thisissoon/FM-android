@@ -18,10 +18,11 @@ import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.soon.fm.Constants;
-import com.soon.fm.ImageLoader;
 import com.soon.fm.R;
 import com.soon.fm.api.Queue;
 import com.soon.fm.api.model.UserTrack;
+import com.soon.fm.utils.CircleTransform;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 
@@ -49,6 +50,8 @@ public class QueueFragment extends Fragment {
         }
     };
 
+    private Context context;
+
     {
         try {
             mSocket = IO.socket(Constants.SOCKET);
@@ -69,6 +72,8 @@ public class QueueFragment extends Fragment {
         mSocket.on(Constants.SocketEvents.ADD, onQueueChange);
         mSocket.on(Constants.SocketEvents.PLAY, onQueueChange);
         mSocket.connect();
+
+        context = getActivity().getApplicationContext();
     }
 
     @Override
@@ -147,8 +152,8 @@ public class QueueFragment extends Fragment {
             trackName.setText(userTrack.track.getName());
             artistName.setText(TextUtils.join(", ", userTrack.track.getArtists()));
 
-            new ImageLoader(userTrack.user.getAvatar(), userAvatar).execute();
-            new ImageLoader(userTrack.track.getAlbum().getImages().get(0), albumImage).execute();
+            Picasso.with(context).load(userTrack.user.getAvatar().getUrl()).transform(new CircleTransform()).into(userAvatar);
+            Picasso.with(context).load(userTrack.track.getAlbum().getImages().get(2).getUrl()).into(albumImage);
             return convertView;
         }
     }
