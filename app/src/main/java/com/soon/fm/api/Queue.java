@@ -8,19 +8,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Queue extends Endpoint<JSONArray> {
 
-    protected String URI = "/player/queue";
+    private static final String URI = "/player/queue";
 
     private List<UserTrack> tracks = new ArrayList<>();
 
-    public Queue(String apiHostName) throws MalformedURLException {
-        API_URL = new URL(new URL(apiHostName), URI);
+    public Queue(String apiHostName) {
+        super(apiHostName, URI);
     }
 
     public List<UserTrack> getTracks() throws IOException, JSONException {

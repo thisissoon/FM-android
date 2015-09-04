@@ -8,20 +8,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class CurrentTrack extends Endpoint<JSONObject> {
 
     private static final String URI = "/player/current";
-    private JSONObject payload = null;
 
     private Track track;
     private User user;
     private Duration elapsedTime;
 
-    public CurrentTrack(String apiHostName) throws MalformedURLException {
-        API_URL = new URL(new URL(apiHostName), URI);
+    public CurrentTrack(String apiHostName) {
+        super(apiHostName, URI);
     }
 
     public Track getTrack() throws IOException, JSONException {

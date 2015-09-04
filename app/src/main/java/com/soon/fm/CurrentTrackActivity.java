@@ -98,8 +98,8 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
         }
     };
     private GoogleApiClient mGoogleApiClient;
-    private boolean mIntentInProgress;
     private Context context;
+    private CurrentTrack currentTrack;
 
     {
         try {
@@ -113,6 +113,7 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
     protected void onStart() {
         super.onStart();
         mGoogleApiClient.connect();
+        currentTrack = new CurrentTrack(Constants.FM_API);
     }
 
     protected void onStop() {
@@ -209,7 +210,7 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
         new FetchCurrent().execute();
     }
 
-    private void updateView(final UserTrack currentTrack) {
+    private void updateCurrentTrack(final UserTrack currentTrack) {
         final Duration trackDuration = currentTrack.track.getDuration();
 
         totalTime.setText(trackDuration.toString());
@@ -263,8 +264,6 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
     @Override
     protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
         if (requestCode == RC_SIGN_IN) {
-            mIntentInProgress = false;
-
             if (!mGoogleApiClient.isConnecting()) {
                 mGoogleApiClient.connect();
             }
@@ -301,7 +300,7 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
         protected UserTrack doInBackground(Void... params) {
             try {
                 UserTrack currentTrackWrapper = new UserTrack();
-                CurrentTrack currentTrack = new CurrentTrack(Constants.FM_API);
+                currentTrack.clearPayload();
                 currentTrackWrapper.track = currentTrack.getTrack();
                 currentTrackWrapper.user = currentTrack.getUser();
 
@@ -321,7 +320,7 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
 
         protected void onPostExecute(UserTrack currentTrack) {
             if (currentTrack != null) {
-                updateView(currentTrack);
+                updateCurrentTrack(currentTrack);
             }
         }
     }

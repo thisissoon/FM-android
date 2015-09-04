@@ -2,6 +2,8 @@ package com.soon.fm.api.http;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,10 @@ public class HttpRequest<T> {
 
     public HttpMethod getMethod() {
         return method;
+    }
+
+    public HttpURLConnection createHttpURLConnection() throws IOException {
+       return  (HttpURLConnection) url.openConnection();
     }
 
     public HttpRequest header(String name, String value) {

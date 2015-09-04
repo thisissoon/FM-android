@@ -4,10 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 
 public class HttpResponse<T> {
@@ -27,10 +25,10 @@ public class HttpResponse<T> {
         this.responseClass = responseClass;
     }
 
-    private String callRequest() throws IOException {
+    public String getContent() throws IOException {
         InputStream is = null;
         try {
-            HttpURLConnection conn = (HttpURLConnection) request.getUrl().openConnection();
+            HttpURLConnection conn = request.createHttpURLConnection();
             conn.setReadTimeout(TIMEOUT_MILLIS);
             conn.setConnectTimeout(TIMEOUT_MILLIS1);
             conn.setRequestMethod(request.getMethod().toString());
@@ -38,8 +36,8 @@ public class HttpResponse<T> {
             conn.connect();
 
             setStatusCode(conn.getResponseCode());
-            is = conn.getInputStream();
-            return convertInputStreamToString(is);
+            InputStream stream = conn.getInputStream();
+            return convertInputStreamToString(stream);
         } finally {
             if (is != null) {
                 is.close();
@@ -48,13 +46,12 @@ public class HttpResponse<T> {
     }
 
     private String convertInputStreamToString(InputStream stream) throws IOException {
-        BufferedReader r = new BufferedReader(new InputStreamReader(stream));
-        StringBuilder total = new StringBuilder();
-        String line;
-        while ((line = r.readLine()) != null) {
-            total.append(line);
+        final StringBuffer content = new StringBuffer();
+        int count;
+        while (-1 != (count = stream.read())) {
+            content.append(new String(Character.toChars(count)));
         }
-        return total.toString();
+        return content.toString();
     }
 
     private void setStatusCode(int statusCode) {
@@ -71,7 +68,7 @@ public class HttpResponse<T> {
 
     public String getRawBody() throws IOException {
         if (rawBody == null) {
-            rawBody = callRequest();
+            rawBody = getContent();
         }
         return rawBody;
     }
