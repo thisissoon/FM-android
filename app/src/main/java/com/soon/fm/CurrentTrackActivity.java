@@ -113,7 +113,6 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
     protected void onStart() {
         super.onStart();
         mGoogleApiClient.connect();
-        currentTrack = new CurrentTrack(Constants.FM_API);
     }
 
     protected void onStop() {
@@ -300,7 +299,7 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
         protected UserTrack doInBackground(Void... params) {
             try {
                 UserTrack currentTrackWrapper = new UserTrack();
-                currentTrack.clearPayload();
+                currentTrack = new CurrentTrack(Constants.FM_API);
                 currentTrackWrapper.track = currentTrack.getTrack();
                 currentTrackWrapper.user = currentTrack.getUser();
 

@@ -15,6 +15,7 @@ public abstract class Endpoint<J> {
     private String uri;
     private String apiHostName;
     private J payload = null;
+    private HttpResponse<JSONObject> jsonResponse;
 
     public URL getUrl() throws MalformedURLException {
         return new URL(new URL(apiHostName), uri);
@@ -25,9 +26,13 @@ public abstract class Endpoint<J> {
         this.uri = uri;
     }
 
+    public HttpResponse<JSONObject> getResponse() throws MalformedURLException {
+        return Rest.get(getUrl()).call();
+    }
+
     public J getPayload(Class<?> endpointType) throws IOException, JSONException {
         if (payload == null) {
-            HttpResponse<JSONObject> jsonResponse = Rest.get(getUrl()).call();
+            jsonResponse = getResponse();
             if (JSONObject.class.equals(endpointType)) {
                 payload = (J) jsonResponse.asJson();
             } else if (JSONArray.class.equals(endpointType)) {
@@ -35,9 +40,5 @@ public abstract class Endpoint<J> {
             }
         }
         return payload;
-    }
-
-    public void clearPayload() {
-        payload = null;
     }
 }
