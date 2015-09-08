@@ -4,7 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class User implements APIObject {
+public class User {
 
     private String displayName;
     private String familyName;
