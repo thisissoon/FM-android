@@ -18,10 +18,11 @@ import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.soon.fm.Constants;
-import com.soon.fm.ImageLoader;
 import com.soon.fm.R;
 import com.soon.fm.api.Queue;
-import com.soon.fm.api.model.UserTrack;
+import com.soon.fm.api.model.QueueItem;
+import com.soon.fm.utils.CircleTransform;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 
@@ -35,12 +36,9 @@ import java.util.List;
 public class QueueFragment extends Fragment {
 
     private static final String TAG = "QueueFragment";
-
-    private AbsListView mListView;
-
-    private QueueAdapter mAdapter;
-
     private final Socket mSocket;
+    private AbsListView mListView;
+    private QueueAdapter mAdapter;
     private Emitter.Listener onQueueChange = new Emitter.Listener() {
         @Override
         public void call(Object... args) {  // TODO some locker
@@ -48,6 +46,8 @@ public class QueueFragment extends Fragment {
             asyncUpdate();
         }
     };
+
+    private Context context;
 
     {
         try {
@@ -63,20 +63,14 @@ public class QueueFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAdapter = new QueueAdapter(getActivity(), new ArrayList<UserTrack>());
+        mAdapter = new QueueAdapter(getActivity(), new ArrayList<QueueItem>());
         asyncUpdate();
 
         mSocket.on(Constants.SocketEvents.ADD, onQueueChange);
         mSocket.on(Constants.SocketEvents.PLAY, onQueueChange);
         mSocket.connect();
-    }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mSocket.off(Constants.SocketEvents.ADD, onQueueChange);
-        mSocket.off(Constants.SocketEvents.PLAY, onQueueChange);
-        mSocket.disconnect();
+        context = getActivity().getApplicationContext();
     }
 
     @Override
@@ -91,6 +85,14 @@ public class QueueFragment extends Fragment {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mSocket.off(Constants.SocketEvents.ADD, onQueueChange);
+        mSocket.off(Constants.SocketEvents.PLAY, onQueueChange);
+        mSocket.disconnect();
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
     }
@@ -99,14 +101,14 @@ public class QueueFragment extends Fragment {
         new FetchQueue().execute();
     }
 
-    private void updateList(List<UserTrack> userTrack) {
+    private void updateList(List<QueueItem> userTrack) {
         mAdapter.clear();
         mAdapter.addAll(userTrack);
     }
 
-    private class FetchQueue extends AsyncTask<Void, Void, List<UserTrack>> {
+    private class FetchQueue extends AsyncTask<Void, Void, List<QueueItem>> {
 
-        protected List<UserTrack> doInBackground(Void... params) {
+        protected List<QueueItem> doInBackground(Void... params) {
             try {
                 Queue queue = new Queue(Constants.FM_API);
                 return queue.getTracks();
@@ -121,21 +123,21 @@ public class QueueFragment extends Fragment {
             return null;
         }
 
-        protected void onPostExecute(List<UserTrack> userTrackList) {
+        protected void onPostExecute(List<QueueItem> userTrackList) {
             updateList(userTrackList);
         }
 
     }
 
-    private class QueueAdapter extends ArrayAdapter<UserTrack> {
+    private class QueueAdapter extends ArrayAdapter<QueueItem> {
 
-        public QueueAdapter(Context context, List<UserTrack> objects) {
+        public QueueAdapter(Context context, List<QueueItem> objects) {
             super(context, R.layout.queue_item, objects);
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            UserTrack userTrack = getItem(position);
+            QueueItem userTrack = getItem(position);
 
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.queue_item, parent, false);
@@ -147,8 +149,8 @@ public class QueueFragment extends Fragment {
             trackName.setText(userTrack.track.getName());
             artistName.setText(TextUtils.join(", ", userTrack.track.getArtists()));
 
-            new ImageLoader(userTrack.user.getAvatar(), userAvatar).execute();
-            new ImageLoader(userTrack.track.getAlbum().getImages().get(0), albumImage).execute();
+            Picasso.with(context).load(userTrack.user.getAvatar().getUrl()).transform(new CircleTransform()).into(userAvatar);
+            Picasso.with(context).load(userTrack.track.getAlbum().getImages().get(2).getUrl()).into(albumImage);
             return convertView;
         }
     }

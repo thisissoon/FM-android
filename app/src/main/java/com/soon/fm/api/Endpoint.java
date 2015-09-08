@@ -7,23 +7,41 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 
-public abstract class Endpoint<J> {
+public abstract class Endpoint {
 
-    protected static URL API_URL = null;
-    private J payload = null;
+    private String uri;
+    private String apiHostName;
+    private HttpResponse<JSONObject> jsonResponse;
 
-    public J getPayload(Class<?> endpointType) throws IOException, JSONException {
-        if (payload == null) {
-            HttpResponse<JSONObject> jsonResponse = Rest.get(API_URL).call();
-            if (JSONObject.class.equals(endpointType)) {
-                payload = (J) jsonResponse.asJson();
-            } else if (JSONArray.class.equals(endpointType)) {
-                payload = (J) jsonResponse.asJsonArray();
-            }
+    public Endpoint(String apiHostName, String uri) {
+        this.apiHostName = apiHostName;
+        this.uri = uri;
+    }
+
+    public URL getUrl() throws MalformedURLException {
+        return new URL(new URL(apiHostName), uri);
+    }
+
+    public void setJsonResponse(HttpResponse<JSONObject> jsonResponse) {
+        this.jsonResponse = jsonResponse;
+    }
+
+    public HttpResponse<JSONObject> getResponse() throws MalformedURLException {
+        if (jsonResponse == null) {
+            jsonResponse = Rest.get(getUrl()).call();
         }
-        return payload;
+        return jsonResponse;
+    }
+
+    public JSONArray getJsonArray() throws IOException, JSONException {
+        return getResponse().asJsonArray();
+    }
+
+    public JSONObject getJsonObject() throws IOException, JSONException {
+        return getResponse().asJson();
     }
 
 }

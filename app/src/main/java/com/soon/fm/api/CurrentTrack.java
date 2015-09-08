@@ -5,42 +5,38 @@ import com.soon.fm.api.model.User;
 import com.soon.fm.api.model.field.Duration;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 
-public class CurrentTrack extends Endpoint<JSONObject> {
+public class CurrentTrack extends Endpoint {
 
     private static final String URI = "/player/current";
-    private JSONObject payload = null;
 
     private Track track;
     private User user;
     private Duration elapsedTime;
 
-    public CurrentTrack(String apiHostName) throws MalformedURLException {
-        API_URL = new URL(new URL(apiHostName), URI);
+    public CurrentTrack(String apiHostName) {
+        super(apiHostName, URI);
     }
 
     public Track getTrack() throws IOException, JSONException {
         if (track == null) {
-            track = new Track(getPayload(JSONObject.class).getJSONObject("track"));
+            track = new Track(getJsonObject().getJSONObject("track"));
         }
         return track;
     }
 
     public User getUser() throws IOException, JSONException {
         if (user == null) {
-            user = new User(getPayload(JSONObject.class).getJSONObject("user"));
+            user = new User(getJsonObject().getJSONObject("user"));
         }
         return user;
     }
 
     public Duration getElapsedTime() throws IOException, JSONException {
         if (elapsedTime == null) {
-            elapsedTime = new Duration(getPayload(JSONObject.class).getJSONObject("player").getInt("elapsed_time"));
+            elapsedTime = new Duration(getJsonObject().getJSONObject("player").getInt("elapsed_time"));
         }
         return elapsedTime;
     }

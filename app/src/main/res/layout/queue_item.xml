@@ -31,10 +31,10 @@
 
         <TextView
             android:id="@id/track_name"
+            style="@style/singleLineText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ivory"
-            style="@style/singleLineText" />
+            android:text="Ivory"/>
 
         <TextView
             android:id="@id/artist_name"

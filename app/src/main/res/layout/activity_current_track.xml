@@ -19,6 +19,20 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:src="@mipmap/logo"/>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <com.google.android.gms.common.SignInButton
+                android:id="@+id/google_sign_in"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_alignParentRight="true"
+                android:text="@string/google_login"
+                />
+        </RelativeLayout>
+
     </LinearLayout>
 
     <fragment
@@ -105,12 +119,12 @@
 
                 <TextView
                     android:id="@+id/track_name"
+                    style="@style/singleLineText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:singleLine="true"
-                    android:text="The Boxer"
-                    style="@style/singleLineText"/>
+                    android:text="The Boxer"/>
 
                 <TextView
                     android:id="@+id/artist_name"
