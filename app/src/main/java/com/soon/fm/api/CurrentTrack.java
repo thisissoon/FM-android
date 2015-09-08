@@ -23,23 +23,27 @@ public class CurrentTrack extends Endpoint<JSONObject> {
 
     public Track getTrack() throws IOException, JSONException {
         if (track == null) {
-            track = new Track(getPayload(JSONObject.class).getJSONObject("track"));
+            track = new Track(getJsonObject().getJSONObject("track"));
         }
         return track;
     }
 
     public User getUser() throws IOException, JSONException {
         if (user == null) {
-            user = new User(getPayload(JSONObject.class).getJSONObject("user"));
+            user = new User(getJsonObject().getJSONObject("user"));
         }
         return user;
     }
 
     public Duration getElapsedTime() throws IOException, JSONException {
         if (elapsedTime == null) {
-            elapsedTime = new Duration(getPayload(JSONObject.class).getJSONObject("player").getInt("elapsed_time"));
+            elapsedTime = new Duration(getJsonObject().getJSONObject("player").getInt("elapsed_time"));
         }
         return elapsedTime;
+    }
+
+    public String getBla() throws IOException, JSONException {
+        return getJsonObject().getString("bla");
     }
 
 }

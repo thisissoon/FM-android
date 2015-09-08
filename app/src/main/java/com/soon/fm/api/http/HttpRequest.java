@@ -30,7 +30,7 @@ public class HttpRequest<T> {
     }
 
     public HttpURLConnection createHttpURLConnection() throws IOException {
-       return  (HttpURLConnection) url.openConnection();
+        return (HttpURLConnection) url.openConnection();
     }
 
     public HttpRequest header(String name, String value) {
@@ -49,6 +49,6 @@ public class HttpRequest<T> {
     }
 
     public HttpResponse<T> call() {
-        return new HttpResponse<T>(this, JSONObject.class);
+        return new HttpResponse<>(this, JSONObject.class);
     }
 }

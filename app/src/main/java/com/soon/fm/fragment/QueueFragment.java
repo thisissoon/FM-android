@@ -36,12 +36,9 @@ import java.util.List;
 public class QueueFragment extends Fragment {
 
     private static final String TAG = "QueueFragment";
-
-    private AbsListView mListView;
-
-    private QueueAdapter mAdapter;
-
     private final Socket mSocket;
+    private AbsListView mListView;
+    private QueueAdapter mAdapter;
     private Emitter.Listener onQueueChange = new Emitter.Listener() {
         @Override
         public void call(Object... args) {  // TODO some locker
@@ -77,14 +74,6 @@ public class QueueFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mSocket.off(Constants.SocketEvents.ADD, onQueueChange);
-        mSocket.off(Constants.SocketEvents.PLAY, onQueueChange);
-        mSocket.disconnect();
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_queue, container, false);
 
@@ -93,6 +82,14 @@ public class QueueFragment extends Fragment {
         mListView.setAdapter(mAdapter);
 
         return view;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mSocket.off(Constants.SocketEvents.ADD, onQueueChange);
+        mSocket.off(Constants.SocketEvents.PLAY, onQueueChange);
+        mSocket.disconnect();
     }
 
     @Override

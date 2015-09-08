@@ -110,18 +110,6 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
 
     }
 
-    protected void onStart() {
-        super.onStart();
-        mGoogleApiClient.connect();
-    }
-
-    protected void onStop() {
-        super.onStop();
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
-        }
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (!isDeviceOnline()) {
@@ -154,19 +142,16 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
         mGoogleApiClient = new GoogleApiClient.Builder(this).addConnectionCallbacks(this).addOnConnectionFailedListener(this).addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN).build();
     }
 
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.google_sign_in) {
-            onSignInClicked();
-        }
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
     }
 
-    private void onSignInClicked() {
-        mShouldResolve = true;
-        mGoogleApiClient.connect();
-
-        // Show a message to the user that we are signing in.
-//        mStatusTextView.setText(R.string.signing_in);
+    protected void onStop() {
+        super.onStop();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
     }
 
     @Override
@@ -199,6 +184,30 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
+        if (requestCode == RC_SIGN_IN) {
+            if (!mGoogleApiClient.isConnecting()) {
+                mGoogleApiClient.connect();
+            }
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.google_sign_in) {
+            onSignInClicked();
+        }
+    }
+
+    private void onSignInClicked() {
+        mShouldResolve = true;
+        mGoogleApiClient.connect();
+
+        // Show a message to the user that we are signing in.
+//        mStatusTextView.setText(R.string.signing_in);
     }
 
     private void asyncUpdateView() {
@@ -258,15 +267,6 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
     @Override
     public void onConnectionSuspended(int cause) {
         mGoogleApiClient.connect();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
-        if (requestCode == RC_SIGN_IN) {
-            if (!mGoogleApiClient.isConnecting()) {
-                mGoogleApiClient.connect();
-            }
-        }
     }
 
     @Override

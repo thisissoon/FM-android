@@ -70,7 +70,7 @@ public class HttpResponse<T> {
         if (rawBody == null) {
             rawBody = getContent();
         }
-        return rawBody;
+        return getContent();
     }
 
     public T getBody() throws IOException, JSONException {

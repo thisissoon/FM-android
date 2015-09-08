@@ -12,7 +12,7 @@ public class Artist {
     private String uri;
 
     public Artist(JSONObject artist) throws JSONException {
-        id = artist.getString("name");
+        id = artist.getString("id");
         name = artist.getString("name");
         uri = artist.getString("uri");
     }

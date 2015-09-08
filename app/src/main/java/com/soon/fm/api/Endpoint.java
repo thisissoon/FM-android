@@ -17,27 +17,42 @@ public abstract class Endpoint<J> {
     private J payload = null;
     private HttpResponse<JSONObject> jsonResponse;
 
-    public URL getUrl() throws MalformedURLException {
-        return new URL(new URL(apiHostName), uri);
-    }
-
     public Endpoint(String apiHostName, String uri) {
         this.apiHostName = apiHostName;
         this.uri = uri;
     }
 
-    public HttpResponse<JSONObject> getResponse() throws MalformedURLException {
-        return Rest.get(getUrl()).call();
+    public URL getUrl() throws MalformedURLException {
+        return new URL(new URL(apiHostName), uri);
     }
 
+    public void setJsonResponse(HttpResponse<JSONObject> jsonResponse) {
+        this.jsonResponse = jsonResponse;
+    }
+
+    public HttpResponse<JSONObject> getResponse() throws MalformedURLException {
+        if (jsonResponse == null) {
+            assert false;
+            jsonResponse = Rest.get(getUrl()).call();
+        }
+        return jsonResponse;
+    }
+
+    public JSONArray getJsonArray() throws IOException, JSONException {
+        return getResponse().asJsonArray();
+    }
+
+    public JSONObject getJsonObject() throws IOException, JSONException {
+        return getResponse().asJson();
+    }
+
+    @Deprecated
     public J getPayload(Class<?> endpointType) throws IOException, JSONException {
-        if (payload == null) {
-            jsonResponse = getResponse();
-            if (JSONObject.class.equals(endpointType)) {
-                payload = (J) jsonResponse.asJson();
-            } else if (JSONArray.class.equals(endpointType)) {
-                payload = (J) jsonResponse.asJsonArray();
-            }
+        jsonResponse = getResponse();
+        if (JSONArray.class.equals(endpointType)) {
+            payload = (J) jsonResponse.asJsonArray();
+        } else {
+            payload = (J) jsonResponse.asJson();
         }
         return payload;
     }
