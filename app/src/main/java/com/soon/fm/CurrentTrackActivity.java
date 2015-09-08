@@ -23,7 +23,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
 import com.soon.fm.api.CurrentTrack;
-import com.soon.fm.api.model.UserTrack;
+import com.soon.fm.api.model.QueueItem;
 import com.soon.fm.api.model.field.Duration;
 import com.soon.fm.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
@@ -218,7 +218,7 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
         new FetchCurrent().execute();
     }
 
-    private void updateCurrentTrack(final UserTrack currentTrack) {
+    private void updateCurrentTrack(final QueueItem currentTrack) {
         final Duration trackDuration = currentTrack.track.getDuration();
 
         totalTime.setText(trackDuration.toString());
@@ -294,11 +294,11 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
         }
     }
 
-    private class FetchCurrent extends AsyncTask<Void, Void, UserTrack> {
+    private class FetchCurrent extends AsyncTask<Void, Void, QueueItem> {
 
-        protected UserTrack doInBackground(Void... params) {
+        protected QueueItem doInBackground(Void... params) {
             try {
-                UserTrack currentTrackWrapper = new UserTrack();
+                QueueItem currentTrackWrapper = new QueueItem();
                 currentTrack = new CurrentTrack(Constants.FM_API);
                 currentTrackWrapper.track = currentTrack.getTrack();
                 currentTrackWrapper.user = currentTrack.getUser();
@@ -317,7 +317,7 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
             return null;
         }
 
-        protected void onPostExecute(UserTrack currentTrack) {
+        protected void onPostExecute(QueueItem currentTrack) {
             if (currentTrack != null) {
                 updateCurrentTrack(currentTrack);
             }

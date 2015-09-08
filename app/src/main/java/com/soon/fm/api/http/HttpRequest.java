@@ -1,7 +1,5 @@
 package com.soon.fm.api.http;
 
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -49,6 +47,6 @@ public class HttpRequest<T> {
     }
 
     public HttpResponse<T> call() {
-        return new HttpResponse<>(this, JSONObject.class);
+        return new HttpResponse<>(this);
     }
 }

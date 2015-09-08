@@ -12,17 +12,13 @@ public class HttpResponse<T> {
 
     private static final int TIMEOUT_MILLIS = 10000;
     private static final int TIMEOUT_MILLIS1 = 15000;
-    private final Class<?> responseClass;
 
     private HttpRequest request = null;
     private HttpCode statusCode = null;
     private String rawBody = null;
 
-    private T body = null;
-
-    public HttpResponse(HttpRequest<T> request, Class<?> responseClass) {
+    public HttpResponse(HttpRequest<T> request) {
         this.request = request;
-        this.responseClass = responseClass;
     }
 
     public String getContent() throws IOException {
@@ -71,21 +67,6 @@ public class HttpResponse<T> {
             rawBody = getContent();
         }
         return getContent();
-    }
-
-    public T getBody() throws IOException, JSONException {
-        if (body == null) {
-            if (JSONObject.class.equals(responseClass)) {
-                body = (T) asJson();
-            } else if (JSONArray.class.equals(responseClass)) {
-                body = (T) asJsonArray();
-            } else if (String.class.equals(responseClass)) {
-                body = (T) getRawBody();
-            } else {
-                throw new IOException("Only String and JsonObject are supported");  // TODO custom exception
-            }
-        }
-        return body;
     }
 
     public JSONObject asJson() throws IOException, JSONException {

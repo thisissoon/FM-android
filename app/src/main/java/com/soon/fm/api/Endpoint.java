@@ -46,14 +46,4 @@ public abstract class Endpoint<J> {
         return getResponse().asJson();
     }
 
-    @Deprecated
-    public J getPayload(Class<?> endpointType) throws IOException, JSONException {
-        jsonResponse = getResponse();
-        if (JSONArray.class.equals(endpointType)) {
-            payload = (J) jsonResponse.asJsonArray();
-        } else {
-            payload = (J) jsonResponse.asJson();
-        }
-        return payload;
-    }
 }
