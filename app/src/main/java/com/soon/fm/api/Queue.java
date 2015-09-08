@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Queue extends Endpoint<JSONArray> {
+public class Queue extends Endpoint {
 
     private static final String URI = "/player/queue";
 

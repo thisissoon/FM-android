@@ -5,11 +5,10 @@ import com.soon.fm.api.model.User;
 import com.soon.fm.api.model.field.Duration;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class CurrentTrack extends Endpoint<JSONObject> {
+public class CurrentTrack extends Endpoint {
 
     private static final String URI = "/player/current";
 
@@ -40,10 +39,6 @@ public class CurrentTrack extends Endpoint<JSONObject> {
             elapsedTime = new Duration(getJsonObject().getJSONObject("player").getInt("elapsed_time"));
         }
         return elapsedTime;
-    }
-
-    public String getBla() throws IOException, JSONException {
-        return getJsonObject().getString("bla");
     }
 
 }

@@ -10,11 +10,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public abstract class Endpoint<J> {
+public abstract class Endpoint {
 
     private String uri;
     private String apiHostName;
-    private J payload = null;
     private HttpResponse<JSONObject> jsonResponse;
 
     public Endpoint(String apiHostName, String uri) {
@@ -32,7 +31,6 @@ public abstract class Endpoint<J> {
 
     public HttpResponse<JSONObject> getResponse() throws MalformedURLException {
         if (jsonResponse == null) {
-            assert false;
             jsonResponse = Rest.get(getUrl()).call();
         }
         return jsonResponse;
