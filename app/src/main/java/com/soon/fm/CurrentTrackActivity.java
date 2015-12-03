@@ -19,9 +19,10 @@ import android.widget.Toast;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.plus.Plus;
 import com.soon.fm.backend.BackendHelper;
 import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.Player;
@@ -34,7 +35,9 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
 
-public class CurrentTrackActivity extends BaseActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
+public class CurrentTrackActivity extends BaseActivity implements
+        GoogleApiClient.OnConnectionFailedListener,
+        View.OnClickListener {
 
     private static final int RC_SIGN_IN = 0;
     private static final String TAG = "CurrentTrackActivity";
@@ -137,7 +140,15 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
 
         context = getApplicationContext();
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this).addConnectionCallbacks(this).addOnConnectionFailedListener(this).addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN).build();
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
     }
 
     protected void onStart() {
@@ -195,17 +206,16 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.google_sign_in) {
-            onSignInClicked();
+        switch (v.getId()) {
+            case R.id.google_sign_in:
+                signIn();
+                break;
         }
     }
 
-    private void onSignInClicked() {
-        mShouldResolve = true;
-        mGoogleApiClient.connect();
-
-        // Show a message to the user that we are signing in.
-//        mStatusTextView.setText(R.string.signing_in);
+    private void signIn() {
+        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+        startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
     private void asyncUpdateView() {
@@ -255,18 +265,6 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
 
             }
         }.start();
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        Toast.makeText(getApplicationContext(), "Connected", Toast.LENGTH_LONG);
-        Log.d(TAG, "onConnected:" + bundle);
-        mShouldResolve = false;
-    }
-
-    @Override
-    public void onConnectionSuspended(int cause) {
-        mGoogleApiClient.connect();
     }
 
     @Override
