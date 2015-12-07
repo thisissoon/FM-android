@@ -24,11 +24,12 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:multidex:1.0.0'
-    compile 'com.beardedhen:androidbootstrap:+'
     compile('com.github.nkzawa:socket.io-client:0.3.0') {
         exclude group: 'org.json'
     }
     compile 'com.google.android.gms:play-services:7.5.0'
+    compile 'com.squareup.retrofit:retrofit:2.0.0-beta2'
+    compile 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
     compile 'com.squareup.picasso:picasso:2.5.2'
 
     testCompile 'junit:junit:4.12'

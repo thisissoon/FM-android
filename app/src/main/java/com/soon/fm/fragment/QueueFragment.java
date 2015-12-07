@@ -19,12 +19,10 @@ import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.soon.fm.Constants;
 import com.soon.fm.R;
-import com.soon.fm.api.Queue;
-import com.soon.fm.api.model.QueueItem;
+import com.soon.fm.backend.BackendHelper;
+import com.soon.fm.backend.model.QueueItem;
 import com.soon.fm.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -110,14 +108,13 @@ public class QueueFragment extends Fragment {
 
         protected List<QueueItem> doInBackground(Void... params) {
             try {
-                Queue queue = new Queue(Constants.FM_API);
-                return queue.getTracks();
+                BackendHelper backend = new BackendHelper(Constants.FM_API.toString());
+                return backend.getPlayerQueue();
             } catch (MalformedURLException e) {
                 Log.wtf(TAG, e.getMessage());
             } catch (IOException e) {
-                // TODO device is offline do something reasonable
-            } catch (JSONException e) {
                 Log.wtf(TAG, e.getMessage());
+                // TODO device is offline do something reasonable
             }
 
             return null;
@@ -146,11 +143,11 @@ public class QueueFragment extends Fragment {
             TextView artistName = (TextView) convertView.findViewById(R.id.artist_name);
             ImageView userAvatar = (ImageView) convertView.findViewById(R.id.img_user);
             ImageView albumImage = (ImageView) convertView.findViewById(R.id.img_album);
-            trackName.setText(userTrack.track.getName());
-            artistName.setText(TextUtils.join(", ", userTrack.track.getArtists()));
+            trackName.setText(userTrack.getTrack().getName());
+            artistName.setText(TextUtils.join(", ", userTrack.getTrack().getArtists()));
 
-            Picasso.with(context).load(userTrack.user.getAvatar().getUrl()).transform(new CircleTransform()).into(userAvatar);
-            Picasso.with(context).load(userTrack.track.getAlbum().getImages().get(2).getUrl()).into(albumImage);
+            Picasso.with(context).load(userTrack.getUser().getAvatarUrl()).transform(new CircleTransform()).into(userAvatar);
+            Picasso.with(context).load(userTrack.getTrack().getAlbum().getImages().get(2).getUrl()).into(albumImage);
             return convertView;
         }
     }

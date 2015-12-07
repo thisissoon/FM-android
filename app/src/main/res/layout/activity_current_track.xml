@@ -150,23 +150,23 @@
             android:orientation="horizontal"
             >
 
-            <com.beardedhen.androidbootstrap.FontAwesomeText
-                android:id="@+id/cntPlay"
-                style="@style/control"
-                fontawesometext:fa_icon="fa-play"
-                />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Play"
+                android:id="@+id/cntPlay"/>
 
-            <com.beardedhen.androidbootstrap.FontAwesomeText
-                android:id="@+id/cntSkip"
-                style="@style/control"
-                fontawesometext:fa_icon="fa-step-forward"
-                />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Skip"
+                android:id="@+id/cntSkip"/>
 
-            <com.beardedhen.androidbootstrap.FontAwesomeText
-                android:id="@+id/cntMute"
-                style="@style/control"
-                fontawesometext:fa_icon="fa-volume-off"
-                />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mute"
+                android:id="@+id/cntMute"/>
 
         </LinearLayout>
 
