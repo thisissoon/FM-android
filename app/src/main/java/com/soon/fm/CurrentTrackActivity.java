@@ -22,13 +22,12 @@ import com.github.nkzawa.socketio.client.Socket;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
-import com.soon.fm.api.CurrentTrack;
-import com.soon.fm.api.model.QueueItem;
-import com.soon.fm.api.model.field.Duration;
+import com.soon.fm.backend.BackendHelper;
+import com.soon.fm.backend.model.CurrentTrack;
+import com.soon.fm.backend.model.Player;
+import com.soon.fm.backend.model.field.Duration;
 import com.soon.fm.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -41,7 +40,6 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
     private static final String TAG = "CurrentTrackActivity";
 
     /* UI */
-    private Duration elapsedTime;
     private TextView totalTime;
     private TextView trackName;
     private TextView artistName;
@@ -99,7 +97,7 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
     };
     private GoogleApiClient mGoogleApiClient;
     private Context context;
-    private CurrentTrack currentTrack;
+    private Duration elapsedTime;
 
     {
         try {
@@ -218,17 +216,16 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
         new FetchCurrent().execute();
     }
 
-    private void updateCurrentTrack(final QueueItem currentTrack) {
-        final Duration trackDuration = currentTrack.track.getDuration();
+    private void updateCurrentTrack(final CurrentTrack currentTrack) {
+        final Duration trackDuration = currentTrack.getTrack().getDuration();
 
         totalTime.setText(trackDuration.toString());
-        txtElapsedTime.setText(elapsedTime.toString());
-        trackName.setText(currentTrack.track.getName());
-        artistName.setText(TextUtils.join(", ", currentTrack.track.getArtists()));
-        albumName.setText(currentTrack.track.getAlbum().getName());
+        trackName.setText(currentTrack.getTrack().getName());
+        artistName.setText(TextUtils.join(", ", currentTrack.getTrack().getArtists()));
+        albumName.setText(currentTrack.getTrack().getAlbum().getName());
 
-        Picasso.with(context).load(currentTrack.user.getAvatar().getUrl()).transform(new CircleTransform()).into(userImage);
-        Picasso.with(context).load(currentTrack.track.getAlbum().getImages().get(0).getUrl()).into(albumImage);
+        Picasso.with(context).load(currentTrack.getUser().getAvatarUrl()).transform(new CircleTransform()).into(userImage);
+        Picasso.with(context).load(currentTrack.getTrack().getAlbum().getImages().get(0).getUrl()).into(albumImage);
 
         if (timer != null) {
             timer.cancel();
@@ -239,13 +236,16 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
 
             @Override
             public void onTick(long millisUntilFinished_) {
+                Player player= currentTrack.getPlayer();
+                int trackDuration = currentTrack.getTrack().getDuration().getMillis();
+
                 if (currentMilliseconds == 0) {
-                    currentMilliseconds = elapsedTime.getMillis();
+                    currentMilliseconds = player.getElapsedTime();
                 }
-                if (currentMilliseconds <= trackDuration.getMillis()) {
+                if (currentMilliseconds <= trackDuration) {
                     currentMilliseconds += 1000;
                 }
-                double progress = (currentMilliseconds / (double) trackDuration.getMillis()) * 100.0;
+                double progress = (currentMilliseconds / (double) trackDuration) * 100.0;
                 progressBar.setProgress((int) progress);
                 txtElapsedTime.setText(new Duration(currentMilliseconds).toString());
             }
@@ -294,30 +294,23 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
         }
     }
 
-    private class FetchCurrent extends AsyncTask<Void, Void, QueueItem> {
+    private class FetchCurrent extends AsyncTask<Void, Void, com.soon.fm.backend.model.CurrentTrack> {
 
-        protected QueueItem doInBackground(Void... params) {
+        protected com.soon.fm.backend.model.CurrentTrack doInBackground(Void... params) {
             try {
-                QueueItem currentTrackWrapper = new QueueItem();
-                currentTrack = new CurrentTrack(Constants.FM_API);
-                currentTrackWrapper.track = currentTrack.getTrack();
-                currentTrackWrapper.user = currentTrack.getUser();
-
-                elapsedTime = currentTrack.getElapsedTime();
-
-                return currentTrackWrapper;
+                BackendHelper backend = new BackendHelper(Constants.FM_API.toString());
+                return backend.getCurrentTrack();
             } catch (MalformedURLException e) {
                 Log.wtf(TAG, e.getMessage());
             } catch (IOException e) {
                 // TODO device is offline do something reasonable
-            } catch (JSONException e) {
                 Log.wtf(TAG, e.getMessage());
             }
 
             return null;
         }
 
-        protected void onPostExecute(QueueItem currentTrack) {
+        protected void onPostExecute(com.soon.fm.backend.model.CurrentTrack currentTrack) {
             if (currentTrack != null) {
                 updateCurrentTrack(currentTrack);
             }
