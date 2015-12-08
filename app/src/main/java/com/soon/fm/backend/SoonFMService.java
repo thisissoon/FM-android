@@ -1,5 +1,6 @@
 package com.soon.fm.backend;
 
+import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.QueueItem;
 
 import java.util.List;
@@ -11,5 +12,8 @@ public interface SoonFMService {
 
     @GET("player/queue")
     Call<List<QueueItem>> queue();
+
+    @GET("player/current")
+    Call<CurrentTrack> current();
 
 }

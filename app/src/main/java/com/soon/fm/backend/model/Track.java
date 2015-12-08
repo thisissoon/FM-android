@@ -3,6 +3,7 @@ package com.soon.fm.backend.model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.soon.fm.backend.model.field.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,8 +79,8 @@ public class Track {
         this.artists = artists;
     }
 
-    public Integer getDuration() {
-        return duration;
+    public Duration getDuration() {
+        return new Duration(duration);
     }
 
     public void setDuration(Integer duration) {
@@ -92,5 +93,10 @@ public class Track {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

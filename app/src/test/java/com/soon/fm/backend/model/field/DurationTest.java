@@ -1,4 +1,4 @@
-package com.soon.fm.api.model.field;
+package com.soon.fm.backend.model.field;
 
 import org.junit.Test;
 

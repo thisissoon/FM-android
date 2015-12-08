@@ -1,5 +1,6 @@
 package com.soon.fm.backend;
 
+import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.QueueItem;
 
 import java.io.IOException;
@@ -24,6 +25,11 @@ public class BackendHelper {
 
     public List<QueueItem> getPlayerQueue() throws IOException {
         Response<List<QueueItem>> response = service.queue().execute();
+        return response.body();
+    }
+
+    public CurrentTrack getCurrentTrack() throws IOException {
+        Response<CurrentTrack> response = service.current().execute();
         return response.body();
     }
 }

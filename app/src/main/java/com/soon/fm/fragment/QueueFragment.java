@@ -134,8 +134,6 @@ public class QueueFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            QueueItem userTrack = getItem(position);
-
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.queue_item, parent, false);
             }
@@ -143,6 +141,8 @@ public class QueueFragment extends Fragment {
             TextView artistName = (TextView) convertView.findViewById(R.id.artist_name);
             ImageView userAvatar = (ImageView) convertView.findViewById(R.id.img_user);
             ImageView albumImage = (ImageView) convertView.findViewById(R.id.img_album);
+
+            QueueItem userTrack = getItem(position);
             trackName.setText(userTrack.getTrack().getName());
             artistName.setText(TextUtils.join(", ", userTrack.getTrack().getArtists()));
 
