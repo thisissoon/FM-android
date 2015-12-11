@@ -4,5 +4,5 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_current_track">Current Track</string>
     <string name="google_login">Sign in</string>
-    <string name="SERVER_CLIENT_ID">126423008528-b0skdrim3b5n34afqi7n2323sr14f4ul.apps.googleusercontent.com</string>
+    <string name="server_client_id"></string>
 </resources>
