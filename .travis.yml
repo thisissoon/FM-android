@@ -6,11 +6,12 @@ jdk:
 
 android:
   components:
-    - build-tools-22.0.1
+    - build-tools-23.0.0
     - android-16
     - android-19
     - android-21
     - android-22
+    - android-23
     - extra-google-m2repository
     - extra-android-m2repository
     - extra-google-google_play_services

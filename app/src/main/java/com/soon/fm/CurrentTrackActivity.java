@@ -2,14 +2,11 @@ package com.soon.fm;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -19,13 +16,18 @@ import android.widget.Toast;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.plus.Plus;
 import com.soon.fm.backend.BackendHelper;
+import com.soon.fm.backend.async.Authorize;
 import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.Player;
 import com.soon.fm.backend.model.field.Duration;
+import com.soon.fm.helper.PreferencesHelper;
 import com.soon.fm.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
@@ -34,10 +36,13 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
 
-public class CurrentTrackActivity extends BaseActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
+public class CurrentTrackActivity extends BaseActivity implements View.OnClickListener {
 
     private static final int RC_SIGN_IN = 0;
     private static final String TAG = "CurrentTrackActivity";
+
+    /* System */
+    private PreferencesHelper preferences;
 
     /* UI */
     private TextView totalTime;
@@ -48,12 +53,6 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
     private TextView txtElapsedTime;
     private ImageView userImage;
     private ImageView albumImage;
-
-    /* Is there a ConnectionResult resolution in progress? */
-    private boolean mIsResolving = false;
-
-    /* Should we automatically resolve ConnectionResults when possible? */
-    private boolean mShouldResolve = false;
 
     private Socket mSocket;
     private CountDownTimer timer;
@@ -97,7 +96,6 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
     };
     private GoogleApiClient mGoogleApiClient;
     private Context context;
-    private Duration elapsedTime;
 
     {
         try {
@@ -105,7 +103,6 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     @Override
@@ -137,7 +134,17 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
 
         context = getApplicationContext();
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this).addConnectionCallbacks(this).addOnConnectionFailedListener(this).addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN).build();
+        String serverClientId = getString(R.string.server_client_id);
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestServerAuthCode(serverClientId, false).build();
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this).enableAutoManage(this, new GoogleApiClient.OnConnectionFailedListener() {
+                    @Override
+                    public void onConnectionFailed(ConnectionResult connectionResult) {
+                        Log.d(TAG, "[Google::onConnectionFailed] " + connectionResult.isSuccess());
+                    }
+                }).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
+
+        preferences = new PreferencesHelper(this);
     }
 
     protected void onStart() {
@@ -163,50 +170,64 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_current_track, menu);
-        return true;
-    }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
-            if (!mGoogleApiClient.isConnecting()) {
-                mGoogleApiClient.connect();
-            }
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            handleSignInResult(result);
         }
+    }
+
+    private void handleSignInResult(GoogleSignInResult result) {
+        if (result.isSuccess()) {
+            GoogleSignInAccount acct = result.getSignInAccount();
+
+            new Authorize(context).execute(acct.getServerAuthCode());
+            Log.d(TAG, String.format("[getServerAuthCode] %s", acct.getServerAuthCode()));
+            Log.d(TAG, String.format("[getGrantedScopes] %s", acct.getGrantedScopes()));
+            Log.d(TAG, String.format("[getEmail] %s", acct.getEmail()));  // TODO returns nulls
+            Log.d(TAG, String.format("[getIdToken] %s", acct.getIdToken()));  // TODO returns nulls
+//            hideSignInButton();
+        } else {
+            Log.e(TAG, String.format("[sign in failed] status: %s", result.getStatus()));
+        }
+    }
+
+    private void hideSignInButton() {
+        findViewById(R.id.google_sign_in).setVisibility(View.GONE);
     }
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.google_sign_in) {
-            onSignInClicked();
+        switch (v.getId()) {
+            case R.id.google_sign_in:
+                signIn();
+                break;
         }
     }
 
-    private void onSignInClicked() {
-        mShouldResolve = true;
-        mGoogleApiClient.connect();
-
-        // Show a message to the user that we are signing in.
-//        mStatusTextView.setText(R.string.signing_in);
+    private void signIn() {
+        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+        startActivityForResult(signInIntent, RC_SIGN_IN);
     }
+
+//    private void signOut() {
+//        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
+//            @Override
+//            public void onResult(Status status) {
+//            }
+//        });
+//    }
+//
+//    private void revokeAccess() {
+//        Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
+//            @Override
+//            public void onResult(Status status) {
+//            }
+//        });
+//    }
 
     private void asyncUpdateView() {
         asyncFetchCurrentTrack();
@@ -236,7 +257,7 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
 
             @Override
             public void onTick(long millisUntilFinished_) {
-                Player player= currentTrack.getPlayer();
+                Player player = currentTrack.getPlayer();
                 int trackDuration = currentTrack.getTrack().getDuration().getMillis();
 
                 if (currentMilliseconds == 0) {
@@ -257,46 +278,9 @@ public class CurrentTrackActivity extends BaseActivity implements GoogleApiClien
         }.start();
     }
 
-    @Override
-    public void onConnected(Bundle bundle) {
-        Toast.makeText(getApplicationContext(), "Connected", Toast.LENGTH_LONG);
-        Log.d(TAG, "onConnected:" + bundle);
-        mShouldResolve = false;
-    }
-
-    @Override
-    public void onConnectionSuspended(int cause) {
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.d(TAG, "onConnectionFailed:" + connectionResult);
-
-        if (!mIsResolving && mShouldResolve) {
-            if (connectionResult.hasResolution()) {
-                try {
-                    connectionResult.startResolutionForResult(this, RC_SIGN_IN);
-                    mIsResolving = true;
-                } catch (IntentSender.SendIntentException e) {
-                    Log.e(TAG, "Could not resolve ConnectionResult.", e);
-                    mIsResolving = false;
-                    mGoogleApiClient.connect();
-                }
-            } else {
-                // Could not resolve the connection result, show the user an
-                // error dialog.
-                Toast.makeText(getApplicationContext(), connectionResult.toString(), Toast.LENGTH_LONG);
-            }
-        } else {
-            // Show the signed-out UI
-//            showSignedOutUI();
-        }
-    }
-
     private class FetchCurrent extends AsyncTask<Void, Void, com.soon.fm.backend.model.CurrentTrack> {
 
-        protected com.soon.fm.backend.model.CurrentTrack doInBackground(Void... params) {
+        protected CurrentTrack doInBackground(Void... params) {
             try {
                 BackendHelper backend = new BackendHelper(Constants.FM_API.toString());
                 return backend.getCurrentTrack();
