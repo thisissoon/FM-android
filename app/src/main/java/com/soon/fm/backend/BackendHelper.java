@@ -45,7 +45,7 @@ public class BackendHelper {
         if(response.code() != 200){
             Log.e(TAG, String.format("[Backend error] %s", response.errorBody().string()));
         } else {
-            Log.d(TAG, response.message());
+            Log.d(TAG, String.format("[SFM api] %s", response.raw().message()));
         }
         return response.body();
     }

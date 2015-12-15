@@ -24,6 +24,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.soon.fm.backend.BackendHelper;
 import com.soon.fm.backend.async.Authorize;
+import com.soon.fm.backend.model.AccessToken;
 import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.Player;
 import com.soon.fm.backend.model.field.Duration;
@@ -36,7 +37,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
 
-public class CurrentTrackActivity extends BaseActivity implements View.OnClickListener {
+public class CurrentTrackActivity extends BaseActivity implements View.OnClickListener, OnTaskCompleted {
 
     private static final int RC_SIGN_IN = 0;
     private static final String TAG = "CurrentTrackActivity";
@@ -187,11 +188,8 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         if (result.isSuccess()) {
             GoogleSignInAccount acct = result.getSignInAccount();
 
-            new Authorize(context).execute(acct.getServerAuthCode());
+            new Authorize(this).execute(acct.getServerAuthCode());
             Log.d(TAG, String.format("[getServerAuthCode] %s", acct.getServerAuthCode()));
-            Log.d(TAG, String.format("[getGrantedScopes] %s", acct.getGrantedScopes()));
-            Log.d(TAG, String.format("[getEmail] %s", acct.getEmail()));  // TODO returns nulls
-            Log.d(TAG, String.format("[getIdToken] %s", acct.getIdToken()));  // TODO returns nulls
 //            hideSignInButton();
         } else {
             Log.e(TAG, String.format("[sign in failed] status: %s", result.getStatus()));
@@ -279,6 +277,17 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
             }
         }.start();
+    }
+
+    @Override
+    public void onSuccess(Object obj) {
+        preferences.saveUserApiToken(((AccessToken) obj).getAccessToken());
+        hideSignInButton();
+    }
+
+    @Override
+    public void onFailed() {
+        Toast.makeText(context, "Cannot log you in", Toast.LENGTH_LONG);
     }
 
     private class FetchCurrent extends AsyncTask<Void, Void, com.soon.fm.backend.model.CurrentTrack> {
