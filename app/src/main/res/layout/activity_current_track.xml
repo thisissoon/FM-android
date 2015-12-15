@@ -151,19 +151,19 @@
             >
 
             <Button
-                android:id="@+id/cntPlay"
+                android:id="@+id/cnt_play"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Play"/>
 
             <Button
-                android:id="@+id/cntSkip"
+                android:id="@+id/cnt_skip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Skip"/>
 
             <Button
-                android:id="@+id/cntMute"
+                android:id="@+id/cnt_mute"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Mute"/>

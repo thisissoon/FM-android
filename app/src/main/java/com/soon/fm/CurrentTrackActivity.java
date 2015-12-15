@@ -29,6 +29,7 @@ import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.Player;
 import com.soon.fm.backend.model.field.Duration;
 import com.soon.fm.helper.PreferencesHelper;
+import com.soon.fm.player.PerformPauseApiCall;
 import com.soon.fm.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
@@ -72,9 +73,11 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
             Log.i(TAG, "Paused");
             if (timer != null) {
                 try {
-                    timer.wait();
+                    synchronized (timer) {
+                        timer.wait();
+                    }
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Log.wtf(TAG, String.format("[Listener.onPause] %s", e.getMessage()));
                 }
             }
         }
@@ -125,6 +128,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         albumImage = (ImageView) findViewById(R.id.img_album);
 
         findViewById(R.id.google_sign_in).setOnClickListener(this);
+        findViewById(R.id.cnt_play).setOnClickListener(this);
 
         asyncUpdateView();
         mSocket.on(Constants.SocketEvents.END, onEndOfTrack);
@@ -136,17 +140,14 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         context = getApplicationContext();
 
         String serverClientId = getString(R.string.server_client_id);
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestServerAuthCode(serverClientId, false)
-                .requestEmail()
-                .build();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestServerAuthCode(serverClientId, false).requestEmail().build();
 
         mGoogleApiClient = new GoogleApiClient.Builder(this).enableAutoManage(this, new GoogleApiClient.OnConnectionFailedListener() {
-                    @Override
-                    public void onConnectionFailed(ConnectionResult connectionResult) {
-                        Log.d(TAG, "[Google::onConnectionFailed] " + connectionResult.isSuccess());
-                    }
-                }).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
+            @Override
+            public void onConnectionFailed(ConnectionResult connectionResult) {
+                Log.d(TAG, "[Google::onConnectionFailed] " + connectionResult.isSuccess());
+            }
+        }).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
 
         preferences = new PreferencesHelper(this);
     }
@@ -202,10 +203,23 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
     @Override
     public void onClick(View v) {
+        Log.d(TAG, String.format("[onClick] %s", v.getId()));
         switch (v.getId()) {
             case R.id.google_sign_in:
                 signIn();
                 break;
+            case R.id.cnt_play:
+                Log.d(TAG, "Clicked on play button");
+                performMute();
+                break;
+        }
+    }
+
+    private void performMute() {
+        String token = preferences.getUserApiToken();
+        Log.d(TAG, String.format("User token %s", token));
+        if (token != null) {
+            new PerformPauseApiCall(token).execute();
         }
     }
 
