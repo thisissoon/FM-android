@@ -1,7 +1,6 @@
 package com.soon.fm;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -16,15 +15,7 @@ import android.widget.Toast;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.soon.fm.backend.BackendHelper;
-import com.soon.fm.backend.async.Authorize;
-import com.soon.fm.backend.model.AccessToken;
 import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.Player;
 import com.soon.fm.backend.model.field.Duration;
@@ -38,9 +29,8 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
 
-public class CurrentTrackActivity extends BaseActivity implements View.OnClickListener, OnTaskCompleted {
+public class CurrentTrackActivity extends BaseActivity implements View.OnClickListener {
 
-    private static final int RC_SIGN_IN = 0;
     private static final String TAG = "CurrentTrackActivity";
 
     /* System */
@@ -98,7 +88,6 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
             }
         }
     };
-    private GoogleApiClient mGoogleApiClient;
     private Context context;
 
     {
@@ -127,7 +116,6 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         userImage = (ImageView) findViewById(R.id.img_user);
         albumImage = (ImageView) findViewById(R.id.img_album);
 
-        findViewById(R.id.google_sign_in).setOnClickListener(this);
         findViewById(R.id.cnt_play).setOnClickListener(this);
 
         asyncUpdateView();
@@ -139,29 +127,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
         context = getApplicationContext();
 
-        String serverClientId = getString(R.string.server_client_id);
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestServerAuthCode(serverClientId, false).requestEmail().build();
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this).enableAutoManage(this, new GoogleApiClient.OnConnectionFailedListener() {
-            @Override
-            public void onConnectionFailed(ConnectionResult connectionResult) {
-                Log.d(TAG, "[Google::onConnectionFailed] " + connectionResult.isSuccess());
-            }
-        }).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
-
         preferences = new PreferencesHelper(this);
-    }
-
-    protected void onStart() {
-        super.onStart();
-        mGoogleApiClient.connect();
-    }
-
-    protected void onStop() {
-        super.onStop();
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
-        }
     }
 
     @Override
@@ -175,39 +141,8 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            handleSignInResult(result);
-        }
-    }
-
-    private void handleSignInResult(GoogleSignInResult result) {
-        if (result.isSuccess()) {
-            GoogleSignInAccount acct = result.getSignInAccount();
-
-            new Authorize(this).execute(acct.getServerAuthCode());
-            Log.d(TAG, String.format("[getServerAuthCode] %s", acct.getServerAuthCode()));
-//            hideSignInButton();
-        } else {
-            Log.e(TAG, String.format("[sign in failed] status: %s", result.getStatus()));
-        }
-    }
-
-    private void hideSignInButton() {
-        findViewById(R.id.google_sign_in).setVisibility(View.GONE);
-    }
-
-    @Override
     public void onClick(View v) {
-        Log.d(TAG, String.format("[onClick] %s", v.getId()));
         switch (v.getId()) {
-            case R.id.google_sign_in:
-                signIn();
-                break;
             case R.id.cnt_play:
                 Log.d(TAG, "Clicked on play button");
                 performMute();
@@ -222,27 +157,6 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
             new PerformPauseApiCall(token).execute();
         }
     }
-
-    private void signIn() {
-        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
-
-//    private void signOut() {
-//        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
-//            @Override
-//            public void onResult(Status status) {
-//            }
-//        });
-//    }
-//
-//    private void revokeAccess() {
-//        Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
-//            @Override
-//            public void onResult(Status status) {
-//            }
-//        });
-//    }
 
     private void asyncUpdateView() {
         asyncFetchCurrentTrack();
@@ -291,17 +205,6 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
             }
         }.start();
-    }
-
-    @Override
-    public void onSuccess(Object obj) {
-        preferences.saveUserApiToken(((AccessToken) obj).getAccessToken());
-        hideSignInButton();
-    }
-
-    @Override
-    public void onFailed() {
-        Toast.makeText(context, "Cannot log you in", Toast.LENGTH_LONG);
     }
 
     private class FetchCurrent extends AsyncTask<Void, Void, com.soon.fm.backend.model.CurrentTrack> {
