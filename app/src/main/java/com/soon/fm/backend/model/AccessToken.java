@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 public class AccessToken {
 
     @Expose
-    @SerializedName("accessToken")
+    @SerializedName("access_token")
     String accessToken;
 
     public String getAccessToken() {

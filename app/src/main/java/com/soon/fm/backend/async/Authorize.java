@@ -1,26 +1,25 @@
 package com.soon.fm.backend.async;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.soon.fm.Constants;
+import com.soon.fm.OnTaskCompleted;
 import com.soon.fm.backend.BackendHelper;
 import com.soon.fm.backend.model.AccessToken;
 
 import java.io.IOException;
 
-    public class Authorize extends AsyncTask<String, AccessToken, AccessToken> {
+public class Authorize extends AsyncTask<String, AccessToken, AccessToken> {
 
     private static final String TAG = "Authorize";
-        private final Context ctx;
+    private final OnTaskCompleted callback;
 
-        public Authorize(Context context) {
-            this.ctx = context;
-        }
+    public Authorize(OnTaskCompleted context) {
+        this.callback = context;
+    }
 
-        @Override
+    @Override
     protected AccessToken doInBackground(String... params) {
         BackendHelper helper = new BackendHelper(Constants.FM_API);
         try {
@@ -31,11 +30,13 @@ import java.io.IOException;
         return null;
     }
 
-        @Override
-        protected void onPostExecute(AccessToken accessToken) {
-            if (accessToken == null) {
-                Toast.makeText(ctx, "Cannot sign you in", Toast.LENGTH_LONG).show();
-            }
+    @Override
+    protected void onPostExecute(AccessToken accessToken) {
+        if (accessToken == null) {
+            callback.onFailed();
+        } else {
+            callback.onSuccess(accessToken);
         }
-
     }
+
+}

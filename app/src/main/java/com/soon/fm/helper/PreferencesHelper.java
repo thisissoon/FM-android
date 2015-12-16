@@ -1,18 +1,34 @@
 package com.soon.fm.helper;
 
-import com.soon.fm.CurrentTrackActivity;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 public class PreferencesHelper {
 
-//    public PreferencesHelper() {
-//        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-//        SharedPreferences.Editor editor = sharedPref.edit();
-////        editor.putInt(getString(R.string.saved_high_score), newHighScore);
-//
-//        editor.commit();
-//    }
+    private Context ctx;
+    private SharedPreferences sharedPref;
 
-    public PreferencesHelper(CurrentTrackActivity currentTrackActivity) {
+    private final static String user_sfm_token = "user_sfm_token";
 
+    private SharedPreferences getPreferences() {
+        if (sharedPref == null) {
+            sharedPref = ctx.getSharedPreferences("soon_fm", Context.MODE_PRIVATE);
+        }
+        return sharedPref;
     }
+
+    public PreferencesHelper(Context context) {
+        ctx = context;
+    }
+
+    public void saveUserApiToken(String token) {
+        SharedPreferences.Editor editor = getPreferences().edit();
+        editor.putString(user_sfm_token, token);
+        editor.commit();
+    }
+
+    public String getUserApiToken() {
+        return getPreferences().getString(user_sfm_token, null);
+    }
+
 }

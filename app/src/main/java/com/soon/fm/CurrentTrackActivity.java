@@ -1,7 +1,6 @@
 package com.soon.fm;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -16,18 +15,12 @@ import android.widget.Toast;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.soon.fm.backend.BackendHelper;
-import com.soon.fm.backend.async.Authorize;
 import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.Player;
 import com.soon.fm.backend.model.field.Duration;
 import com.soon.fm.helper.PreferencesHelper;
+import com.soon.fm.player.PerformPauseApiCall;
 import com.soon.fm.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
@@ -38,7 +31,6 @@ import java.net.URISyntaxException;
 
 public class CurrentTrackActivity extends BaseActivity implements View.OnClickListener {
 
-    private static final int RC_SIGN_IN = 0;
     private static final String TAG = "CurrentTrackActivity";
 
     /* System */
@@ -71,9 +63,11 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
             Log.i(TAG, "Paused");
             if (timer != null) {
                 try {
-                    timer.wait();
+                    synchronized (timer) {
+                        timer.wait();
+                    }
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Log.wtf(TAG, String.format("[Listener.onPause] %s", e.getMessage()));
                 }
             }
         }
@@ -94,7 +88,6 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
             }
         }
     };
-    private GoogleApiClient mGoogleApiClient;
     private Context context;
 
     {
@@ -123,7 +116,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         userImage = (ImageView) findViewById(R.id.img_user);
         albumImage = (ImageView) findViewById(R.id.img_album);
 
-        findViewById(R.id.google_sign_in).setOnClickListener(this);
+        findViewById(R.id.cnt_play).setOnClickListener(this);
 
         asyncUpdateView();
         mSocket.on(Constants.SocketEvents.END, onEndOfTrack);
@@ -134,29 +127,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
         context = getApplicationContext();
 
-        String serverClientId = getString(R.string.server_client_id);
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestServerAuthCode(serverClientId, false).build();
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this).enableAutoManage(this, new GoogleApiClient.OnConnectionFailedListener() {
-                    @Override
-                    public void onConnectionFailed(ConnectionResult connectionResult) {
-                        Log.d(TAG, "[Google::onConnectionFailed] " + connectionResult.isSuccess());
-                    }
-                }).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
-
         preferences = new PreferencesHelper(this);
-    }
-
-    protected void onStart() {
-        super.onStart();
-        mGoogleApiClient.connect();
-    }
-
-    protected void onStop() {
-        super.onStop();
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
-        }
     }
 
     @Override
@@ -170,64 +141,22 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            handleSignInResult(result);
-        }
-    }
-
-    private void handleSignInResult(GoogleSignInResult result) {
-        if (result.isSuccess()) {
-            GoogleSignInAccount acct = result.getSignInAccount();
-
-            new Authorize(context).execute(acct.getServerAuthCode());
-            Log.d(TAG, String.format("[getServerAuthCode] %s", acct.getServerAuthCode()));
-            Log.d(TAG, String.format("[getGrantedScopes] %s", acct.getGrantedScopes()));
-            Log.d(TAG, String.format("[getEmail] %s", acct.getEmail()));  // TODO returns nulls
-            Log.d(TAG, String.format("[getIdToken] %s", acct.getIdToken()));  // TODO returns nulls
-//            hideSignInButton();
-        } else {
-            Log.e(TAG, String.format("[sign in failed] status: %s", result.getStatus()));
-        }
-    }
-
-    private void hideSignInButton() {
-        findViewById(R.id.google_sign_in).setVisibility(View.GONE);
-    }
-
-    @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.google_sign_in:
-                signIn();
+            case R.id.cnt_play:
+                Log.d(TAG, "Clicked on play button");
+                performMute();
                 break;
         }
     }
 
-    private void signIn() {
-        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-        startActivityForResult(signInIntent, RC_SIGN_IN);
+    private void performMute() {
+        String token = preferences.getUserApiToken();
+        Log.d(TAG, String.format("User token %s", token));
+        if (token != null) {
+            new PerformPauseApiCall(token).execute();
+        }
     }
-
-//    private void signOut() {
-//        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
-//            @Override
-//            public void onResult(Status status) {
-//            }
-//        });
-//    }
-//
-//    private void revokeAccess() {
-//        Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
-//            @Override
-//            public void onResult(Status status) {
-//            }
-//        });
-//    }
 
     private void asyncUpdateView() {
         asyncFetchCurrentTrack();
