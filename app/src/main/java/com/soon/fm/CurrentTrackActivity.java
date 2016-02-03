@@ -16,16 +16,15 @@ import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.soon.fm.backend.BackendHelper;
+import com.soon.fm.backend.event.PerformPauseApiCall;
 import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.Player;
 import com.soon.fm.backend.model.field.Duration;
 import com.soon.fm.helper.PreferencesHelper;
-import com.soon.fm.player.PerformPauseApiCall;
 import com.soon.fm.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
 
@@ -181,7 +180,6 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
             timer.cancel();
         }
         timer = new CountDownTimer(trackDuration.getMillis(), 1000) {
-
             int currentMilliseconds = 0;
 
             @Override
@@ -211,13 +209,10 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
         protected CurrentTrack doInBackground(Void... params) {
             try {
-                BackendHelper backend = new BackendHelper(Constants.FM_API.toString());
+                BackendHelper backend = new BackendHelper(Constants.FM_API);
                 return backend.getCurrentTrack();
-            } catch (MalformedURLException e) {
-                Log.wtf(TAG, e.getMessage());
             } catch (IOException e) {
-                // TODO device is offline do something reasonable
-                Log.wtf(TAG, e.getMessage());
+                e.printStackTrace();
             }
 
             return null;

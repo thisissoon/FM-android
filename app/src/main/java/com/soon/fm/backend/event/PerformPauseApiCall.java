@@ -1,4 +1,4 @@
-package com.soon.fm.player;
+package com.soon.fm.backend.event;
 
 import android.os.AsyncTask;
 

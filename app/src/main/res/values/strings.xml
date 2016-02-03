@@ -5,4 +5,6 @@
     <string name="title_activity_current_track">Current Track</string>
     <string name="google_login">Sign in</string>
     <string name="server_client_id"></string>
+    <string name="title_activity_my_child">MyChildActivity</string>
+    <string name="action_search">Search</string>
 </resources>
