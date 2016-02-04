@@ -10,6 +10,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.soon.fm.R;
+import com.soon.fm.backend.event.PerformAddTrack;
+import com.soon.fm.backend.model.Uri;
+import com.soon.fm.helper.PreferencesHelper;
 import com.soon.fm.spotify.api.model.Item;
 import com.squareup.picasso.Picasso;
 
@@ -20,11 +23,14 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private static final String TAG = SearchAdapter.class.getName();
     private final Context context;
+    private final PreferencesHelper preferences;
     private List<Item> dataSet;
 
     public SearchAdapter(Context context, List<Item> dataSet) {
         this.dataSet = dataSet;
         this.context = context;
+
+        preferences = new PreferencesHelper(context);
     }
 
     @Override
@@ -34,7 +40,10 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         return new ViewHolder(view, new ViewHolder.SearchResultHolderClicks() {
             public void onRow(View caller, int layoutPosition) {
-                Log.d(TAG, String.format("Clicked on %s", getItem(layoutPosition).getTitle()));
+                String uri = getItem(layoutPosition).getUri();
+                String token = preferences.getUserApiToken();
+                new PerformAddTrack(preferences.getUserApiToken(), new Uri(uri)).execute();
+                Log.d(TAG, String.format("Clicked on %s %d", uri, token));
             }
         });
     }
