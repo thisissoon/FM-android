@@ -2,6 +2,7 @@ package com.soon.fm.spotify;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +15,10 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+
 public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    private static final String TAG = SearchAdapter.class.getName();
     private final Context context;
     private List<Item> dataSet;
 
@@ -28,7 +31,12 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View view = inflater.inflate(R.layout.custom_searchable_row_details, parent, false);
-        return new ViewHolder(view);
+
+        return new ViewHolder(view, new ViewHolder.SearchResultHolderClicks() {
+            public void onRow(View caller, int layoutPosition) {
+                Log.d(TAG, String.format("Clicked on %s", getItem(layoutPosition).getTitle()));
+            }
+        });
     }
 
     @Override
@@ -36,7 +44,6 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         ViewHolder viewHolder = (ViewHolder) holder;
         viewHolder.title.setText(getItem(position).getTitle());
         viewHolder.subtitle.setText(getItem(position).getSubTitle());
-
         loadImageFromCacheTo(getItem(position).getImages().get(2).getUrl(), viewHolder.image);
     }
 
@@ -58,18 +65,35 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return dataSet.get(position);
     }
 
-    private class ViewHolder extends RecyclerView.ViewHolder {
+    private static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public final TextView title;
         private final TextView subtitle;
         private final ImageView image;
 
-        public ViewHolder(View v) {
+        public SearchResultHolderClicks mListener;
+
+        public ViewHolder(View v, SearchResultHolderClicks listener) {
             super(v);
-            this.title = (TextView) v.findViewById(R.id.item_title);
-            this.subtitle = (TextView) v.findViewById(R.id.item_subtitle);
-            this.image = (ImageView) v.findViewById(R.id.item_image);
+
+            mListener = listener;
+
+            title = (TextView) v.findViewById(R.id.item_title);
+            subtitle = (TextView) v.findViewById(R.id.item_subtitle);
+            image = (ImageView) v.findViewById(R.id.item_image);
+
+            v.setOnClickListener(this);
         }
+
+        @Override
+        public void onClick(View v) {
+            mListener.onRow(v, this.getLayoutPosition());
+        }
+
+        public interface SearchResultHolderClicks {
+            void onRow(View caller, int layoutPosition);
+        }
+
     }
 
 }

@@ -5,4 +5,5 @@ public interface OnTaskCompleted {
     void onSuccess(Object accessToken);
 
     void onFailed();
+
 }
