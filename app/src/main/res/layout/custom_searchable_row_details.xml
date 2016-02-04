@@ -1,60 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="60dp"
-    android:clickable="true"
-    android:focusable="true"
-    android:gravity="center_vertical"
-    android:padding="12dp">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="5dp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingTop="5dp">
 
     <ImageView
-        android:id="@+id/rd_left_icon"
+        android:id="@+id/item_image"
+        style="@style/album_icon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/album"/>
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="3dp"
-        android:src="@drawable/ic_cast_dark"/>
-
-    <LinearLayout
-        android:id="@+id/rd_wrapper"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="50dp"
-        android:layout_toRightOf="@+id/rd_left_icon"
-        android:gravity="center_vertical"
-        android:orientation="vertical">
+        android:layout_toRightOf="@id/item_image"
+        android:orientation="vertical"
+        >
 
         <TextView
-            android:id="@+id/rd_header_text"
+            android:id="@+id/item_title"
+            style="@style/singleLineText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:text="Header"
-            android:textSize="16dp"
-            android:textStyle="bold"/>
+            android:text="Ivory"/>
 
         <TextView
-            android:id="@+id/rd_sub_header_text"
-            android:layout_width="match_parent"
+            android:id="@+id/item_subtitle"
+            style="@style/secondaryText"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:text="Sub Header"
-            android:textSize="14dp"/>
-
+            android:text="Movement"/>
 
     </LinearLayout>
 
-
-    <ImageView
-        android:id="@+id/rd_right_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:layout_marginTop="3dp"
-        android:src="@drawable/ic_search"/>
 </RelativeLayout>

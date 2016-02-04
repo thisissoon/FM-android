@@ -1,6 +1,7 @@
 package com.soon.fm;
 
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,9 +18,12 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.soon.fm.spotify.ResultItem;
 import com.soon.fm.spotify.SearchAdapter;
+import com.soon.fm.spotify.SpotifyHelper;
+import com.soon.fm.spotify.api.model.Item;
+import com.soon.fm.spotify.api.model.Search;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +34,7 @@ public class SpotifySearchActivity extends BaseActivity {
     private String query;
     private EditText searchInput;
     private RecyclerView searchResultList;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +49,8 @@ public class SpotifySearchActivity extends BaseActivity {
             String query = intent.getStringExtra(SearchManager.QUERY);
             doMySearch(query);
         }
+
+        context = getApplicationContext();
 
         this.searchResultList = (RecyclerView) this.findViewById(R.id.cs_result_list);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -122,22 +129,32 @@ public class SpotifySearchActivity extends BaseActivity {
     }
 
     private void mapResultsFromCustomProviderToList() {
-        new AsyncTask<Void, Void, List>() {
-
+        new AsyncTask<Void, Void, List<Item>>() {
             @Override
-            protected List doInBackground(Void[] params) {
-                Log.d(TAG, String.format("Searching for %s", query));
-                List<ResultItem> resultList = new ArrayList<>();
-                for (int i = 0; i < query.length(); i++) {
-                    resultList.add(new ResultItem());
+            protected List<Item> doInBackground(Void[] params) {
+                List<Item> resultList = new ArrayList<>();
+                SpotifyHelper spotifyHelper = new SpotifyHelper();
+                try {
+                    Search spotifyResult = spotifyHelper.search(query, 10);
+//                    if (spotifyResult.getAlbums() != null) {
+//                        resultList.addAll(spotifyResult.getAlbums().getItems());
+//                    }
+//                    if (spotifyResult.getArtists() != null) {
+//                        resultList.addAll(spotifyResult.getArtists().getItems());
+//                    }
+                    if (spotifyResult.getTracks() != null) {
+                        resultList.addAll(spotifyResult.getTracks().getItems());
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, String.format("Something went wrong %s", e.getMessage()));
                 }
                 return resultList;
             }
 
             @Override
-            protected void onPostExecute(List resultList) {
-                if (resultList != resultList) {
-                    SearchAdapter adapter = new SearchAdapter(resultList);
+            protected void onPostExecute(List<Item> resultList) {
+                if (resultList != null) {
+                    SearchAdapter adapter = new SearchAdapter(context, resultList);
                     searchResultList.setAdapter(adapter);
                 }
             }
