@@ -1,8 +1,6 @@
 package com.soon.fm;
 
-import android.app.SearchManager;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,10 +8,9 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.inputmethod.EditorInfo;
+import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.ImageView;
 
 import com.soon.fm.spotify.SearchAdapter;
 import com.soon.fm.spotify.SpotifyHelper;
@@ -32,34 +29,32 @@ public class SpotifySearchActivity extends BaseActivity {
     private EditText searchInput;
     private RecyclerView searchResultList;
     private Context context;
+    private ImageView custom_bar_return;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_spotify_search);
 
-        searchInput = (EditText) this.findViewById(R.id.custombar_text);
+        searchInput = (EditText) this.findViewById(R.id.custom_bar_text);
         context = getApplicationContext();
+        custom_bar_return = (ImageView) this.findViewById(R.id.custom_bar_return);
 
         this.searchResultList = (RecyclerView) this.findViewById(R.id.cs_result_list);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         searchResultList.setLayoutManager(linearLayoutManager);
 
         implementSearchTextListener();
+
+        custom_bar_return.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     private void implementSearchTextListener() {
-        // Gets the event of pressing search button on soft keyboard
-        TextView.OnEditorActionListener searchListener = new TextView.OnEditorActionListener() {
-            public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    sendSearchIntent();
-                }
-                return true;
-            }
-        };
-
-        searchInput.setOnEditorActionListener(searchListener);
         searchInput.addTextChangedListener(new TextWatcher() {
             // DO NOTHING
             @Override
@@ -121,12 +116,4 @@ public class SpotifySearchActivity extends BaseActivity {
         }.execute();
     }
 
-    private void sendSearchIntent() {
-        Intent sendIntent = new Intent(this, SpotifySearchActivity.class);
-        sendIntent.setAction(Intent.ACTION_SEARCH);
-        sendIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        sendIntent.putExtra(SearchManager.QUERY, query);
-        startActivity(sendIntent);
-        finish();
-    }
 }

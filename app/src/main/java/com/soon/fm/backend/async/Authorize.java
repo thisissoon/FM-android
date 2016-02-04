@@ -15,8 +15,8 @@ public class Authorize extends AsyncTask<String, AccessToken, AccessToken> {
     private static final String TAG = "Authorize";
     private final OnTaskCompleted callback;
 
-    public Authorize(OnTaskCompleted context) {
-        this.callback = context;
+    public Authorize(OnTaskCompleted callback) {
+        this.callback = callback;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class Authorize extends AsyncTask<String, AccessToken, AccessToken> {
     @Override
     protected void onPostExecute(AccessToken accessToken) {
         if (accessToken == null) {
-            callback.onFailed();
+            callback.onFailed(null);
         } else {
             callback.onSuccess(accessToken);
         }
