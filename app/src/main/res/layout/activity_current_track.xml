@@ -7,29 +7,22 @@
     tools:context="com.soon.fm.CurrentTrackActivity"
     >
 
-    <RelativeLayout
-        android:id="@+id/header"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
         style="@style/header"
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true">
-
-        <android.support.v7.widget.Toolbar
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:elevation="4dp">
-
-        </android.support.v7.widget.Toolbar>
-
-    </RelativeLayout>
+        android:elevation="4dp"
+        >
+    </android.support.v7.widget.Toolbar>
 
     <fragment
         android:id="@+id/queue"
         android:name="com.soon.fm.fragment.QueueFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/header"
+        android:layout_below="@id/toolbar"
         android:layout_marginBottom="139dp"
         tools:layout="@layout/fragment_queue"/>
 

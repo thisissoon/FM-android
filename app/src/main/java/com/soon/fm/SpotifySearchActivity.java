@@ -11,9 +11,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -42,14 +39,6 @@ public class SpotifySearchActivity extends BaseActivity {
         setContentView(R.layout.activity_spotify_search);
 
         searchInput = (EditText) this.findViewById(R.id.custombar_text);
-
-        // Get the intent, verify the action and get the query
-        Intent intent = getIntent();
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            doMySearch(query);
-        }
-
         context = getApplicationContext();
 
         this.searchResultList = (RecyclerView) this.findViewById(R.id.cs_result_list);
@@ -57,37 +46,6 @@ public class SpotifySearchActivity extends BaseActivity {
         searchResultList.setLayoutManager(linearLayoutManager);
 
         implementSearchTextListener();
-    }
-
-    private void doMySearch(String query) {
-        Log.d(TAG, String.format("Search query %s", query));
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_spotify_search, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                // User chose the "Settings" item, show the app settings UI...
-                Log.d(TAG, "Toolbar open settings hit");
-                return true;
-
-            case R.id.action_search:
-                // User chose the "Favorite" action, mark the current item
-                Log.d(TAG, "Toolbar search hit");
-                return true;
-
-            default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     private void implementSearchTextListener() {
@@ -102,7 +60,6 @@ public class SpotifySearchActivity extends BaseActivity {
         };
 
         searchInput.setOnEditorActionListener(searchListener);
-
         searchInput.addTextChangedListener(new TextWatcher() {
             // DO NOTHING
             @Override
@@ -147,6 +104,8 @@ public class SpotifySearchActivity extends BaseActivity {
                     }
                 } catch (IOException e) {
                     Log.e(TAG, String.format("Something went wrong %s", e.getMessage()));
+                } catch (NullPointerException e) {
+                    // Nothing has been found
                 }
                 return resultList;
             }

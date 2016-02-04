@@ -11,8 +11,6 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.changeActivity(SpotifySearchActivity.class);
-
         PreferencesHelper preferencesHelper = new PreferencesHelper(getApplicationContext());
         if(preferencesHelper.getUserApiToken() == null) {
             this.changeActivity(SignInActivity.class);

@@ -2,7 +2,6 @@ package com.soon.fm.spotify;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +42,6 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 String uri = getItem(layoutPosition).getUri();
                 String token = preferences.getUserApiToken();
                 new PerformAddTrack(preferences.getUserApiToken(), new Uri(uri)).execute();
-                Log.d(TAG, String.format("Clicked on %s %d", uri, token));
             }
         });
     }

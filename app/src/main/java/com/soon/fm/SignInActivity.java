@@ -73,7 +73,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
 
         PreferencesHelper preferences = new PreferencesHelper(getApplicationContext());
         preferences.saveUserApiToken(((AccessToken) obj).getAccessToken());
-        changeActivity(SpotifySearchActivity.class);
+        changeActivity(CurrentTrackActivity.class);
     }
 
     @Override

@@ -2,11 +2,12 @@
 
 <RelativeLayout
     android:id="@+id/custombar_wrapper"
+    style="@style/header"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="60dp"
     android:layout_gravity="center_vertical"
-    android:elevation="4dp">
+    >
 
     <RelativeLayout
         android:id="@+id/custombar_return_wrapper"
@@ -23,27 +24,20 @@
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_arrow_left"/>
+
     </RelativeLayout>
 
-    <android.support.design.widget.TextInputLayout
+    <EditText
+        android:id="@+id/custombar_text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginRight="60dp"
         android:layout_toRightOf="@+id/custombar_return_wrapper"
-        >
+        android:imeOptions="actionSearch"
+        android:singleLine="true">
 
-        <EditText
-            android:id="@+id/custombar_text"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:hint="Search"
-            android:imeOptions="actionSearch"
-            android:singleLine="true">
-
-            <requestFocus/>
-        </EditText>
-
-    </android.support.design.widget.TextInputLayout>
+        <requestFocus/>
+    </EditText>
 
     <RelativeLayout
         android:id="@+id/custombar_mic_wrapper"
@@ -60,7 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:background="#00000000"
             android:src="@drawable/ic_search"/>
     </RelativeLayout>
+
 </RelativeLayout>
