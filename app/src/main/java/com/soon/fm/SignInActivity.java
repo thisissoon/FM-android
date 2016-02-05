@@ -77,7 +77,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
     }
 
     @Override
-    public void onFailed() {
+    public void onFailed(Object object) {
         if (progress != null && progress.isShowing()) {
             progress.dismiss();
         }

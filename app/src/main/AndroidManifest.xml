@@ -26,12 +26,15 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <activity android:name=".SignInActivity"/>
+
         <activity
             android:name=".CurrentTrackActivity"
-            android:label="@string/title_activity_current_track"
             android:screenOrientation="portrait"/>
-        <activity android:name=".SignInActivity">
-        </activity>
+
+        <activity android:name=".SpotifySearchActivity"/>
+
     </application>
 
 </manifest>

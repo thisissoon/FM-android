@@ -1,11 +1,15 @@
 package com.soon.fm;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -16,16 +20,15 @@ import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.soon.fm.backend.BackendHelper;
+import com.soon.fm.backend.event.PerformPauseApiCall;
 import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.Player;
 import com.soon.fm.backend.model.field.Duration;
 import com.soon.fm.helper.PreferencesHelper;
-import com.soon.fm.player.PerformPauseApiCall;
 import com.soon.fm.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
 
@@ -128,6 +131,9 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         context = getApplicationContext();
 
         preferences = new PreferencesHelper(this);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
     }
 
     @Override
@@ -147,6 +153,25 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
                 Log.d(TAG, "Clicked on play button");
                 performMute();
                 break;
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_current_track, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_search:
+                Intent intent = new Intent(this, SpotifySearchActivity.class);
+                this.startActivity(intent);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -181,7 +206,6 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
             timer.cancel();
         }
         timer = new CountDownTimer(trackDuration.getMillis(), 1000) {
-
             int currentMilliseconds = 0;
 
             @Override
@@ -211,13 +235,10 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
         protected CurrentTrack doInBackground(Void... params) {
             try {
-                BackendHelper backend = new BackendHelper(Constants.FM_API.toString());
+                BackendHelper backend = new BackendHelper(Constants.FM_API);
                 return backend.getCurrentTrack();
-            } catch (MalformedURLException e) {
-                Log.wtf(TAG, e.getMessage());
             } catch (IOException e) {
-                // TODO device is offline do something reasonable
-                Log.wtf(TAG, e.getMessage());
+                e.printStackTrace();
             }
 
             return null;

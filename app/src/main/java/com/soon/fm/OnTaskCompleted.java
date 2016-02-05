@@ -2,7 +2,8 @@ package com.soon.fm;
 
 public interface OnTaskCompleted {
 
-    void onSuccess(Object accessToken);
+    void onSuccess(Object object);
 
-    void onFailed();
+    void onFailed(Object object);
+
 }
