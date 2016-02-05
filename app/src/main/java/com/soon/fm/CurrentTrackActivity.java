@@ -12,6 +12,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -25,6 +26,7 @@ import com.soon.fm.backend.BackendHelper;
 import com.soon.fm.backend.event.PerformChangeVolumeApiCall;
 import com.soon.fm.backend.event.PerformMuteApiCall;
 import com.soon.fm.backend.event.PerformPauseApiCall;
+import com.soon.fm.backend.event.PerformSkipTrack;
 import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.Player;
 import com.soon.fm.backend.model.field.Duration;
@@ -57,6 +59,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     private ImageView albumImage;
     private ToggleButton toggleMute;
     private ToggleButton togglePlay;
+    private ImageButton skipButton;
 
     private Boolean isMute = false;
     private Boolean isPlaying = true;
@@ -154,9 +157,11 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
         toggleMute = (ToggleButton) findViewById(R.id.toggle_mute_unmute);
         togglePlay = (ToggleButton) findViewById(R.id.toggle_pause_play);
+        skipButton = (ImageButton) findViewById(R.id.cnt_skip);
 
         toggleMute.setOnClickListener(this);
         togglePlay.setOnClickListener(this);
+        skipButton.setOnClickListener(this);
 
         mSocket.on(Constants.SocketEvents.END, onEndOfTrack);
         mSocket.on(Constants.SocketEvents.PLAY, onPlay);
@@ -207,13 +212,17 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
                 Log.d(TAG, "Clicked on play/pause toggle");
                 performPause((ToggleButton) v);
                 break;
+
+            case R.id.cnt_skip:
+                Log.d(TAG, "Clicked on skip");
+                performSkip();
+                break;
         }
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         String token = preferences.getUserApiToken();
-
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_VOLUME_UP:
@@ -258,6 +267,11 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     private void performMute(ToggleButton btn) {
         String token = preferences.getUserApiToken();
         new PerformMuteApiCall(token, btn.isChecked()).execute();
+    }
+
+    private void performSkip() {
+        String token = preferences.getUserApiToken();
+        new PerformSkipTrack(token).execute();
     }
 
     private void asyncUpdateView() {

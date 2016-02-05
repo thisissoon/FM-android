@@ -95,4 +95,7 @@ public class BackendHelper {
         return response.body().getVolume();
     }
 
+    public void skipTrack(String token) throws IOException {
+        Response<ResponseBody> response = service.skip(token).execute();
+    }
 }

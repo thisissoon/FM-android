@@ -28,6 +28,9 @@ public interface SoonFMService {
     @GET("player/current")
     Call<CurrentTrack> current();
 
+    @DELETE("player/current")
+    Call<ResponseBody> skip(@Header("Access-Token") String token);
+
     @POST("/oauth2/google/connect")
     Call<AccessToken> googleConnect(@Body GoogleToken token);
 
