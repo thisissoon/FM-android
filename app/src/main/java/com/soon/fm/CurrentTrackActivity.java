@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
@@ -48,6 +49,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     private TextView txtElapsedTime;
     private ImageView userImage;
     private ImageView albumImage;
+    private ToggleButton toggleMute;
 
     private Socket mSocket;
     private CountDownTimer timer;
@@ -121,7 +123,8 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
 //        findViewById(R.id.cnt_mute).setOnClickListener(this);
 
-        asyncUpdateView();
+        toggleMute = (ToggleButton) findViewById(R.id.toogle_mute_unmute);
+
         mSocket.on(Constants.SocketEvents.END, onEndOfTrack);
         mSocket.on(Constants.SocketEvents.PLAY, onPlay);
         mSocket.on(Constants.SocketEvents.PAUSE, onPause);
@@ -129,11 +132,13 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         mSocket.connect();
 
         context = getApplicationContext();
-
         preferences = new PreferencesHelper(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        asyncUpdateView();
+        asyncIsMuted();
     }
 
     @Override
@@ -191,6 +196,10 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         new FetchCurrent().execute();
     }
 
+    private void asyncIsMuted() {
+        new IsMuted().execute();
+    }
+
     private void updateCurrentTrack(final CurrentTrack currentTrack) {
         final Duration trackDuration = currentTrack.getTrack().getDuration();
 
@@ -231,6 +240,10 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         }.start();
     }
 
+    private void setMuteToggle(Boolean isMuted) {
+        toggleMute.setChecked(isMuted);
+    }
+
     private class FetchCurrent extends AsyncTask<Void, Void, com.soon.fm.backend.model.CurrentTrack> {
 
         protected CurrentTrack doInBackground(Void... params) {
@@ -250,5 +263,25 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
             }
         }
     }
+
+    private class IsMuted extends AsyncTask<Void, Void, Boolean> {
+
+        protected Boolean doInBackground(Void... params) {
+            BackendHelper backend = new BackendHelper(Constants.FM_API);
+            Boolean isMuted = false;
+            try {
+                isMuted = backend.isMuted();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return isMuted;
+        }
+
+        protected void onPostExecute(Boolean muted) {
+            setMuteToggle(muted);
+        }
+
+    }
+
 
 }

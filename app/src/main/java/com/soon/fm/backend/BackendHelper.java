@@ -5,6 +5,7 @@ import android.util.Log;
 import com.soon.fm.backend.model.AccessToken;
 import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.GoogleToken;
+import com.soon.fm.backend.model.Mute;
 import com.soon.fm.backend.model.QueueItem;
 import com.soon.fm.backend.model.Uri;
 import com.squareup.okhttp.ResponseBody;
@@ -61,4 +62,10 @@ public class BackendHelper {
         Response<ResponseBody> response = service.add(token, uri).execute();
         Log.d(TAG, String.format("[SFM api] %s", response.raw().message()));
     }
+
+    public boolean isMuted() throws IOException {
+        Response<Mute> response = service.isMuted().execute();
+        return response.body().isMuted();
+    }
+
 }

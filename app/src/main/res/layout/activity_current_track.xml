@@ -133,7 +133,7 @@
             >
 
             <ToggleButton
-                android:id="@+id/cnt_pause_play"
+                android:id="@+id/toggle_pause_play"
                 style="@style/control_button"
                 android:background="@drawable/toggle_av_pause_play"
                 android:textOff=""
@@ -148,7 +148,7 @@
                 />
 
             <ToggleButton
-                android:id="@+id/cnt_mute_unmute"
+                android:id="@+id/toogle_mute_unmute"
                 style="@style/control_button"
                 android:background="@drawable/toogle_av_mute_unmute"
                 android:textOff=""

@@ -3,6 +3,7 @@ package com.soon.fm.backend;
 import com.soon.fm.backend.model.AccessToken;
 import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.GoogleToken;
+import com.soon.fm.backend.model.Mute;
 import com.soon.fm.backend.model.QueueItem;
 import com.soon.fm.backend.model.Uri;
 import com.squareup.okhttp.ResponseBody;
@@ -36,6 +37,12 @@ public interface SoonFMService {
     @Headers("Content-Type: application/json; charset=utf-8")
     @DELETE("player/pause")
     Call<ResponseBody> play(@Header("Access-Token") String token);
+
+    @Headers("Content-Type: application/json; charset=utf-8")
+    @GET("player/mute")
+    Call<Mute> isMuted();
+
+
 
     @Headers("Content-Type: application/json; charset=utf-8")
     @POST("/player/queue")
