@@ -7,25 +7,21 @@ import com.soon.fm.backend.BackendHelper;
 
 import java.io.IOException;
 
-public class PerformPauseApiCall extends AsyncTask<Void, Void, Void> {
+public class PerformChangeVolumeApiCall extends AsyncTask<Void, Void, Void> {
 
     private final String token;
-    private final Boolean isChecked;
+    private final Integer volume;
 
-    public PerformPauseApiCall(String token, Boolean isChecked) {
+    public PerformChangeVolumeApiCall(String token, Integer volume) {
         this.token = token;
-        this.isChecked = isChecked;
+        this.volume = volume;
     }
 
     @Override
     protected Void doInBackground(Void... params) {
         BackendHelper backend = new BackendHelper(Constants.FM_API);
         try {
-            if (isChecked) {
-                backend.pause(token);
-            } else {
-                backend.play(token);
-            }
+            backend.setVolume(token, volume);
         } catch (IOException e) {
             e.printStackTrace();
         }

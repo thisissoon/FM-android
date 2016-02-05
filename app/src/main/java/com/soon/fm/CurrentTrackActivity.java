@@ -8,25 +8,34 @@ import android.os.CountDownTimer;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.soon.fm.backend.BackendHelper;
+import com.soon.fm.backend.event.PerformChangeVolumeApiCall;
+import com.soon.fm.backend.event.PerformMuteApiCall;
 import com.soon.fm.backend.event.PerformPauseApiCall;
+import com.soon.fm.backend.event.PerformSkipTrack;
 import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.Player;
 import com.soon.fm.backend.model.field.Duration;
 import com.soon.fm.helper.PreferencesHelper;
 import com.soon.fm.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -48,6 +57,13 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     private TextView txtElapsedTime;
     private ImageView userImage;
     private ImageView albumImage;
+    private ToggleButton toggleMute;
+    private ToggleButton togglePlay;
+    private ImageButton skipButton;
+
+    private Boolean isMute = false;
+    private Boolean isPlaying = true;
+    private Integer volume = 50;
 
     private Socket mSocket;
     private CountDownTimer timer;
@@ -56,42 +72,62 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     private Emitter.Listener onEndOfTrack = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            Log.i(TAG, "Track finished");
+            Log.i(TAG, "[Event listener] Track finished");
             timer.cancel();
         }
     };
     private Emitter.Listener onPause = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            Log.i(TAG, "Paused");
-            if (timer != null) {
-                try {
-                    synchronized (timer) {
-                        timer.wait();
-                    }
-                } catch (InterruptedException e) {
-                    Log.wtf(TAG, String.format("[Listener.onPause] %s", e.getMessage()));
+            Log.i(TAG, "[Event listener] Paused");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setPlayToggle(false);
                 }
-            }
+            });
         }
     };
     private Emitter.Listener onPlay = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            Log.i(TAG, "Playing");
+            Log.i(TAG, "[Event listener] Playing");
             asyncFetchCurrentTrack();
         }
     };
     private Emitter.Listener onResume = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            Log.i(TAG, "Resumed");
-            if (timer != null) {
-                timer.start();
+            Log.i(TAG, "[Event listener] Resumed");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setPlayToggle(true);
+                }
+            });
+        }
+    };
+    private Emitter.Listener onMute = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            Log.i(TAG, "[Event listener] Mute");
+            try {
+                JSONObject json = (JSONObject) args[0];
+                final boolean muted = json.getBoolean("mute");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setMuteToggle(muted);
+                    }
+                });
+            } catch (JSONException e) {
+                Log.e(TAG, String.format("[Event listener] invalid json %s", args[0]));
             }
         }
     };
+
     private Context context;
+    private Toast flash;
 
     {
         try {
@@ -104,7 +140,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (!isDeviceOnline()) {
-            Toast.makeText(getApplicationContext(), "Device is not online", Toast.LENGTH_LONG);
+            showFlash("Device is not online");
         }
 
         super.onCreate(savedInstanceState);
@@ -119,21 +155,30 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         userImage = (ImageView) findViewById(R.id.img_user);
         albumImage = (ImageView) findViewById(R.id.img_album);
 
-        findViewById(R.id.cnt_play).setOnClickListener(this);
+        toggleMute = (ToggleButton) findViewById(R.id.toggle_mute_unmute);
+        togglePlay = (ToggleButton) findViewById(R.id.toggle_pause_play);
+        skipButton = (ImageButton) findViewById(R.id.cnt_skip);
 
-        asyncUpdateView();
+        toggleMute.setOnClickListener(this);
+        togglePlay.setOnClickListener(this);
+        skipButton.setOnClickListener(this);
+
         mSocket.on(Constants.SocketEvents.END, onEndOfTrack);
         mSocket.on(Constants.SocketEvents.PLAY, onPlay);
         mSocket.on(Constants.SocketEvents.PAUSE, onPause);
         mSocket.on(Constants.SocketEvents.RESUME, onResume);
+        mSocket.on(Constants.SocketEvents.SET_MUTE, onMute);
         mSocket.connect();
 
         context = getApplicationContext();
-
         preferences = new PreferencesHelper(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        asyncUpdateView();
+        asyncIsMuted();
+        asyncGetCurrentVolume();
     }
 
     @Override
@@ -143,16 +188,55 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         mSocket.off(Constants.SocketEvents.PLAY, onPlay);
         mSocket.off(Constants.SocketEvents.PAUSE, onPause);
         mSocket.off(Constants.SocketEvents.RESUME, onResume);
+        mSocket.off(Constants.SocketEvents.SET_MUTE, onMute);
         mSocket.disconnect();
+    }
+
+    private void showFlash(String text) {
+        if (flash != null) {
+            flash.cancel();
+        }
+        flash = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
+        flash.show();
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.cnt_play:
-                Log.d(TAG, "Clicked on play button");
-                performMute();
+            case R.id.toggle_mute_unmute:
+                Log.d(TAG, "Clicked on mute/unmute toggle");
+                performMute((ToggleButton) v);
                 break;
+
+            case R.id.toggle_pause_play:
+                Log.d(TAG, "Clicked on play/pause toggle");
+                performPause((ToggleButton) v);
+                break;
+
+            case R.id.cnt_skip:
+                Log.d(TAG, "Clicked on skip");
+                performSkip();
+                break;
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        String token = preferences.getUserApiToken();
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_VOLUME_UP:
+                    volume = Math.min(volume + 5, 100);
+                    break;
+                case KeyEvent.KEYCODE_VOLUME_DOWN:
+                    volume = Math.max(volume - 5, 0);
+                    break;
+            }
+            new PerformChangeVolumeApiCall(token, volume).execute();
+            showFlash(String.format("Volume set to %d", volume));
+            return true;
+        } else {
+            return super.onKeyDown(keyCode, event);
         }
     }
 
@@ -175,12 +259,19 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         }
     }
 
-    private void performMute() {
+    private void performPause(ToggleButton btn) {
         String token = preferences.getUserApiToken();
-        Log.d(TAG, String.format("User token %s", token));
-        if (token != null) {
-            new PerformPauseApiCall(token).execute();
-        }
+        new PerformPauseApiCall(token, btn.isChecked()).execute();
+    }
+
+    private void performMute(ToggleButton btn) {
+        String token = preferences.getUserApiToken();
+        new PerformMuteApiCall(token, btn.isChecked()).execute();
+    }
+
+    private void performSkip() {
+        String token = preferences.getUserApiToken();
+        new PerformSkipTrack(token).execute();
     }
 
     private void asyncUpdateView() {
@@ -189,6 +280,14 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
     private void asyncFetchCurrentTrack() {
         new FetchCurrent().execute();
+    }
+
+    private void asyncIsMuted() {
+        new IsMuted().execute();
+    }
+
+    private void asyncGetCurrentVolume() {
+        new GetCurrentVolume().execute();
     }
 
     private void updateCurrentTrack(final CurrentTrack currentTrack) {
@@ -216,7 +315,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
                 if (currentMilliseconds == 0) {
                     currentMilliseconds = player.getElapsedTime();
                 }
-                if (currentMilliseconds <= trackDuration) {
+                if (isPlaying && currentMilliseconds <= trackDuration) {
                     currentMilliseconds += 1000;
                 }
                 double progress = (currentMilliseconds / (double) trackDuration) * 100.0;
@@ -229,6 +328,16 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
             }
         }.start();
+    }
+
+    private void setMuteToggle(Boolean state) {
+        isMute = state;
+        toggleMute.setChecked(isMute);
+    }
+
+    private void setPlayToggle(Boolean state) {
+        isPlaying = state;
+        togglePlay.setChecked(!isPlaying);
     }
 
     private class FetchCurrent extends AsyncTask<Void, Void, com.soon.fm.backend.model.CurrentTrack> {
@@ -248,6 +357,38 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
             if (currentTrack != null) {
                 updateCurrentTrack(currentTrack);
             }
+        }
+    }
+
+    private class IsMuted extends AsyncTask<Void, Void, Boolean> {
+
+        protected Boolean doInBackground(Void... params) {
+            BackendHelper backend = new BackendHelper(Constants.FM_API);
+            Boolean isMuted = false;
+            try {
+                isMuted = backend.isMuted();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return isMuted;
+        }
+
+        protected void onPostExecute(Boolean muted) {
+            setMuteToggle(muted);
+        }
+
+    }
+
+    private class GetCurrentVolume extends AsyncTask<Void, Void, Void> {
+
+        protected Void doInBackground(Void... params) {
+            BackendHelper backend = new BackendHelper(Constants.FM_API);
+            try {
+                volume = backend.getVolume();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
         }
     }
 

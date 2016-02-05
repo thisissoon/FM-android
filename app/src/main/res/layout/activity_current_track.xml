@@ -30,7 +30,7 @@
         android:id="@+id/footer"
         style="@style/footer"
         android:layout_width="match_parent"
-        android:layout_height="139dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:orientation="vertical"
         >
@@ -127,28 +127,32 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="65dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="horizontal"
             >
 
-            <Button
-                android:id="@+id/cnt_play"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Play"/>
+            <ToggleButton
+                android:id="@+id/toggle_pause_play"
+                style="@style/control_button"
+                android:background="@drawable/toggle_av_pause_play"
+                android:textOff=""
+                android:textOn=""/>
 
-            <Button
+            <ImageButton
                 android:id="@+id/cnt_skip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Skip"/>
+                style="@style/control_button"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_av_skip"
+                />
 
-            <Button
-                android:id="@+id/cnt_mute"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Mute"/>
+            <ToggleButton
+                android:id="@+id/toggle_mute_unmute"
+                style="@style/control_button"
+                android:background="@drawable/toggle_av_mute_unmute"
+                android:textOff=""
+                android:textOn=""/>
 
         </LinearLayout>
 

@@ -7,12 +7,12 @@ import com.soon.fm.backend.BackendHelper;
 
 import java.io.IOException;
 
-public class PerformPauseApiCall extends AsyncTask<Void, Void, Void> {
+public class PerformMuteApiCall extends AsyncTask<Void, Void, Void> {
 
     private final String token;
     private final Boolean isChecked;
 
-    public PerformPauseApiCall(String token, Boolean isChecked) {
+    public PerformMuteApiCall(String token, Boolean isChecked) {
         this.token = token;
         this.isChecked = isChecked;
     }
@@ -22,13 +22,14 @@ public class PerformPauseApiCall extends AsyncTask<Void, Void, Void> {
         BackendHelper backend = new BackendHelper(Constants.FM_API);
         try {
             if (isChecked) {
-                backend.pause(token);
+                backend.mute(token);
             } else {
-                backend.play(token);
+                backend.unmute(token);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return null;
     }
 }
