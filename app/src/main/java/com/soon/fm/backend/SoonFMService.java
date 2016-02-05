@@ -6,6 +6,7 @@ import com.soon.fm.backend.model.GoogleToken;
 import com.soon.fm.backend.model.Mute;
 import com.soon.fm.backend.model.QueueItem;
 import com.soon.fm.backend.model.Uri;
+import com.soon.fm.backend.model.Volume;
 import com.squareup.okhttp.ResponseBody;
 
 import java.util.List;
@@ -56,5 +57,13 @@ public interface SoonFMService {
 
     @DELETE("player/queue/{uid}")
     Call<ResponseBody> delete(@Header("Access-Token") String token, @Path("uid") String uid);
+
+    @Headers("Content-Type: application/json; charset=utf-8")
+    @GET("player/volume")
+    Call<Volume> getVolume();
+
+    @Headers("Content-Type: application/json; charset=utf-8")
+    @POST("player/volume")
+    Call<Volume> setVolume(@Header("Access-Token") String token, @Body Volume volume);
 
 }

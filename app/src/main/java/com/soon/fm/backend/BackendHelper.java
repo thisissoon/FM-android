@@ -8,6 +8,7 @@ import com.soon.fm.backend.model.GoogleToken;
 import com.soon.fm.backend.model.Mute;
 import com.soon.fm.backend.model.QueueItem;
 import com.soon.fm.backend.model.Uri;
+import com.soon.fm.backend.model.Volume;
 import com.squareup.okhttp.ResponseBody;
 
 import java.io.IOException;
@@ -82,6 +83,16 @@ public class BackendHelper {
     public Boolean unmute(String token) throws IOException {
         Response<Mute> response = service.unmute(token).execute();
         return response.body().isMuted();
+    }
+
+    public Integer getVolume() throws IOException {
+        Response<Volume> response = service.getVolume().execute();
+        return response.body().getVolume();
+    }
+
+    public Integer setVolume(String token, Integer volume) throws IOException {
+        Response<Volume> response = service.setVolume(token, new Volume(volume)).execute();
+        return response.body().getVolume();
     }
 
 }

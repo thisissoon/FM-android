@@ -8,6 +8,7 @@ import android.os.CountDownTimer;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +22,7 @@ import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.soon.fm.backend.BackendHelper;
+import com.soon.fm.backend.event.PerformChangeVolumeApiCall;
 import com.soon.fm.backend.event.PerformMuteApiCall;
 import com.soon.fm.backend.event.PerformPauseApiCall;
 import com.soon.fm.backend.model.CurrentTrack;
@@ -58,6 +60,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
     private Boolean isMute = false;
     private Boolean isPlaying = true;
+    private Integer volume = 50;
 
     private Socket mSocket;
     private CountDownTimer timer;
@@ -82,7 +85,6 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
             });
         }
     };
-
     private Emitter.Listener onPlay = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -122,6 +124,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     };
 
     private Context context;
+    private Toast flash;
 
     {
         try {
@@ -134,7 +137,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (!isDeviceOnline()) {
-            Toast.makeText(getApplicationContext(), "Device is not online", Toast.LENGTH_LONG);
+            showFlash("Device is not online");
         }
 
         super.onCreate(savedInstanceState);
@@ -170,6 +173,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
         asyncUpdateView();
         asyncIsMuted();
+        asyncGetCurrentVolume();
     }
 
     @Override
@@ -181,6 +185,14 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         mSocket.off(Constants.SocketEvents.RESUME, onResume);
         mSocket.off(Constants.SocketEvents.SET_MUTE, onMute);
         mSocket.disconnect();
+    }
+
+    private void showFlash(String text) {
+        if (flash != null) {
+            flash.cancel();
+        }
+        flash = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
+        flash.show();
     }
 
     @Override
@@ -195,6 +207,27 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
                 Log.d(TAG, "Clicked on play/pause toggle");
                 performPause((ToggleButton) v);
                 break;
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        String token = preferences.getUserApiToken();
+
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_VOLUME_UP:
+                    volume = Math.min(volume + 5, 100);
+                    break;
+                case KeyEvent.KEYCODE_VOLUME_DOWN:
+                    volume = Math.max(volume - 5, 0);
+                    break;
+            }
+            new PerformChangeVolumeApiCall(token, volume).execute();
+            showFlash(String.format("Volume set to %d", volume));
+            return true;
+        } else {
+            return super.onKeyDown(keyCode, event);
         }
     }
 
@@ -237,6 +270,10 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
     private void asyncIsMuted() {
         new IsMuted().execute();
+    }
+
+    private void asyncGetCurrentVolume() {
+        new GetCurrentVolume().execute();
     }
 
     private void updateCurrentTrack(final CurrentTrack currentTrack) {
@@ -326,6 +363,19 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
             setMuteToggle(muted);
         }
 
+    }
+
+    private class GetCurrentVolume extends AsyncTask<Void, Void, Void> {
+
+        protected Void doInBackground(Void... params) {
+            BackendHelper backend = new BackendHelper(Constants.FM_API);
+            try {
+                volume = backend.getVolume();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
     }
 
 }
