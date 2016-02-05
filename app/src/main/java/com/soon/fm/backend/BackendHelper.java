@@ -23,6 +23,7 @@ public class BackendHelper {
 
     private final SoonFMService service;
     private final Retrofit retrofit;
+    private boolean playing;
 
     public BackendHelper(String backendUrl) {
         retrofit = new Retrofit.Builder()
@@ -58,13 +59,28 @@ public class BackendHelper {
         Log.d(TAG, String.format("[SFM api] %s", response.raw().message()));
     }
 
+    public void play(String authToken) throws IOException {
+        Response<ResponseBody> response = service.play(authToken).execute();
+        Log.d(TAG, String.format("[SFM api] %s", response.raw().message()));
+    }
+
     public void addTrack(String token, Uri uri) throws IOException {
         Response<ResponseBody> response = service.add(token, uri).execute();
         Log.d(TAG, String.format("[SFM api] %s", response.raw().message()));
     }
 
-    public boolean isMuted() throws IOException {
+    public Boolean isMuted() throws IOException {
         Response<Mute> response = service.isMuted().execute();
+        return response.body().isMuted();
+    }
+
+    public Boolean mute(String token) throws IOException {
+        Response<Mute> response = service.mute(token).execute();
+        return response.body().isMuted();
+    }
+
+    public Boolean unmute(String token) throws IOException {
+        Response<Mute> response = service.unmute(token).execute();
         return response.body().isMuted();
     }
 

@@ -7,9 +7,9 @@ public class Mute {
 
     @SerializedName("mute")
     @Expose
-    private boolean mute;
+    private Boolean mute;
 
-    public boolean isMuted() {
+    public Boolean isMuted() {
         return mute;
     }
 }

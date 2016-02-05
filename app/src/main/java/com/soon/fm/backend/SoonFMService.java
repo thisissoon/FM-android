@@ -42,7 +42,13 @@ public interface SoonFMService {
     @GET("player/mute")
     Call<Mute> isMuted();
 
+    @Headers("Content-Type: application/json; charset=utf-8")
+    @POST("player/mute")
+    Call<Mute> mute(@Header("Access-Token") String token);
 
+    @Headers("Content-Type: application/json; charset=utf-8")
+    @DELETE("player/mute")
+    Call<Mute> unmute(@Header("Access-Token") String token);
 
     @Headers("Content-Type: application/json; charset=utf-8")
     @POST("/player/queue")

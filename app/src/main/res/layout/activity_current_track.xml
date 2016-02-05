@@ -148,9 +148,9 @@
                 />
 
             <ToggleButton
-                android:id="@+id/toogle_mute_unmute"
+                android:id="@+id/toggle_mute_unmute"
                 style="@style/control_button"
-                android:background="@drawable/toogle_av_mute_unmute"
+                android:background="@drawable/toggle_av_mute_unmute"
                 android:textOff=""
                 android:textOn=""/>
 

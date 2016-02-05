@@ -13,9 +13,7 @@ public class Constants {
         public static final String PAUSE = "fm:player:pause";
         public static final String RESUME = "fm:player:resume";
         public static final String ADD = "fm:player:add";
-        public static final String SETMUTE = "fm:player:setMute";
-        public static final String SETVOLUME = "fm:player:setVolume";
-
+        public static final String SET_MUTE = "fm:player:setMute";
     }
 
 }
