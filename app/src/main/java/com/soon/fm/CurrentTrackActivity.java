@@ -119,7 +119,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         userImage = (ImageView) findViewById(R.id.img_user);
         albumImage = (ImageView) findViewById(R.id.img_album);
 
-        findViewById(R.id.cnt_play).setOnClickListener(this);
+//        findViewById(R.id.cnt_mute).setOnClickListener(this);
 
         asyncUpdateView();
         mSocket.on(Constants.SocketEvents.END, onEndOfTrack);
@@ -148,12 +148,12 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.cnt_play:
-                Log.d(TAG, "Clicked on play button");
-                performMute();
-                break;
-        }
+//        switch (v.getId()) {
+//            case R.id.cnt_mute:
+//                Log.d(TAG, "Clicked on mute button");
+//                performMute();
+//                break;
+//        }
     }
 
     @Override

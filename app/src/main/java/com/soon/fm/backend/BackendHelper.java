@@ -54,11 +54,7 @@ public class BackendHelper {
 
     public void pause(String authToken) throws IOException {
         Response<ResponseBody> response = service.pause(authToken).execute();
-        if(response.code() != 200 || response.code() != 201){
-            Log.e(TAG, String.format("[SFM api] %s", response.errorBody().string()));
-        } else {
-            Log.d(TAG, String.format("[SFM api] %s", response.raw().message()));
-        }
+        Log.d(TAG, String.format("[SFM api] %s", response.raw().message()));
     }
 
     public void addTrack(String token, Uri uri) throws IOException {
