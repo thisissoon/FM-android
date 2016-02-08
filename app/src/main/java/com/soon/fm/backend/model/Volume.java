@@ -16,4 +16,5 @@ public class Volume {
     public Integer getVolume() {
         return volume;
     }
+
 }

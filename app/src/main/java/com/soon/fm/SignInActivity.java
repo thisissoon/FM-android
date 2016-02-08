@@ -35,13 +35,12 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
 
         String serverClientId = getString(R.string.server_client_id);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestServerAuthCode(serverClientId, false).requestEmail().build();
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this, new GoogleApiClient.OnConnectionFailedListener() {
-                    @Override
-                    public void onConnectionFailed(ConnectionResult connectionResult) {
-                        Log.d(TAG, "[Google::onConnectionFailed] " + connectionResult.isSuccess());
-                    }
-                }).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
+        mGoogleApiClient = new GoogleApiClient.Builder(this).enableAutoManage(this, new GoogleApiClient.OnConnectionFailedListener() {
+            @Override
+            public void onConnectionFailed(ConnectionResult connectionResult) {
+                Log.d(TAG, "[Google::onConnectionFailed] " + connectionResult.isSuccess());
+            }
+        }).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
     }
 
     @Override

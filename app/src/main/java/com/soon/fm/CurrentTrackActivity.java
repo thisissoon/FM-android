@@ -129,14 +129,6 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     private Context context;
     private Toast flash;
 
-    {
-        try {
-            mSocket = IO.socket(Constants.SOCKET);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (!isDeviceOnline()) {
@@ -163,11 +155,17 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         togglePlay.setOnClickListener(this);
         skipButton.setOnClickListener(this);
 
-        mSocket.on(Constants.SocketEvents.END, onEndOfTrack);
-        mSocket.on(Constants.SocketEvents.PLAY, onPlay);
-        mSocket.on(Constants.SocketEvents.PAUSE, onPause);
-        mSocket.on(Constants.SocketEvents.RESUME, onResume);
-        mSocket.on(Constants.SocketEvents.SET_MUTE, onMute);
+        try {
+            mSocket = IO.socket(getString(R.string.socket));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+
+        mSocket.on(getString(R.string.socket_events_end), onEndOfTrack);
+        mSocket.on(getString(R.string.socket_events_play), onPlay);
+        mSocket.on(getString(R.string.socket_events_pause), onPause);
+        mSocket.on(getString(R.string.socket_events_resume), onResume);
+        mSocket.on(getString(R.string.socket_events_set_mute), onMute);
         mSocket.connect();
 
         context = getApplicationContext();
@@ -184,11 +182,11 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mSocket.off(Constants.SocketEvents.END, onEndOfTrack);
-        mSocket.off(Constants.SocketEvents.PLAY, onPlay);
-        mSocket.off(Constants.SocketEvents.PAUSE, onPause);
-        mSocket.off(Constants.SocketEvents.RESUME, onResume);
-        mSocket.off(Constants.SocketEvents.SET_MUTE, onMute);
+        mSocket.off(getString(R.string.socket_events_end), onEndOfTrack);
+        mSocket.off(getString(R.string.socket_events_play), onPlay);
+        mSocket.off(getString(R.string.socket_events_pause), onPause);
+        mSocket.off(getString(R.string.socket_events_resume), onResume);
+        mSocket.off(getString(R.string.socket_events_set_mute), onMute);
         mSocket.disconnect();
     }
 

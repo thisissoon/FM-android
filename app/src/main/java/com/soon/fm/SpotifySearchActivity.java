@@ -29,7 +29,6 @@ public class SpotifySearchActivity extends BaseActivity {
     private EditText searchInput;
     private RecyclerView searchResultList;
     private Context context;
-    private ImageView custom_bar_return;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +37,6 @@ public class SpotifySearchActivity extends BaseActivity {
 
         searchInput = (EditText) this.findViewById(R.id.custom_bar_text);
         context = getApplicationContext();
-        custom_bar_return = (ImageView) this.findViewById(R.id.custom_bar_return);
 
         this.searchResultList = (RecyclerView) this.findViewById(R.id.cs_result_list);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -46,6 +44,7 @@ public class SpotifySearchActivity extends BaseActivity {
 
         implementSearchTextListener();
 
+        ImageView custom_bar_return = (ImageView) this.findViewById(R.id.custom_bar_return);
         custom_bar_return.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

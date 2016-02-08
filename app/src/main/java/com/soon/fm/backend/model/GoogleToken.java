@@ -7,7 +7,7 @@ public class GoogleToken {
 
     @Expose
     @SerializedName("code")
-    String token;
+    private String token;
 
     public GoogleToken(String token) {
         this.token = token;

@@ -13,10 +13,9 @@ public class SpotifyHelper {
 
     private static final String SPOTIFY_API_URL = "https://api.spotify.com/";
     private final SpotifyService service;
-    private final Retrofit retrofit;
 
     public SpotifyHelper() {
-        retrofit = new Retrofit.Builder().baseUrl(SPOTIFY_API_URL).addConverterFactory(GsonConverterFactory.create()).build();
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(SPOTIFY_API_URL).addConverterFactory(GsonConverterFactory.create()).build();
         service = retrofit.create(SpotifyService.class);
     }
 

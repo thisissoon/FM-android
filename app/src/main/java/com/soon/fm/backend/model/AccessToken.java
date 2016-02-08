@@ -7,7 +7,7 @@ public class AccessToken {
 
     @Expose
     @SerializedName("access_token")
-    String accessToken;
+    private String accessToken;
 
     public String getAccessToken() {
         return accessToken;

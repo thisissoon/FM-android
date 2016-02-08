@@ -1,18 +1,18 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
         android:width="76dp"
         android:height="38dp"
-        android:viewportWidth="76.6"
-        android:viewportHeight="38.2">
+        android:viewportHeight="38.2"
+        android:viewportWidth="76.6">
     <path
-        android:pathData="M11.6,9.8h4v-2c0,-4.3 -3.5,-7.8 -7.8,-7.8C3.5,0 0,3.5 0,7.8v1.1c0,2.5 1.3,4.7 3.2,6l0,0l6.8,4.7c0.9,0.7 1.5,1.7 1.5,2.9l0,0v0.8c0,0 0,0.1 0,0.1c0,2.1 -1.7,3.8 -3.8,3.8c-2.1,0 -3.8,-1.7 -3.8,-3.8v-2.2H0v2.2c0,4.3 3.5,7.8 7.8,7.8c4.3,0 7.8,-3.5 7.8,-7.8v-1h0c0,0 0,-0.1 0,-0.1c0,-2.5 -1.2,-4.6 -3.1,-5.9l0,0l-6.7,-4.6l0,0C4.7,11.1 4,9.9 4,8.5c0,0 0,-0.1 0,-0.1l0,0V7.8C4,5.7 5.7,4 7.8,4c2.1,0 3.8,1.7 3.8,3.8c0,0 0,0.1 0,0.1V9.8z"
-        android:fillColor="#FFFFFF"/>
+        android:fillColor="#FFFFFF"
+        android:pathData="M11.6,9.8h4v-2c0,-4.3 -3.5,-7.8 -7.8,-7.8C3.5,0 0,3.5 0,7.8v1.1c0,2.5 1.3,4.7 3.2,6l0,0l6.8,4.7c0.9,0.7 1.5,1.7 1.5,2.9l0,0v0.8c0,0 0,0.1 0,0.1c0,2.1 -1.7,3.8 -3.8,3.8c-2.1,0 -3.8,-1.7 -3.8,-3.8v-2.2H0v2.2c0,4.3 3.5,7.8 7.8,7.8c4.3,0 7.8,-3.5 7.8,-7.8v-1h0c0,0 0,-0.1 0,-0.1c0,-2.5 -1.2,-4.6 -3.1,-5.9l0,0l-6.7,-4.6l0,0C4.7,11.1 4,9.9 4,8.5c0,0 0,-0.1 0,-0.1l0,0V7.8C4,5.7 5.7,4 7.8,4c2.1,0 3.8,1.7 3.8,3.8c0,0 0,0.1 0,0.1V9.8z"/>
     <path
-        android:pathData="M57,34.3h19.7v4h-19.7z"
-        android:fillColor="#FFFFFF"/>
+        android:fillColor="#FFFFFF"
+        android:pathData="M57,34.3h19.7v4h-19.7z"/>
     <path
-        android:pathData="M18.6,0.8h15.6v4H22.5l0,9h7.6v4h-7.6v12.6h-4V0.8z"
-        android:fillColor="#FFFFFF"/>
+        android:fillColor="#FFFFFF"
+        android:pathData="M18.6,0.8h15.6v4H22.5l0,9h7.6v4h-7.6v12.6h-4V0.8z"/>
     <path
-        android:pathData="M37.3,0.8h4.1l3.7,15.6h0.1l3.8,-15.6h4v29.5h-4l0,-17.9l0,2.8L46.1,25H44l-2.7,-9.9v-2.8v17.9h-4V0.8z"
-        android:fillColor="#FFFFFF"/>
+        android:fillColor="#FFFFFF"
+        android:pathData="M37.3,0.8h4.1l3.7,15.6h0.1l3.8,-15.6h4v29.5h-4l0,-17.9l0,2.8L46.1,25H44l-2.7,-9.9v-2.8v17.9h-4V0.8z"/>
 </vector>
