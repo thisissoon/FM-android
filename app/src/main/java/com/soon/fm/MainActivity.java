@@ -12,7 +12,7 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         PreferencesHelper preferencesHelper = new PreferencesHelper(getApplicationContext());
-        if(preferencesHelper.getUserApiToken() == null) {
+        if (preferencesHelper.getUserApiToken() == null) {
             this.changeActivity(SignInActivity.class);
         } else {
             this.changeActivity(CurrentTrackActivity.class);

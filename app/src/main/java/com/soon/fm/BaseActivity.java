@@ -13,6 +13,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
+
     }
 
     protected void changeActivity(Class<? extends Activity> activity) {

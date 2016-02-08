@@ -23,14 +23,9 @@ public class BackendHelper {
     private static final String TAG = "BackendHelper";
 
     private final SoonFMService service;
-    private final Retrofit retrofit;
-    private boolean playing;
 
     public BackendHelper(String backendUrl) {
-        retrofit = new Retrofit.Builder()
-                .baseUrl(backendUrl)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(backendUrl).addConverterFactory(GsonConverterFactory.create()).build();
         service = retrofit.create(SoonFMService.class);
     }
 
@@ -47,7 +42,7 @@ public class BackendHelper {
     public AccessToken getAccessToken(String googleAccessToken) throws IOException {
         Response<AccessToken> response = service.googleConnect(new GoogleToken(googleAccessToken)).execute();
 
-        if(response.code() != 200){
+        if (response.code() != 200) {
             Log.e(TAG, String.format("[SFM api] %s", response.errorBody().string()));
         } else {
             Log.d(TAG, String.format("[SFM api] %s", response.raw().message()));

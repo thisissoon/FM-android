@@ -35,7 +35,6 @@ public class QueueFragment extends Fragment {
 
     private static final String TAG = "QueueFragment";
     private final Socket mSocket;
-    private AbsListView mListView;
     private QueueAdapter mAdapter;
     private Emitter.Listener onQueueChange = new Emitter.Listener() {
         @Override
@@ -64,8 +63,8 @@ public class QueueFragment extends Fragment {
         mAdapter = new QueueAdapter(getActivity(), new ArrayList<QueueItem>());
         asyncUpdate();
 
-        mSocket.on(Constants.SocketEvents.ADD, onQueueChange);
-        mSocket.on(Constants.SocketEvents.PLAY, onQueueChange);
+        mSocket.on(getString(R.string.socket_events_add), onQueueChange);
+        mSocket.on(getString(R.string.socket_events_play), onQueueChange);
         mSocket.connect();
 
         context = getActivity().getApplicationContext();
@@ -76,17 +75,16 @@ public class QueueFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_queue, container, false);
 
         // Set the adapter
-        mListView = (AbsListView) view.findViewById(android.R.id.list);
+        AbsListView mListView = (AbsListView) view.findViewById(android.R.id.list);
         mListView.setAdapter(mAdapter);
-
         return view;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mSocket.off(Constants.SocketEvents.ADD, onQueueChange);
-        mSocket.off(Constants.SocketEvents.PLAY, onQueueChange);
+        mSocket.off(getString(R.string.socket_events_add), onQueueChange);
+        mSocket.off(getString(R.string.socket_events_play), onQueueChange);
         mSocket.disconnect();
     }
 
