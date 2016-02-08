@@ -31,7 +31,6 @@
 
     <style name="secondaryText" parent="singleLineText">
         <item name="android:textColor">@color/secondaryText</item>
-
     </style>
 
     <style name="control">

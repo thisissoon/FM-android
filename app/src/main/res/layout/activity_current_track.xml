@@ -85,12 +85,12 @@
             <ImageView
                 android:id="@+id/img_user"
                 style="@style/user_avatar"
-                android:src="@drawable/person"/>
+                android:src="@drawable/ic_person"/>
 
             <ImageView
                 android:id="@+id/img_album"
                 style="@style/album_icon"
-                android:src="@drawable/album"
+                android:src="@drawable/ic_album"
                 />
 
             <LinearLayout
