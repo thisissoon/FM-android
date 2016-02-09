@@ -3,8 +3,8 @@
 
     <color name="progressBar">#fffd00</color>
     <color name="text">#ffffff</color>
-    <color name="foreground">#000000</color>
-    <color name="secondaryForeground">#1A1A1A</color>
+    <color name="foreground">#1a1a1a</color>
+    <color name="secondaryForeground">#000000</color>
     <color name="secondaryText">#777777</color>
 
     <style name="AppTheme" parent="@style/Theme.AppCompat.NoActionBar">

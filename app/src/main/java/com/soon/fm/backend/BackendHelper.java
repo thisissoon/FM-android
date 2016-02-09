@@ -61,8 +61,11 @@ public class BackendHelper {
     }
 
     public void addTrack(String token, Uri uri) throws IOException {
-        Response<ResponseBody> response = service.add(token, uri).execute();
-        Log.d(TAG, String.format("[SFM api] %s", response.raw().message()));
+        service.add(token, uri).execute();
+    }
+
+    public void deleteTrack(String token, QueueItem item) throws IOException {
+        service.delete(token, item.getUuid()).execute();
     }
 
     public Boolean isMuted() throws IOException {

@@ -20,6 +20,7 @@ android {
         resValue "string", "socket_events_pause", "fm:player:pause"
         resValue "string", "socket_events_resume", "fm:player:resume"
         resValue "string", "socket_events_add", "fm:player:add"
+        resValue "string", "socket_events_delete", "fm:player:deleted"
         resValue "string", "socket_events_set_mute", "fm:player:setmute"
     }
 

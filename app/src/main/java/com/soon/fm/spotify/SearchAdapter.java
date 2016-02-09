@@ -114,7 +114,6 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             super(v);
 
             mListener = listener;
-
             title = (TextView) v.findViewById(R.id.item_title);
             subtitle = (TextView) v.findViewById(R.id.item_subtitle);
             image = (ImageView) v.findViewById(R.id.item_image);
@@ -130,7 +129,6 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public void onClick(View v) {
             mListener.onRow(v, this.getLayoutPosition());
         }
-
 
     }
 
