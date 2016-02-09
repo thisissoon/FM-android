@@ -291,6 +291,7 @@ public class QueueFragment extends Fragment {
 
                     case MotionEvent.ACTION_CANCEL:
                         holder.deleteView.setVisibility(View.VISIBLE);
+                        swipeBack(v);
                         return false;
                 }
 
