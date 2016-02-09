@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="progressBar">#fffd00</color>
+    <color name="text">#ffffff</color>
+    <color name="foreground">#000000</color>
+    <color name="secondaryForeground">#1A1A1A</color>
+    <color name="secondaryText">#777777</color>
+
+    <style name="AppTheme">
+        <item name="android:colorForeground">@color/foreground</item>
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="header" parent="AppTheme">
+        <item name="android:background">@color/secondaryForeground</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:paddingTop">5dp</item>
+    </style>
+
+    <style name="footer" parent="AppTheme">
+        <item name="android:background">@color/secondaryForeground</item>
+    </style>
+
+    <style name="singleLineText">
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="secondaryText" parent="singleLineText">
+        <item name="android:textColor">@color/secondaryText</item>
+
+    </style>
+
+    <style name="control">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:textColor">@color/secondaryText</item>
+        <item name="android:textSize">32dp</item>
+    </style>
+
+    <style name="user_avatar">
+        <item name="android:layout_width">30dp</item>
+        <item name="android:layout_height">30dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginRight">10dp</item>
+    </style>
+
+    <style name="album_icon">
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_marginRight">10dp</item>
+    </style>
+
+    <style name="control_button">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:background">@color/secondaryForeground</item>
+        <item name="android:layout_margin">10dp</item>
+    </style>
+
+</resources>
