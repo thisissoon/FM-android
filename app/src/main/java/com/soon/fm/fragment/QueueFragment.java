@@ -1,5 +1,6 @@
 package com.soon.fm.fragment;
 
+import android.animation.ValueAnimator;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -7,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -119,8 +121,6 @@ public class QueueFragment extends Fragment {
         Animation.AnimationListener al = new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-                v.setVisibility(View.GONE);
-                Log.d(TAG, "Animation done");
             }
 
             @Override
@@ -157,8 +157,6 @@ public class QueueFragment extends Fragment {
                     v.getLayoutParams().height = initialHeight - (int) (initialHeight * interpolatedTime);
                     v.requestLayout();
                 }
-
-                Log.d(TAG, "applyTransformation");
             }
         };
 
@@ -280,7 +278,7 @@ public class QueueFragment extends Fragment {
                         if (Math.abs(deltaX) > ACTION_DISTANCE && deltaX > 0) {
                             swipeRemove(v);
                         } else {
-                            swipe(0);
+                            swipeBack(v);
                         }
 
                         if (mListView != null) {
@@ -307,8 +305,25 @@ public class QueueFragment extends Fragment {
                 animationView.setLayoutParams(params);
             }
 
+            private void swipeBack(final View v) {
+                View animationView = holder.mainView;
+                final RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) animationView.getLayoutParams();
+                ValueAnimator animator = ValueAnimator.ofInt(params.leftMargin, 0);
+                animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                        params.leftMargin = (Integer) valueAnimator.getAnimatedValue();
+                        params.rightMargin = -(Integer) valueAnimator.getAnimatedValue();
+                        v.requestLayout();
+                    }
+                });
+                animator.setDuration(300);
+                animator.start();
+            }
+
             private void swipeRemove(final View v) {
-                holder.mainView.animate().translationX(1000).setDuration(200).withEndAction(new Runnable() {
+                DisplayMetrics metrics = getResources().getDisplayMetrics();
+                holder.mainView.animate().translationX(metrics.widthPixels).setDuration(200).withEndAction(new Runnable() {
                     @Override
                     public void run() {
                         deleteCell(v, holder);
@@ -318,13 +333,13 @@ public class QueueFragment extends Fragment {
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
-            public QueueItem qi;
             public final TextView trackName;
             public final TextView artistName;
             public final ImageView userAvatar;
             public final ImageView albumImage;
             public final RelativeLayout mainView;
             public final RelativeLayout deleteView;
+            public QueueItem qi;
 
             public ViewHolder(View v) {
                 super(v);
