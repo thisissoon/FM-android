@@ -37,7 +37,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        final View view = inflater.inflate(R.layout.custom_searchable_row_details, parent, false);
+        final View view = inflater.inflate(R.layout.spotify_row_details, parent, false);
         this.view = view;
         return new ViewHolder(view, new ViewHolder.SearchResultHolderClicks() {
             public void onRow(View caller, int layoutPosition) {

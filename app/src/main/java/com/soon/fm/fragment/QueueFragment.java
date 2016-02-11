@@ -243,6 +243,10 @@ public class QueueFragment extends Fragment {
                     case MotionEvent.ACTION_MOVE: {
                         upX = event.getX();
                         float deltaX = downX - upX;
+                        if (Math.abs(deltaX) < MIN_LOCK_DISTANCE) {
+                            return true;
+                        }
+
                         // if a finger accidentally swiped the item in vertical direction, the
                         // ListView would intercept that touch event and take control of it - onTouchListener would give ACTION_CANCEL
                         if (Math.abs(deltaX) > MIN_LOCK_DISTANCE && mListView != null && !motionInterceptDisallowed) {
@@ -255,7 +259,7 @@ public class QueueFragment extends Fragment {
                         } else {
                             holder.deleteView.setVisibility(View.VISIBLE);
                         }
-                        swipe(Math.max(-(int) deltaX, 0));
+                        swipe(Math.max(-(int) deltaX - MIN_LOCK_DISTANCE, 0));
                         return true;
                     }
 

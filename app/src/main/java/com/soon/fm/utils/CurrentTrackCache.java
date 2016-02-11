@@ -1,4 +1,4 @@
-package com.soon.fm;
+package com.soon.fm.utils;
 
 import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.QueueItem;
@@ -6,6 +6,8 @@ import com.soon.fm.backend.model.QueueItem;
 import java.util.List;
 
 public class CurrentTrackCache {
+
+    private static int bitmask = 0x0000;
 
     private static CurrentTrack currentTrack = null;
 
@@ -23,6 +25,7 @@ public class CurrentTrackCache {
     }
 
     public static void setCurrentTrack(CurrentTrack currentTrack) {
+        bitmask |= 0x0001;
         CurrentTrackCache.currentTrack = currentTrack;
     }
 
@@ -31,6 +34,7 @@ public class CurrentTrackCache {
     }
 
     public static void setIsMuted(Boolean isMuted) {
+        bitmask |= 0x0010;
         CurrentTrackCache.isMuted = isMuted;
     }
 
@@ -39,6 +43,7 @@ public class CurrentTrackCache {
     }
 
     public static void setVolume(Integer volume) {
+        bitmask |= 0x0100;
         CurrentTrackCache.volume = volume;
     }
 
@@ -47,7 +52,12 @@ public class CurrentTrackCache {
     }
 
     public static void setQueue(List<QueueItem> queue) {
+        bitmask |= 0x1000;
         CurrentTrackCache.queue = queue;
+    }
+
+    public static boolean isEverythingSet() {
+        return bitmask == 0x1111;
     }
 
 }

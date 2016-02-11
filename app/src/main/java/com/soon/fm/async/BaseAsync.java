@@ -15,9 +15,7 @@ public abstract class BaseAsync<T> extends AsyncTask<Void, Void, T> {
     }
 
     protected void onPostExecute(T obj) {
-        if (obj != null) {
-            this.callback.onSuccess(obj);
-        }
+        this.callback.onSuccess(obj);
     }
 
     public abstract T performOperation() throws Exception;

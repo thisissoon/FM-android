@@ -11,9 +11,13 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -127,6 +131,8 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
     private Context context;
     private Toast flash;
+    private CurrentTrack currentTrack;
+    private LinearLayout footerCurrentTrack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,6 +156,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         togglePlay = (ToggleButton) findViewById(R.id.toggle_pause_play);
         skipButton = (ImageButton) findViewById(R.id.cnt_skip);
 
+        footerCurrentTrack = (LinearLayout) findViewById(R.id.footer);
         toggleMute.setOnClickListener(this);
         togglePlay.setOnClickListener(this);
         skipButton.setOnClickListener(this);
@@ -173,9 +180,23 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        updateCurrentTrack(CurrentTrackCache.getCurrentTrack());
+        currentTrack = CurrentTrackCache.getCurrentTrack();
         isMute = CurrentTrackCache.getIsMuted();
         volume = CurrentTrackCache.getVolume();
+
+        if (currentTrack == null) {
+            footerCurrentTrack.post(new Runnable(){  // hide footer
+                public void run(){
+                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
+                    params.bottomMargin = -footerCurrentTrack.getHeight();
+                    footerCurrentTrack.setLayoutParams(params);
+                    Log.d(TAG, String.format("Footer bottom margin: %s", params.bottomMargin));
+                }
+            });
+        } else {
+            updateCurrentTrack(currentTrack);
+        }
+        asyncFetchCurrentTrack();  // update current track anyway to sync progress bar
     }
 
     @Override
@@ -271,10 +292,6 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         new PerformSkipTrack(token).execute();
     }
 
-    private void asyncUpdateView() {
-        asyncFetchCurrentTrack();
-    }
-
     private void asyncFetchCurrentTrack() {
         new FetchCurrent(getString(R.string.fm_api), new CallbackInterface<CurrentTrack>() {
             @Override
@@ -290,6 +307,29 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     }
 
     private void updateCurrentTrack(final CurrentTrack currentTrack) {
+        if(currentTrack == null) {
+            final int initialHeight = footerCurrentTrack.getHeight();
+            Log.d(TAG, String.format("initial height: %s", initialHeight));
+            Animation anim = new Animation() {
+                @Override
+                public boolean willChangeBounds() {
+                    return true;
+                }
+
+                @Override
+                protected void applyTransformation(float interpolatedTime, Transformation t) {
+                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
+                    params.bottomMargin = (int) - (initialHeight * interpolatedTime);
+                    footerCurrentTrack.setLayoutParams(params);
+                    Log.d(TAG, String.format("bottom margin set to: %s", params.bottomMargin));
+                }
+            };
+            anim.setDuration(2000);
+            footerCurrentTrack.startAnimation(anim);
+            this.currentTrack = null;
+            return;
+        }
+
         final Duration trackDuration = currentTrack.getTrack().getDuration();
 
         totalTime.setText(trackDuration.toString());
@@ -327,6 +367,28 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
             }
         }.start();
+
+        if(this.currentTrack == null) {
+            final int initialHeight = footerCurrentTrack.getHeight();
+            Log.d(TAG, String.format("initial height: %s", initialHeight));
+            Animation anim = new Animation() {
+                @Override
+                public boolean willChangeBounds() {
+                    return true;
+                }
+
+                @Override
+                protected void applyTransformation(float interpolatedTime, Transformation t) {
+                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
+                    params.bottomMargin = (int) (initialHeight * interpolatedTime) - initialHeight;
+                    footerCurrentTrack.setLayoutParams(params);
+                    Log.d(TAG, String.format("bottom margin set to: %s", params.bottomMargin));
+                }
+            };
+            anim.setDuration(2000);
+            footerCurrentTrack.startAnimation(anim);
+        }
+        this.currentTrack = currentTrack;
     }
 
     private void setMuteToggle(Boolean state) {

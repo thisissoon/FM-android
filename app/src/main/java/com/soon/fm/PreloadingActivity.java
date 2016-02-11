@@ -3,7 +3,6 @@ package com.soon.fm;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.soon.fm.async.CallbackInterface;
 import com.soon.fm.async.FetchCurrent;
 import com.soon.fm.async.FetchQueue;
@@ -30,12 +29,8 @@ public class PreLoadingActivity extends BaseActivity {
         preloadCurrentVolume(backendUrl);
     }
 
-    private boolean isEverythingLoaded() {
-        return CurrentTrackCache.getIsMuted() != null && CurrentTrackCache.getCurrentTrack() != null && CurrentTrackCache.getVolume() != null && CurrentTrackCache.getQueue() != null;
-    }
-
     private void goToQueueIfLoaded() {
-        if (isEverythingLoaded()) {
+        if (CurrentTrackCache.isEverythingSet()) {
             changeActivity(CurrentTrackActivity.class);
             finish();
         }

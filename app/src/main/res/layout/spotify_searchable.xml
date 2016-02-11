@@ -9,7 +9,7 @@
 
     <include
         android:id="@+id/cs_header"
-        layout="@layout/custom_searchable_header_layout"/>
+        layout="@layout/spotify_searchable_header_layout"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/cs_result_list"
