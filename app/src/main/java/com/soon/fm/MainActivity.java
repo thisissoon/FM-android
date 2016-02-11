@@ -16,7 +16,7 @@ public class MainActivity extends BaseActivity {
             this.changeActivity(SignInActivity.class);
         } else {
 //            this.changeActivity(CurrentTrackActivity.class);
-            this.changeActivity(PreLoadingActivity.class);
+            this.changeActivity(PreloadingActivity.class);
         }
     }
 

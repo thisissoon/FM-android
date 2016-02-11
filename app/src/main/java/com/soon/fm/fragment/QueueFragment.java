@@ -23,7 +23,7 @@ import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.soon.fm.Constants;
-import com.soon.fm.CurrentTrackCache;
+import com.soon.fm.utils.CurrentTrackCache;
 import com.soon.fm.R;
 import com.soon.fm.async.CallbackInterface;
 import com.soon.fm.async.FetchQueue;

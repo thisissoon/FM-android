@@ -36,6 +36,7 @@ import com.soon.fm.backend.model.Player;
 import com.soon.fm.backend.model.field.Duration;
 import com.soon.fm.helper.PreferencesHelper;
 import com.soon.fm.utils.CircleTransform;
+import com.soon.fm.utils.CurrentTrackCache;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -184,13 +185,12 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         isMute = CurrentTrackCache.getIsMuted();
         volume = CurrentTrackCache.getVolume();
 
-        if (currentTrack == null) {
-            footerCurrentTrack.post(new Runnable(){  // hide footer
+        if (currentTrack == null) {  // hide footer
+            footerCurrentTrack.post(new Runnable(){
                 public void run(){
                     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
                     params.bottomMargin = -footerCurrentTrack.getHeight();
                     footerCurrentTrack.setLayoutParams(params);
-                    Log.d(TAG, String.format("Footer bottom margin: %s", params.bottomMargin));
                 }
             });
         } else {
@@ -306,10 +306,10 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         }).execute();
     }
 
-    private void updateCurrentTrack(final CurrentTrack currentTrack) {
-        if(currentTrack == null) {
+    private void updateCurrentTrack(final CurrentTrack track) {
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
+        if(track == null) {
             final int initialHeight = footerCurrentTrack.getHeight();
-            Log.d(TAG, String.format("initial height: %s", initialHeight));
             Animation anim = new Animation() {
                 @Override
                 public boolean willChangeBounds() {
@@ -321,24 +321,23 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
                     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
                     params.bottomMargin = (int) - (initialHeight * interpolatedTime);
                     footerCurrentTrack.setLayoutParams(params);
-                    Log.d(TAG, String.format("bottom margin set to: %s", params.bottomMargin));
                 }
             };
-            anim.setDuration(2000);
+            anim.setDuration(500);
             footerCurrentTrack.startAnimation(anim);
             this.currentTrack = null;
             return;
         }
 
-        final Duration trackDuration = currentTrack.getTrack().getDuration();
+        final Duration trackDuration = track.getTrack().getDuration();
 
         totalTime.setText(trackDuration.toString());
-        trackName.setText(currentTrack.getTrack().getName());
-        artistName.setText(TextUtils.join(", ", currentTrack.getTrack().getArtists()));
-        albumName.setText(currentTrack.getTrack().getAlbum().getName());
+        trackName.setText(track.getTrack().getName());
+        artistName.setText(TextUtils.join(", ", track.getTrack().getArtists()));
+        albumName.setText(track.getTrack().getAlbum().getName());
 
-        Picasso.with(context).load(currentTrack.getUser().getAvatarUrl()).transform(new CircleTransform()).into(userImage);
-        Picasso.with(context).load(currentTrack.getTrack().getAlbum().getImages().get(0).getUrl()).into(albumImage);
+        Picasso.with(context).load(track.getUser().getAvatarUrl()).transform(new CircleTransform()).into(userImage);
+        Picasso.with(context).load(track.getTrack().getAlbum().getImages().get(0).getUrl()).into(albumImage);
 
         if (timer != null) {
             timer.cancel();
@@ -348,8 +347,8 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
             @Override
             public void onTick(long millisUntilFinished_) {
-                Player player = currentTrack.getPlayer();
-                int trackDuration = currentTrack.getTrack().getDuration().getMillis();
+                Player player = track.getPlayer();
+                int trackDuration = track.getTrack().getDuration().getMillis();
 
                 if (currentMilliseconds == 0) {
                     currentMilliseconds = player.getElapsedTime();
@@ -368,9 +367,9 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
             }
         }.start();
 
-        if(this.currentTrack == null) {
+        if(params.bottomMargin < 0) {
             final int initialHeight = footerCurrentTrack.getHeight();
-            Log.d(TAG, String.format("initial height: %s", initialHeight));
+            Log.d(TAG, String.format("initial height for new current tracks: %s", initialHeight));
             Animation anim = new Animation() {
                 @Override
                 public boolean willChangeBounds() {
@@ -385,10 +384,10 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
                     Log.d(TAG, String.format("bottom margin set to: %s", params.bottomMargin));
                 }
             };
-            anim.setDuration(2000);
+            anim.setDuration(500);
             footerCurrentTrack.startAnimation(anim);
         }
-        this.currentTrack = currentTrack;
+        this.currentTrack = track;
     }
 
     private void setMuteToggle(Boolean state) {

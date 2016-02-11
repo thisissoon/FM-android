@@ -10,12 +10,13 @@ import com.soon.fm.async.GetCurrentVolume;
 import com.soon.fm.async.IsMuted;
 import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.QueueItem;
+import com.soon.fm.utils.CurrentTrackCache;
 
 import java.util.List;
 
-public class PreLoadingActivity extends BaseActivity {
+public class PreloadingActivity extends BaseActivity {
 
-    private static final String TAG = PreLoadingActivity.class.getName();
+    private static final String TAG = PreloadingActivity.class.getName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

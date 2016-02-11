@@ -31,7 +31,7 @@
             android:name=".CurrentTrackActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".SpotifySearchActivity"/>
-        <activity android:name=".PreLoadingActivity">
+        <activity android:name=".PreloadingActivity">
         </activity>
     </application>
 
