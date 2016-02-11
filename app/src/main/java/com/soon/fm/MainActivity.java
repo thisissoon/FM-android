@@ -15,7 +15,8 @@ public class MainActivity extends BaseActivity {
         if (preferencesHelper.getUserApiToken() == null) {
             this.changeActivity(SignInActivity.class);
         } else {
-            this.changeActivity(CurrentTrackActivity.class);
+//            this.changeActivity(CurrentTrackActivity.class);
+            this.changeActivity(PreLoadingActivity.class);
         }
     }
 

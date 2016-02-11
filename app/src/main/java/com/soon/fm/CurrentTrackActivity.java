@@ -2,7 +2,6 @@ package com.soon.fm;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v7.widget.Toolbar;
@@ -22,7 +21,8 @@ import android.widget.ToggleButton;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
-import com.soon.fm.backend.BackendHelper;
+import com.soon.fm.async.CallbackInterface;
+import com.soon.fm.async.FetchCurrent;
 import com.soon.fm.backend.event.PerformChangeVolumeApiCall;
 import com.soon.fm.backend.event.PerformMuteApiCall;
 import com.soon.fm.backend.event.PerformPauseApiCall;
@@ -37,7 +37,6 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 
 
@@ -174,9 +173,9 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        asyncUpdateView();
-        asyncIsMuted();
-        asyncGetCurrentVolume();
+        updateCurrentTrack(CurrentTrackCache.getCurrentTrack());
+        isMute = CurrentTrackCache.getIsMuted();
+        volume = CurrentTrackCache.getVolume();
     }
 
     @Override
@@ -277,15 +276,17 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     }
 
     private void asyncFetchCurrentTrack() {
-        new FetchCurrent().execute();
-    }
+        new FetchCurrent(getString(R.string.fm_api), new CallbackInterface<CurrentTrack>() {
+            @Override
+            public void onSuccess(CurrentTrack obj) {
+                updateCurrentTrack(obj);
+            }
 
-    private void asyncIsMuted() {
-        new IsMuted().execute();
-    }
+            @Override
+            public void onFail() {
 
-    private void asyncGetCurrentVolume() {
-        new GetCurrentVolume().execute();
+            }
+        }).execute();
     }
 
     private void updateCurrentTrack(final CurrentTrack currentTrack) {
@@ -336,58 +337,6 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     private void setPlayToggle(Boolean state) {
         isPlaying = state;
         togglePlay.setChecked(!isPlaying);
-    }
-
-    private class FetchCurrent extends AsyncTask<Void, Void, com.soon.fm.backend.model.CurrentTrack> {
-
-        protected CurrentTrack doInBackground(Void... params) {
-            try {
-                BackendHelper backend = new BackendHelper(Constants.FM_API);
-                return backend.getCurrentTrack();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-        protected void onPostExecute(com.soon.fm.backend.model.CurrentTrack currentTrack) {
-            if (currentTrack != null) {
-                updateCurrentTrack(currentTrack);
-            }
-        }
-    }
-
-    private class IsMuted extends AsyncTask<Void, Void, Boolean> {
-
-        protected Boolean doInBackground(Void... params) {
-            BackendHelper backend = new BackendHelper(Constants.FM_API);
-            Boolean isMuted = false;
-            try {
-                isMuted = backend.isMuted();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return isMuted;
-        }
-
-        protected void onPostExecute(Boolean muted) {
-            setMuteToggle(muted);
-        }
-
-    }
-
-    private class GetCurrentVolume extends AsyncTask<Void, Void, Void> {
-
-        protected Void doInBackground(Void... params) {
-            BackendHelper backend = new BackendHelper(Constants.FM_API);
-            try {
-                volume = backend.getVolume();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
     }
 
 }

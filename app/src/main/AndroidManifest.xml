@@ -26,15 +26,13 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
         <activity android:name=".SignInActivity"/>
-
         <activity
             android:name=".CurrentTrackActivity"
             android:screenOrientation="portrait"/>
-
         <activity android:name=".SpotifySearchActivity"/>
-
+        <activity android:name=".PreLoadingActivity">
+        </activity>
     </application>
 
 </manifest>

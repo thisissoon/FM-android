@@ -3,7 +3,6 @@ package com.soon.fm.fragment;
 import android.animation.ValueAnimator;
 import android.app.Fragment;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,15 +23,15 @@ import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.soon.fm.Constants;
+import com.soon.fm.CurrentTrackCache;
 import com.soon.fm.R;
-import com.soon.fm.backend.BackendHelper;
+import com.soon.fm.async.CallbackInterface;
+import com.soon.fm.async.FetchQueue;
 import com.soon.fm.backend.event.PerformDeleteTrack;
 import com.soon.fm.backend.model.QueueItem;
 import com.soon.fm.helper.PreferencesHelper;
 import com.soon.fm.utils.CircleTransform;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +44,7 @@ public class QueueFragment extends Fragment {
     private static final String TAG = QueueFragment.class.getName();
     private final Socket mSocket;
     private PreferencesHelper preferences;
-    private ArrayList<QueueItem> queue = new ArrayList<>();
+    private List<QueueItem> queue = new ArrayList<>();
     private QueueAdapter mAdapter;
     private Emitter.Listener onQueueChange = new Emitter.Listener() {
         @Override
@@ -81,6 +80,8 @@ public class QueueFragment extends Fragment {
 
         context = getActivity().getApplicationContext();
         preferences = new PreferencesHelper(context);
+
+        queue = CurrentTrackCache.getQueue();
     }
 
     @Override
@@ -95,8 +96,6 @@ public class QueueFragment extends Fragment {
 
         mAdapter = new QueueAdapter(queue);
         mListView.setAdapter(mAdapter);
-
-        asyncUpdate();
         return view;
     }
 
@@ -114,7 +113,18 @@ public class QueueFragment extends Fragment {
     }
 
     private void asyncUpdate() {
-        new FetchQueue().execute();
+        new FetchQueue(getString(R.string.fm_api), new CallbackInterface<List<QueueItem>>() {
+            @Override
+            public void onSuccess(List<QueueItem> obj) {
+                QueueAdapter adapter = new QueueAdapter(obj);
+                mListView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onFail() {
+
+            }
+        }).execute();
     }
 
     private void deleteCell(final View v, final QueueAdapter.ViewHolder holder) {
@@ -165,29 +175,6 @@ public class QueueFragment extends Fragment {
         }
         anim.setDuration(200);
         v.startAnimation(anim);
-    }
-
-    private class FetchQueue extends AsyncTask<Void, Void, List<QueueItem>> {
-
-        protected List<QueueItem> doInBackground(Void... params) {
-            try {
-                BackendHelper backend = new BackendHelper(Constants.FM_API.toString());
-                return backend.getPlayerQueue();
-            } catch (MalformedURLException e) {
-                Log.wtf(TAG, e.getMessage());
-            } catch (IOException e) {
-                Log.wtf(TAG, e.getMessage());
-                // TODO device is offline do something reasonable
-            }
-
-            return null;
-        }
-
-        protected void onPostExecute(List<QueueItem> userTrackList) {
-            QueueAdapter adapter = new QueueAdapter(userTrackList);
-            mListView.setAdapter(adapter);
-        }
-
     }
 
     private class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> {
