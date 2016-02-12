@@ -49,7 +49,7 @@ public class QueueFragment extends Fragment {
     private Emitter.Listener onQueueChange = new Emitter.Listener() {
         @Override
         public void call(Object... args) {  // TODO some locker
-            Log.i(TAG, "Queue changed");
+            Log.i(TAG, "[listener.onQueueChange] update queue");
             asyncUpdate();
         }
     };
@@ -182,6 +182,9 @@ public class QueueFragment extends Fragment {
         private final List<QueueItem> items;
 
         public QueueAdapter(List<QueueItem> items) {
+            if (items == null) {
+                items = new ArrayList<>();
+            }
             this.items = items;
         }
 

@@ -33,6 +33,7 @@ import com.soon.fm.backend.event.PerformPauseApiCall;
 import com.soon.fm.backend.event.PerformSkipTrack;
 import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.Player;
+import com.soon.fm.backend.model.QueueItem;
 import com.soon.fm.backend.model.field.Duration;
 import com.soon.fm.helper.PreferencesHelper;
 import com.soon.fm.utils.CircleTransform;
@@ -76,14 +77,29 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     private Emitter.Listener onEndOfTrack = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            Log.i(TAG, "[Event listener] Track finished");
+            Log.i(TAG, "[listener.onEndOfTrack] Track finished");
             timer.cancel();
+            final CurrentTrack currentTrack;
+            if(CurrentTrackCache.getQueue().isEmpty()) {
+                currentTrack = null;
+            } else {  // get first from the queue and remove it from there
+                QueueItem item = CurrentTrackCache.getQueue().get(0);
+                currentTrack = new CurrentTrack(item);
+                CurrentTrackCache.getQueue().remove(0);
+            }
+            Log.d(TAG, String.format("[listener.onEndOfTrack] hot track swap form the queue %s", currentTrack));
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    updateCurrentTrack(currentTrack);
+                }
+            });
         }
     };
     private Emitter.Listener onPause = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            Log.i(TAG, "[Event listener] Paused");
+            Log.i(TAG, "[listener.onPause] playing toggle updated");
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -95,14 +111,14 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     private Emitter.Listener onPlay = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            Log.i(TAG, "[Event listener] Playing");
+            Log.i(TAG, "[listener.onPlay] fetch track from backend");
             asyncFetchCurrentTrack();
         }
     };
     private Emitter.Listener onResume = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            Log.i(TAG, "[Event listener] Resumed");
+            Log.i(TAG, "[listener.onResume] playing toggle updated");
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -114,7 +130,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     private Emitter.Listener onMute = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
-            Log.i(TAG, "[Event listener] Mute");
+            Log.i(TAG, "[listener.onMute] set muted flag");
             try {
                 JSONObject json = (JSONObject) args[0];
                 final boolean muted = json.getBoolean("mute");
@@ -125,7 +141,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
                     }
                 });
             } catch (JSONException e) {
-                Log.e(TAG, String.format("[Event listener] invalid json %s", args[0]));
+                Log.e(TAG, String.format("[listener.onMute] invalid json %s", args[0]));
             }
         }
     };

@@ -17,6 +17,12 @@ public class CurrentTrack {
     @SerializedName("user")
     private User user;
 
+    public CurrentTrack(QueueItem item) {
+        setTrack(item.getTrack());
+        setUser(item.getUser());
+        setPlayer(new Player());
+    }
+
     public Track getTrack() {
         return track;
     }

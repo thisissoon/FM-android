@@ -7,15 +7,15 @@ public class Player {
 
     @Expose
     @SerializedName("elapsed_time")
-    private Integer elapsedTime;
+    private Integer elapsedTime = 0;
 
     @Expose
     @SerializedName("elapsed_seconds")
-    private Float elapsedSeconds;
+    private Float elapsedSeconds = 0f;
 
     @Expose
     @SerializedName("elapsed_percentage")
-    private Float elapsedPercentage;
+    private Float elapsedPercentage = 0f;
 
     public Integer getElapsedTime() {
         return elapsedTime;

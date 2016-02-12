@@ -38,72 +38,72 @@ public class PreLoadingActivity extends BaseActivity {
     }
 
     private void preloadCurrentTrack(final String backendUrl) {
-        Log.d(TAG, "[preload] preloadCurrentTrack - started");
+        Log.d(TAG, "preloadCurrentTrack - started");
         new FetchCurrent(backendUrl, new CallbackInterface<CurrentTrack>() {
             @Override
             public void onSuccess(CurrentTrack obj) {
-                Log.d(TAG, "[preload] preloadCurrentTrack - finished");
+                Log.d(TAG, "preloadCurrentTrack - finished");
                 CurrentTrackCache.setCurrentTrack(obj);
                 goToQueueIfLoaded();
             }
 
             @Override
             public void onFail() {
-                Log.d(TAG, "[preload] preloadCurrentTrack - failed");
+                Log.d(TAG, "preloadCurrentTrack - failed");
                 preloadCurrentTrack(backendUrl);
             }
         }).execute();
     }
 
     private void preloadIsMute(final String backendUrl) {
-        Log.d(TAG, "[preload] preloadIsMute - started");
+        Log.d(TAG, "preloadIsMute - started");
         new IsMuted(backendUrl, new CallbackInterface<Boolean>() {
             @Override
             public void onSuccess(Boolean obj) {
-                Log.d(TAG, "[preload] preloadIsMute - finished");
+                Log.d(TAG, "preloadIsMute - finished");
                 CurrentTrackCache.setIsMuted(obj);
                 goToQueueIfLoaded();
             }
 
             @Override
             public void onFail() {
-                Log.d(TAG, "[preload] preloadIsMute - failed");
+                Log.d(TAG, "preloadIsMute - failed");
                 preloadIsMute(backendUrl);
             }
         }).execute();
     }
 
     private void preloadCurrentVolume(final String backendUrl) {
-        Log.d(TAG, "[preload] preloadCurrentVolume - started");
+        Log.d(TAG, "preloadCurrentVolume - started");
         new GetCurrentVolume(backendUrl, new CallbackInterface<Integer>() {
             @Override
             public void onSuccess(Integer obj) {
-                Log.d(TAG, "[preload] preloadCurrentVolume - finished");
+                Log.d(TAG, "preloadCurrentVolume - finished");
                 CurrentTrackCache.setVolume(obj);
                 goToQueueIfLoaded();
             }
 
             @Override
             public void onFail() {
-                Log.d(TAG, "[preload] preloadCurrentVolume - failed");
+                Log.d(TAG, "preloadCurrentVolume - failed");
                 preloadCurrentVolume(backendUrl);
             }
         }).execute();
     }
 
     private void preloadQueue(final String backendUrl) {
-        Log.d(TAG, "[preload] preloadQueue - started");
+        Log.d(TAG, "preloadQueue - started");
         new FetchQueue(backendUrl, new CallbackInterface<List<QueueItem>>() {
             @Override
             public void onSuccess(List<QueueItem> obj) {
-                Log.d(TAG, "[preload] preloadQueue - finished");
+                Log.d(TAG, "preloadQueue - finished");
                 CurrentTrackCache.setQueue(obj);
                 goToQueueIfLoaded();
             }
 
             @Override
             public void onFail() {
-                Log.d(TAG, "[preload] preloadQueue - failed");
+                Log.d(TAG, "preloadQueue - failed");
                 preloadQueue(backendUrl);
             }
         }).execute();
