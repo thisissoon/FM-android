@@ -43,20 +43,23 @@ public class QueueFragment extends Fragment {
 
     private static final String TAG = QueueFragment.class.getName();
     private final Socket mSocket;
-    private PreferencesHelper preferences;
+
     private List<QueueItem> queue = new ArrayList<>();
     private QueueAdapter mAdapter;
+
+    private Context context;
+
+    private PreferencesHelper preferences;
+    private RecyclerView mListView;
+    private LinearLayoutManager mLayoutManager;
+
     private Emitter.Listener onQueueChange = new Emitter.Listener() {
         @Override
-        public void call(Object... args) {  // TODO some locker
+        public void call(Object... args) {
             Log.i(TAG, "[listener.onQueueChange] update queue");
             asyncUpdate();
         }
     };
-
-    private Context context;
-    private RecyclerView mListView;
-    private LinearLayoutManager mLayoutManager;
 
     {
         try {
@@ -203,8 +206,13 @@ public class QueueFragment extends Fragment {
             holder.qi = userTrack;
             holder.trackName.setText(userTrack.getTrack().getName());
             holder.artistName.setText(TextUtils.join(", ", userTrack.getTrack().getArtists()));
-            with(context).load(userTrack.getUser().getAvatarUrl()).transform(new CircleTransform()).into(holder.userAvatar);
-            with(context).load(userTrack.getTrack().getAlbum().getImages().get(2).getUrl()).into(holder.albumImage);
+            with(context).load(userTrack.getUser().getAvatarUrl())
+                    .placeholder(R.drawable.ic_person)
+                    .transform(new CircleTransform()).into(holder.userAvatar);
+            with(context).load(userTrack.getTrack().
+                    getAlbum().getImages().get(2).getUrl())
+                    .placeholder(R.drawable.ic_album)
+                    .into(holder.albumImage);
         }
 
         @Override

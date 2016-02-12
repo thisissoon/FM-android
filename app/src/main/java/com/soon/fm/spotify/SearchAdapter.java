@@ -70,7 +70,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     private void loadImageFromCacheTo(String url, ImageView image) {
-        Picasso.with(context).load(url).into(image);
+        Picasso.with(context).load(url).placeholder(R.drawable.ic_album).into(image);
     }
 
     public Item getItem(Integer position) {

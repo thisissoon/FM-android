@@ -11,13 +11,10 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -79,19 +76,19 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         public void call(Object... args) {
             Log.i(TAG, "[listener.onEndOfTrack] Track finished");
             timer.cancel();
-            final CurrentTrack currentTrack;
+            final CurrentTrack topTrack;
             if(CurrentTrackCache.getQueue().isEmpty()) {
-                currentTrack = null;
+                topTrack = null;
             } else {  // get first from the queue and remove it from there
                 QueueItem item = CurrentTrackCache.getQueue().get(0);
-                currentTrack = new CurrentTrack(item);
+                topTrack = new CurrentTrack(item);
                 CurrentTrackCache.getQueue().remove(0);
             }
-            Log.d(TAG, String.format("[listener.onEndOfTrack] hot track swap form the queue %s", currentTrack));
+            Log.d(TAG, String.format("[listener.onEndOfTrack] hot track swap form the queue %s", topTrack));
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    updateCurrentTrack(currentTrack);
+                    updateCurrentTrack(topTrack);
                 }
             });
         }
@@ -201,17 +198,18 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         isMute = CurrentTrackCache.getIsMuted();
         volume = CurrentTrackCache.getVolume();
 
-        if (currentTrack == null) {  // hide footer
-            footerCurrentTrack.post(new Runnable(){
-                public void run(){
-                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
-                    params.bottomMargin = -footerCurrentTrack.getHeight();
-                    footerCurrentTrack.setLayoutParams(params);
-                }
-            });
-        } else {
-            updateCurrentTrack(currentTrack);
-        }
+//        if (currentTrack == null) {  // hide footer
+//            footerCurrentTrack.post(new Runnable(){
+//                public void run(){
+//                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
+//                    params.bottomMargin = -footerCurrentTrack.getHeight();
+//                    footerCurrentTrack.setLayoutParams(params);
+//                }
+//            });
+//        } else {
+//            updateCurrentTrack(currentTrack);
+//        }
+        updateCurrentTrack(currentTrack);
         asyncFetchCurrentTrack();  // update current track anyway to sync progress bar
     }
 
@@ -323,25 +321,28 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     }
 
     private void updateCurrentTrack(final CurrentTrack track) {
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
-        if(track == null) {   // footer slide down
-            final int initialHeight = footerCurrentTrack.getHeight();
-            Animation anim = new Animation() {
-                @Override
-                public boolean willChangeBounds() {
-                    return true;
-                }
-
-                @Override
-                protected void applyTransformation(float interpolatedTime, Transformation t) {
-                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
-                    params.bottomMargin = (int) - (initialHeight * interpolatedTime);
-                    footerCurrentTrack.setLayoutParams(params);
-                }
-            };
-            anim.setDuration(500);
-            footerCurrentTrack.startAnimation(anim);
-            this.currentTrack = null;
+//        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
+//        if(track == null) {   // footer slide down
+//            final int initialHeight = footerCurrentTrack.getHeight();
+//            Animation anim = new Animation() {
+//                @Override
+//                public boolean willChangeBounds() {
+//                    return true;
+//                }
+//
+//                @Override
+//                protected void applyTransformation(float interpolatedTime, Transformation t) {
+//                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
+//                    params.bottomMargin = (int) - (initialHeight * interpolatedTime);
+//                    footerCurrentTrack.setLayoutParams(params);
+//                }
+//            };
+//            anim.setDuration(500);
+//            footerCurrentTrack.startAnimation(anim);
+//            this.currentTrack = null;
+//            return;
+//        }
+        if (track == null) {  // TODO nothing to play
             return;
         }
 
@@ -352,8 +353,15 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         artistName.setText(TextUtils.join(", ", track.getTrack().getArtists()));
         albumName.setText(track.getTrack().getAlbum().getName());
 
-        Picasso.with(context).load(track.getUser().getAvatarUrl()).transform(new CircleTransform()).into(userImage);
-        Picasso.with(context).load(track.getTrack().getAlbum().getImages().get(0).getUrl()).into(albumImage);
+        Picasso.with(context)
+                .load(track.getUser().getAvatarUrl())
+                .placeholder(R.drawable.ic_person)
+                .transform(new CircleTransform())
+                .into(userImage);
+        Picasso.with(context)
+                .load(track.getTrack().getAlbum().getImages().get(2).getUrl())
+                .placeholder(R.drawable.ic_album)
+                .into(albumImage);
 
         if (timer != null) {
             timer.cancel();
@@ -383,28 +391,27 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
             }
         }.start();
 
-        if(params.bottomMargin < 0) {  // footer slide up
-            final int initialHeight = footerCurrentTrack.getHeight();
-            Animation anim = new Animation() {
-                @Override
-                public boolean willChangeBounds() {
-                    return true;
-                }
-
-                @Override
-                protected void applyTransformation(float interpolatedTime, Transformation t) {
-                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
-                    params.bottomMargin = (int) (initialHeight * interpolatedTime) - initialHeight;
-                    footerCurrentTrack.setLayoutParams(params);
-                    Log.d(TAG, String.format("bottom margin set to: %s", params.bottomMargin));
-                }
-            };
-            anim.setDuration(500);
-            footerCurrentTrack.startAnimation(anim);
-        }
+//        if(params.bottomMargin < 0) {  // footer slide up
+//            final int initialHeight = footerCurrentTrack.getHeight();
+//            Animation anim = new Animation() {
+//                @Override
+//                public boolean willChangeBounds() {
+//                    return true;
+//                }
+//
+//                @Override
+//                protected void applyTransformation(float interpolatedTime, Transformation t) {
+//                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
+//                    params.bottomMargin = (int) (initialHeight * interpolatedTime) - initialHeight;
+//                    footerCurrentTrack.setLayoutParams(params);
+//                }
+//            };
+//            anim.setDuration(500);
+//            footerCurrentTrack.startAnimation(anim);
+//        }
         this.currentTrack = track;
     }
-
+    
     private void setMuteToggle(Boolean state) {
         isMute = state;
         toggleMute.setChecked(isMute);
