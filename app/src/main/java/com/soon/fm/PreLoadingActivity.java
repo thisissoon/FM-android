@@ -14,9 +14,9 @@ import com.soon.fm.utils.CurrentTrackCache;
 
 import java.util.List;
 
-public class PreloadingActivity extends BaseActivity {
+public class PreLoadingActivity extends BaseActivity {
 
-    private static final String TAG = PreloadingActivity.class.getName();
+    private static final String TAG = PreLoadingActivity.class.getName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -4,12 +4,20 @@ android {
     compileSdkVersion 23
     buildToolsVersion '23.0.0'
 
+    ext {
+        versionMajor = 1
+        versionMinor = 0
+        versionPatch = 1
+    }
+
     defaultConfig {
         applicationId "com.soon.fm"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+
+        versionCode = versionMajor * 10000 + versionMinor * 100 + versionPatch
+        versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
+
         multiDexEnabled true
 
         resValue "string", "server_client_id", ""

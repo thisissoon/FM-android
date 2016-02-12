@@ -72,7 +72,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
 
         PreferencesHelper preferences = new PreferencesHelper(getApplicationContext());
         preferences.saveUserApiToken(((AccessToken) obj).getAccessToken());
-        changeActivity(CurrentTrackActivity.class);
+        changeActivity(PreLoadingActivity.class);
     }
 
     @Override

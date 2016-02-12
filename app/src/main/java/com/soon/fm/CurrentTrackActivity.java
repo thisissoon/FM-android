@@ -308,7 +308,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
     private void updateCurrentTrack(final CurrentTrack track) {
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
-        if(track == null) {
+        if(track == null) {   // footer slide down
             final int initialHeight = footerCurrentTrack.getHeight();
             Animation anim = new Animation() {
                 @Override
@@ -367,9 +367,8 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
             }
         }.start();
 
-        if(params.bottomMargin < 0) {
+        if(params.bottomMargin < 0) {  // footer slide up
             final int initialHeight = footerCurrentTrack.getHeight();
-            Log.d(TAG, String.format("initial height for new current tracks: %s", initialHeight));
             Animation anim = new Animation() {
                 @Override
                 public boolean willChangeBounds() {
