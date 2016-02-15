@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -62,6 +63,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     private ToggleButton toggleMute;
     private ToggleButton togglePlay;
     private ImageButton skipButton;
+    private SeekBar volumeBar;
 
     private Boolean isMute = false;
     private Boolean isPlaying = true;
@@ -172,10 +174,31 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         togglePlay = (ToggleButton) findViewById(R.id.toggle_pause_play);
         skipButton = (ImageButton) findViewById(R.id.cnt_skip);
 
+        volumeBar = (SeekBar) findViewById(R.id.volumeBar);
+
         footerCurrentTrack = (LinearLayout) findViewById(R.id.footer);
         toggleMute.setOnClickListener(this);
         togglePlay.setOnClickListener(this);
         skipButton.setOnClickListener(this);
+        volumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                int vol = seekBar.getProgress();
+                if (volume != vol) {
+                    changeVolume(vol);
+                }
+            }
+        });
 
         try {
             mSocket = IO.socket(getString(R.string.socket));
@@ -199,6 +222,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         currentTrack = CurrentTrackCache.getCurrentTrack();
         isMute = CurrentTrackCache.getIsMuted();
         volume = CurrentTrackCache.getVolume();
+        updateVolumeBar(volume);
 
 //        if (currentTrack == null) {  // hide footer
 //            footerCurrentTrack.post(new Runnable(){
@@ -239,7 +263,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         switch (v.getId()) {
             case R.id.toggle_mute_unmute:
                 Log.d(TAG, "Clicked on mute/unmute toggle");
-                performMute((ToggleButton) v);
+                performMute(((ToggleButton) v).isChecked());
                 break;
 
             case R.id.toggle_pause_play:
@@ -256,7 +280,6 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        String token = preferences.getUserApiToken();
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_VOLUME_UP:
@@ -266,8 +289,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
                     volume = Math.max(volume - 5, 0);
                     break;
             }
-            new PerformChangeVolumeApiCall(token, volume).execute();
-            showFlash(String.format("Volume set to %d", volume));
+            changeVolume(volume);
             return true;
         } else {
             return super.onKeyDown(keyCode, event);
@@ -293,19 +315,29 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         }
     }
 
+    private void changeVolume(int volume) {
+        String token = preferences.getUserApiToken();
+        updateVolumeBar(volume);
+        new PerformChangeVolumeApiCall(token, volume).execute();
+    }
+
     private void performPause(ToggleButton btn) {
         String token = preferences.getUserApiToken();
         new PerformPauseApiCall(token, btn.isChecked()).execute();
     }
 
-    private void performMute(ToggleButton btn) {
+    private void performMute(boolean mute) {
         String token = preferences.getUserApiToken();
-        new PerformMuteApiCall(token, btn.isChecked()).execute();
+        new PerformMuteApiCall(token, mute).execute();
     }
 
     private void performSkip() {
         String token = preferences.getUserApiToken();
         new PerformSkipTrack(token).execute();
+    }
+
+    private void updateVolumeBar(int volume) {
+        volumeBar.setProgress(volume);
     }
 
     private void asyncFetchCurrentTrack() {
@@ -379,9 +411,8 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
                 if (currentMilliseconds == 0) {
                     currentMilliseconds = player.getElapsedTime();
                 }
-                if (isPlaying && currentMilliseconds <= trackDuration) {
-                    currentMilliseconds += 1000;
-                }
+                currentMilliseconds += 1000;
+                currentMilliseconds = Math.min(trackDuration, currentMilliseconds);
                 double progress = (currentMilliseconds / (double) trackDuration) * 100.0;
                 progressBar.setProgress((int) progress);
                 txtElapsedTime.setText(new Duration(currentMilliseconds).toString());

@@ -13,11 +13,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.soon.fm.async.CallbackInterface;
 import com.soon.fm.backend.async.Authorize;
 import com.soon.fm.backend.model.AccessToken;
 import com.soon.fm.helper.PreferencesHelper;
 
-public class SignInActivity extends BaseActivity implements View.OnClickListener, OnTaskCompleted {
+public class SignInActivity extends BaseActivity implements View.OnClickListener {
 
     private static final String TAG = "SignInActivity";
 
@@ -65,25 +66,6 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
     }
 
     @Override
-    public void onSuccess(Object obj) {
-        if (progress != null && progress.isShowing()) {
-            progress.dismiss();
-        }
-
-        PreferencesHelper preferences = new PreferencesHelper(getApplicationContext());
-        preferences.saveUserApiToken(((AccessToken) obj).getAccessToken());
-        changeActivity(PreLoadingActivity.class);
-    }
-
-    @Override
-    public void onFailed(Object object) {
-        if (progress != null && progress.isShowing()) {
-            progress.dismiss();
-        }
-        Toast.makeText(getApplicationContext(), "Cannot log you in", Toast.LENGTH_LONG);
-    }
-
-    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -105,11 +87,30 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
     }
 
     private void performBackendAuthorisation(GoogleSignInAccount acct) {
-        blabla();
-        new Authorize(this).execute(acct.getServerAuthCode());
+        showSigningInDialog();
+        new Authorize(new CallbackInterface<AccessToken>() {
+            @Override
+            public void onSuccess(AccessToken obj) {
+                if (progress != null && progress.isShowing()) {
+                    progress.dismiss();
+                }
+
+                PreferencesHelper preferences = new PreferencesHelper(getApplicationContext());
+                preferences.saveUserApiToken((obj).getAccessToken());
+                changeActivity(PreLoadingActivity.class);
+            }
+
+            @Override
+            public void onFail() {
+                if (progress != null && progress.isShowing()) {
+                    progress.dismiss();
+                }
+                Toast.makeText(getApplicationContext(), "Cannot log you in", Toast.LENGTH_LONG);
+            }
+        }).execute(acct.getServerAuthCode());
     }
 
-    private void blabla() {
+    private void showSigningInDialog() {
         progress = new ProgressDialog(this);
         progress.setTitle("Signing in");
         progress.setMessage("Wait while loading...");
