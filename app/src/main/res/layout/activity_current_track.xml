@@ -23,8 +23,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/toolbar"
-        android:layout_marginBottom="139dp"
-        tools:layout="@layout/fragment_queue"/>
+        tools:layout="@layout/fragment_queue"
+        android:layout_above="@+id/footer"/>
 
     <LinearLayout
         android:id="@+id/footer"
