@@ -75,7 +75,9 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         @Override
         public void call(Object... args) {
             Log.i(TAG, "[listener.onEndOfTrack] Track finished");
-            timer.cancel();
+            if (timer != null) {
+                timer.cancel();
+            }
             final CurrentTrack topTrack;
             if(CurrentTrackCache.getQueue().isEmpty()) {
                 topTrack = null;
@@ -411,7 +413,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 //        }
         this.currentTrack = track;
     }
-    
+
     private void setMuteToggle(Boolean state) {
         isMute = state;
         toggleMute.setChecked(isMute);
