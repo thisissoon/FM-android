@@ -21,8 +21,6 @@ import java.util.List;
 
 public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final String TAG = SearchAdapter.class.getName();
-
     private final Context context;
     private final PreferencesHelper preferences;
     private List<Item> dataSet;
@@ -70,7 +68,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             @Override
             public void onDismissed(Snackbar snackbar, int event) {
                 super.onDismissed(snackbar, event);
-                if (event == DISMISS_EVENT_TIMEOUT) {
+                if (event == DISMISS_EVENT_CONSECUTIVE || event == DISMISS_EVENT_TIMEOUT) {
                     new PerformAddTrack(preferences.getUserApiToken(), item, new CallbackInterface<Item>() {
                         @Override
                         public void onSuccess(Item obj) {
