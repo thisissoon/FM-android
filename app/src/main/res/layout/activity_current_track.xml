@@ -132,27 +132,42 @@
             android:orientation="horizontal"
             >
 
-            <ToggleButton
-                android:id="@+id/toggle_pause_play"
+            <FrameLayout
                 style="@style/control_button"
-                android:background="@drawable/toggle_av_pause_play"
-                android:textOff=""
-                android:textOn=""/>
+                android:background="@drawable/circle" >
+                <ToggleButton
+                    android:id="@+id/toggle_pause_play"
+                    android:background="@drawable/toggle_av_pause_play"
+                    android:textOff=""
+                    android:textOn=""
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </FrameLayout>
 
-            <ImageButton
-                android:id="@+id/cnt_skip"
+            <FrameLayout
                 style="@style/control_button"
-                android:adjustViewBounds="true"
-                android:scaleType="fitXY"
-                android:src="@drawable/ic_av_skip"
-                />
+                android:background="@drawable/circle" >
+                <ImageButton
+                    android:id="@+id/cnt_skip"
+                    android:src="@drawable/ic_av_skip"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:background="#00000000"
+                    />
+            </FrameLayout>
 
+            <FrameLayout
+                style="@style/control_button"
+                android:background="@drawable/circle" >
             <ToggleButton
                 android:id="@+id/toggle_mute_unmute"
-                style="@style/control_button"
                 android:background="@drawable/toggle_av_mute_unmute"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:textOff=""
                 android:textOn=""/>
+            </FrameLayout>
 
         </LinearLayout>
 

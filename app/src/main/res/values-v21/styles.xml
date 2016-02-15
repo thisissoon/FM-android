@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="progressBar">#fffd00</color>
+    <color name="yellow">#fffd00</color>
     <color name="text">#ffffff</color>
     <color name="foreground">#1a1a1a</color>
     <color name="secondaryForeground">#000000</color>
@@ -56,10 +56,13 @@
     </style>
 
     <style name="control_button">
-        <item name="android:layout_width">40dp</item>
-        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_width">35dp</item>
+        <item name="android:layout_height">35dp</item>
         <item name="android:background">@color/secondaryForeground</item>
-        <item name="android:layout_margin">10dp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:padding">5dp</item>
     </style>
 
 </resources>
