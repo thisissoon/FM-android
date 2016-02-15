@@ -11,7 +11,7 @@ public class PerformAddTrack extends BaseAsync<Item> {
     private final String token;
     private final Item item;
 
-    public PerformAddTrack(CallbackInterface<Item> callback, String token, Item item) {
+    public PerformAddTrack(String token, Item item, CallbackInterface<Item> callback) {
         super(Constants.FM_API, callback);
         this.token = token;
         this.item = item;

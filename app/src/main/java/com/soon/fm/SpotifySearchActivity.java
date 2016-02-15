@@ -44,8 +44,8 @@ public class SpotifySearchActivity extends BaseActivity {
 
         implementSearchTextListener();
 
-        ImageView custom_bar_return = (ImageView) this.findViewById(R.id.custom_bar_return);
-        custom_bar_return.setOnClickListener(new View.OnClickListener() {
+        ImageView customBarReturn = (ImageView) this.findViewById(R.id.custom_bar_return);
+        customBarReturn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();

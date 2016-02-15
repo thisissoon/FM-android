@@ -4,6 +4,7 @@ import android.animation.ValueAnimator;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -23,7 +24,6 @@ import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.soon.fm.Constants;
-import com.soon.fm.utils.CurrentTrackCache;
 import com.soon.fm.R;
 import com.soon.fm.async.CallbackInterface;
 import com.soon.fm.async.FetchQueue;
@@ -31,6 +31,7 @@ import com.soon.fm.backend.event.PerformDeleteTrack;
 import com.soon.fm.backend.model.QueueItem;
 import com.soon.fm.helper.PreferencesHelper;
 import com.soon.fm.utils.CircleTransform;
+import com.soon.fm.utils.CurrentTrackCache;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -138,7 +139,30 @@ public class QueueFragment extends Fragment {
 
             @Override
             public void onAnimationEnd(Animation arg0) {
-                performDelete(holder.qi);
+                Snackbar snackbar = Snackbar.make(v, "Item removed from the queue", Snackbar.LENGTH_LONG).setCallback(new Snackbar.Callback() {
+                    @Override
+                    public void onDismissed(Snackbar snackbar, int event) {
+                        super.onDismissed(snackbar, event);
+                        if (event == DISMISS_EVENT_CONSECUTIVE || event == DISMISS_EVENT_TIMEOUT) {
+                            performDelete(holder.qi);
+                        }
+                    }
+
+                    @Override
+                    public void onShown(Snackbar snackbar) {
+                        super.onShown(snackbar);
+                    }
+                }).setAction("UNDO", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Snackbar snackbarUndo = Snackbar.make(view, "Track has been restored", Snackbar.LENGTH_SHORT);
+                        snackbarUndo.show();
+
+                        mAdapter = new QueueAdapter(queue);
+                        mListView.setAdapter(mAdapter);
+                    }
+                });
+                snackbar.show();
             }
 
             @Override
@@ -206,13 +230,9 @@ public class QueueFragment extends Fragment {
             holder.qi = userTrack;
             holder.trackName.setText(userTrack.getTrack().getName());
             holder.artistName.setText(TextUtils.join(", ", userTrack.getTrack().getArtists()));
-            with(context).load(userTrack.getUser().getAvatarUrl())
-                    .placeholder(R.drawable.ic_person)
-                    .transform(new CircleTransform()).into(holder.userAvatar);
+            with(context).load(userTrack.getUser().getAvatarUrl()).placeholder(R.drawable.ic_person).transform(new CircleTransform()).into(holder.userAvatar);
             with(context).load(userTrack.getTrack().
-                    getAlbum().getImages().get(2).getUrl())
-                    .placeholder(R.drawable.ic_album)
-                    .into(holder.albumImage);
+                    getAlbum().getImages().get(2).getUrl()).placeholder(R.drawable.ic_album).into(holder.albumImage);
         }
 
         @Override
