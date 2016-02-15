@@ -136,7 +136,7 @@
 
             <FrameLayout
                 style="@style/control_button"
-                android:background="@drawable/circle">
+                android:background="@drawable/shape_circle">
 
                 <ToggleButton
                     android:id="@+id/toggle_pause_play"
@@ -149,7 +149,7 @@
 
             <FrameLayout
                 style="@style/control_button"
-                android:background="@drawable/circle">
+                android:background="@drawable/shape_circle">
 
                 <ImageButton
                     android:id="@+id/cnt_skip"
@@ -163,7 +163,7 @@
 
             <FrameLayout
                 style="@style/control_button"
-                android:background="@drawable/circle">
+                android:background="@drawable/shape_circle">
 
                 <ToggleButton
                     android:id="@+id/toggle_mute_unmute"

@@ -7,7 +7,10 @@
                 android:paddingLeft="20dp"
                 android:paddingRight="20dp"
                 android:paddingTop="5dp"
-                android:background="@color/foreground" >
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+    >
 
     <ImageView
         android:id="@+id/item_image"

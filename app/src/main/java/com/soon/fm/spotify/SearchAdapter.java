@@ -21,8 +21,6 @@ import java.util.List;
 
 public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final String TAG = SearchAdapter.class.getName();
-
     private final Context context;
     private final PreferencesHelper preferences;
     private List<Item> dataSet;
@@ -66,30 +64,37 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     private void performAddTrack(final Item item) {
-        new PerformAddTrack(new CallbackInterface<Item>() {
+        Snackbar snackbar = Snackbar.make(view, String.format("%s - %s added", item.getTitle(), item.getSubTitle()), Snackbar.LENGTH_LONG).setCallback(new Snackbar.Callback() {
             @Override
-            public void onSuccess(Item obj) {
-                Snackbar snackbar = Snackbar.make(view, String.format("%s - %s added", obj.getTitle(), obj.getSubTitle()), Snackbar.LENGTH_LONG).setAction("UNDO", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Snackbar snackbarUndo = Snackbar.make(view, "Sorry can't do that!", Snackbar.LENGTH_SHORT);
-                        snackbarUndo.show();
-                    }
-                });
-                snackbar.show();
+            public void onDismissed(Snackbar snackbar, int event) {
+                super.onDismissed(snackbar, event);
+                if (event == DISMISS_EVENT_CONSECUTIVE || event == DISMISS_EVENT_TIMEOUT) {
+                    new PerformAddTrack(preferences.getUserApiToken(), item, new CallbackInterface<Item>() {
+                        @Override
+                        public void onSuccess(Item obj) {
+
+                        }
+
+                        @Override
+                        public void onFail() {
+
+                        }
+                    }).execute();
+                }
             }
 
             @Override
-            public void onFail() {
-                Snackbar snackbar = Snackbar.make(view, "Failed adding track to the queue", Snackbar.LENGTH_LONG).setAction("Retry", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        performAddTrack(item);
-                    }
-                });
-                snackbar.show();
+            public void onShown(Snackbar snackbar) {
+                super.onShown(snackbar);
             }
-        }, preferences.getUserApiToken(), item).execute();
+        }).setAction("UNDO", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar snackbarUndo = Snackbar.make(view, "Track removed from the queue!", Snackbar.LENGTH_SHORT);
+                snackbarUndo.show();
+            }
+        });
+        snackbar.show();
     }
 
     private void loadImageFromCacheTo(String url, ImageView image) {
