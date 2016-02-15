@@ -1,7 +1,5 @@
 package com.soon.fm.backend;
 
-import android.util.Log;
-
 import com.soon.fm.backend.model.AccessToken;
 import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.GoogleToken;
@@ -9,7 +7,6 @@ import com.soon.fm.backend.model.Mute;
 import com.soon.fm.backend.model.QueueItem;
 import com.soon.fm.backend.model.Uri;
 import com.soon.fm.backend.model.Volume;
-import com.squareup.okhttp.ResponseBody;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,8 +16,6 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 public class BackendHelper {
-
-    private static final String TAG = "BackendHelper";
 
     private final SoonFMService service;
 
@@ -41,23 +36,15 @@ public class BackendHelper {
 
     public AccessToken getAccessToken(String googleAccessToken) throws IOException {
         Response<AccessToken> response = service.googleConnect(new GoogleToken(googleAccessToken)).execute();
-
-        if (response.code() != 200) {
-            Log.e(TAG, String.format("[SFM api] %s", response.errorBody().string()));
-        } else {
-            Log.d(TAG, String.format("[SFM api] %s", response.raw().message()));
-        }
         return response.body();
     }
 
     public void pause(String authToken) throws IOException {
-        Response<ResponseBody> response = service.pause(authToken).execute();
-        Log.d(TAG, String.format("[SFM api] %s", response.raw().message()));
+        service.pause(authToken).execute();
     }
 
     public void play(String authToken) throws IOException {
-        Response<ResponseBody> response = service.play(authToken).execute();
-        Log.d(TAG, String.format("[SFM api] %s", response.raw().message()));
+        service.play(authToken).execute();
     }
 
     public void addTrack(String token, Uri uri) throws IOException {
@@ -94,6 +81,6 @@ public class BackendHelper {
     }
 
     public void skipTrack(String token) throws IOException {
-        Response<ResponseBody> response = service.skip(token).execute();
+        service.skip(token).execute();
     }
 }

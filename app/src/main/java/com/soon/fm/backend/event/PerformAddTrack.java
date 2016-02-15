@@ -1,37 +1,25 @@
 package com.soon.fm.backend.event;
 
-import android.os.AsyncTask;
-
 import com.soon.fm.Constants;
-import com.soon.fm.OnTaskCompleted;
-import com.soon.fm.backend.BackendHelper;
+import com.soon.fm.async.BaseAsync;
+import com.soon.fm.async.CallbackInterface;
 import com.soon.fm.backend.model.Uri;
 import com.soon.fm.spotify.api.model.Item;
 
-import java.io.IOException;
-
-public class PerformAddTrack extends AsyncTask<Void, Void, Void> {
+public class PerformAddTrack extends BaseAsync<Item> {
 
     private final String token;
     private final Item item;
-    private OnTaskCompleted callback;
 
-    public PerformAddTrack(OnTaskCompleted callback, String token, Item item) {
+    public PerformAddTrack(CallbackInterface<Item> callback, String token, Item item) {
+        super(Constants.FM_API, callback);
         this.token = token;
         this.item = item;
-        this.callback = callback;
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
-        BackendHelper backend = new BackendHelper(Constants.FM_API);
-        try {
-            backend.addTrack(token, new Uri(item.getUri()));
-            callback.onSuccess(item);
-        } catch (IOException e) {
-            callback.onFailed(item);
-        }
-
+    public Item performOperation() throws Exception {
+        getBackend().addTrack(token, new Uri(item.getUri()));
         return null;
     }
 

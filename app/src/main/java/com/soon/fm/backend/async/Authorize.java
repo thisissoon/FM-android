@@ -4,7 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.soon.fm.Constants;
-import com.soon.fm.OnTaskCompleted;
+import com.soon.fm.async.CallbackInterface;
 import com.soon.fm.backend.BackendHelper;
 import com.soon.fm.backend.model.AccessToken;
 
@@ -13,9 +13,9 @@ import java.io.IOException;
 public class Authorize extends AsyncTask<String, AccessToken, AccessToken> {
 
     private static final String TAG = "Authorize";
-    private final OnTaskCompleted callback;
+    private final CallbackInterface callback;
 
-    public Authorize(OnTaskCompleted callback) {
+    public Authorize(CallbackInterface<AccessToken> callback) {
         this.callback = callback;
     }
 
@@ -33,7 +33,7 @@ public class Authorize extends AsyncTask<String, AccessToken, AccessToken> {
     @Override
     protected void onPostExecute(AccessToken accessToken) {
         if (accessToken == null) {
-            callback.onFailed(null);
+            callback.onFail();
         } else {
             callback.onSuccess(accessToken);
         }

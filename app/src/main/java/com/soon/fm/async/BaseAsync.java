@@ -32,4 +32,5 @@ public abstract class BaseAsync<T> extends AsyncTask<Void, Void, T> {
     public BackendHelper getBackend() {
         return backend;
     }
+
 }
