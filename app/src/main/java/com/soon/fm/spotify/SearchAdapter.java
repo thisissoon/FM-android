@@ -37,7 +37,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        final View view = inflater.inflate(R.layout.custom_searchable_row_details, parent, false);
+        final View view = inflater.inflate(R.layout.spotify_row_details, parent, false);
         this.view = view;
         return new ViewHolder(view, new ViewHolder.SearchResultHolderClicks() {
             public void onRow(View caller, int layoutPosition) {
@@ -70,7 +70,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     private void loadImageFromCacheTo(String url, ImageView image) {
-        Picasso.with(context).load(url).into(image);
+        Picasso.with(context).load(url).placeholder(R.drawable.ic_album).into(image);
     }
 
     public Item getItem(Integer position) {

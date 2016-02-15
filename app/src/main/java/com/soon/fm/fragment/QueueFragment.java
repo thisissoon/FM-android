@@ -3,7 +3,6 @@ package com.soon.fm.fragment;
 import android.animation.ValueAnimator;
 import android.app.Fragment;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,15 +23,15 @@ import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.soon.fm.Constants;
+import com.soon.fm.utils.CurrentTrackCache;
 import com.soon.fm.R;
-import com.soon.fm.backend.BackendHelper;
+import com.soon.fm.async.CallbackInterface;
+import com.soon.fm.async.FetchQueue;
 import com.soon.fm.backend.event.PerformDeleteTrack;
 import com.soon.fm.backend.model.QueueItem;
 import com.soon.fm.helper.PreferencesHelper;
 import com.soon.fm.utils.CircleTransform;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,20 +43,23 @@ public class QueueFragment extends Fragment {
 
     private static final String TAG = QueueFragment.class.getName();
     private final Socket mSocket;
-    private PreferencesHelper preferences;
-    private ArrayList<QueueItem> queue = new ArrayList<>();
+
+    private List<QueueItem> queue = new ArrayList<>();
     private QueueAdapter mAdapter;
+
+    private Context context;
+
+    private PreferencesHelper preferences;
+    private RecyclerView mListView;
+    private LinearLayoutManager mLayoutManager;
+
     private Emitter.Listener onQueueChange = new Emitter.Listener() {
         @Override
-        public void call(Object... args) {  // TODO some locker
-            Log.i(TAG, "Queue changed");
+        public void call(Object... args) {
+            Log.i(TAG, "[listener.onQueueChange] update queue");
             asyncUpdate();
         }
     };
-
-    private Context context;
-    private RecyclerView mListView;
-    private LinearLayoutManager mLayoutManager;
 
     {
         try {
@@ -81,6 +83,8 @@ public class QueueFragment extends Fragment {
 
         context = getActivity().getApplicationContext();
         preferences = new PreferencesHelper(context);
+
+        queue = CurrentTrackCache.getQueue();
     }
 
     @Override
@@ -95,8 +99,6 @@ public class QueueFragment extends Fragment {
 
         mAdapter = new QueueAdapter(queue);
         mListView.setAdapter(mAdapter);
-
-        asyncUpdate();
         return view;
     }
 
@@ -114,7 +116,18 @@ public class QueueFragment extends Fragment {
     }
 
     private void asyncUpdate() {
-        new FetchQueue().execute();
+        new FetchQueue(getString(R.string.fm_api), new CallbackInterface<List<QueueItem>>() {
+            @Override
+            public void onSuccess(List<QueueItem> obj) {
+                QueueAdapter adapter = new QueueAdapter(obj);
+                mListView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onFail() {
+
+            }
+        }).execute();
     }
 
     private void deleteCell(final View v, final QueueAdapter.ViewHolder holder) {
@@ -167,34 +180,14 @@ public class QueueFragment extends Fragment {
         v.startAnimation(anim);
     }
 
-    private class FetchQueue extends AsyncTask<Void, Void, List<QueueItem>> {
-
-        protected List<QueueItem> doInBackground(Void... params) {
-            try {
-                BackendHelper backend = new BackendHelper(Constants.FM_API.toString());
-                return backend.getPlayerQueue();
-            } catch (MalformedURLException e) {
-                Log.wtf(TAG, e.getMessage());
-            } catch (IOException e) {
-                Log.wtf(TAG, e.getMessage());
-                // TODO device is offline do something reasonable
-            }
-
-            return null;
-        }
-
-        protected void onPostExecute(List<QueueItem> userTrackList) {
-            QueueAdapter adapter = new QueueAdapter(userTrackList);
-            mListView.setAdapter(adapter);
-        }
-
-    }
-
     private class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> {
 
         private final List<QueueItem> items;
 
         public QueueAdapter(List<QueueItem> items) {
+            if (items == null) {
+                items = new ArrayList<>();
+            }
             this.items = items;
         }
 
@@ -213,8 +206,13 @@ public class QueueFragment extends Fragment {
             holder.qi = userTrack;
             holder.trackName.setText(userTrack.getTrack().getName());
             holder.artistName.setText(TextUtils.join(", ", userTrack.getTrack().getArtists()));
-            with(context).load(userTrack.getUser().getAvatarUrl()).transform(new CircleTransform()).into(holder.userAvatar);
-            with(context).load(userTrack.getTrack().getAlbum().getImages().get(2).getUrl()).into(holder.albumImage);
+            with(context).load(userTrack.getUser().getAvatarUrl())
+                    .placeholder(R.drawable.ic_person)
+                    .transform(new CircleTransform()).into(holder.userAvatar);
+            with(context).load(userTrack.getTrack().
+                    getAlbum().getImages().get(2).getUrl())
+                    .placeholder(R.drawable.ic_album)
+                    .into(holder.albumImage);
         }
 
         @Override
@@ -256,6 +254,10 @@ public class QueueFragment extends Fragment {
                     case MotionEvent.ACTION_MOVE: {
                         upX = event.getX();
                         float deltaX = downX - upX;
+                        if (Math.abs(deltaX) < MIN_LOCK_DISTANCE) {
+                            return true;
+                        }
+
                         // if a finger accidentally swiped the item in vertical direction, the
                         // ListView would intercept that touch event and take control of it - onTouchListener would give ACTION_CANCEL
                         if (Math.abs(deltaX) > MIN_LOCK_DISTANCE && mListView != null && !motionInterceptDisallowed) {
@@ -268,7 +270,7 @@ public class QueueFragment extends Fragment {
                         } else {
                             holder.deleteView.setVisibility(View.VISIBLE);
                         }
-                        swipe(Math.max(-(int) deltaX, 0));
+                        swipe(Math.max(-(int) deltaX - MIN_LOCK_DISTANCE, 0));
                         return true;
                     }
 

@@ -2,7 +2,6 @@ package com.soon.fm;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v7.widget.Toolbar;
@@ -14,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,22 +22,24 @@ import android.widget.ToggleButton;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
-import com.soon.fm.backend.BackendHelper;
+import com.soon.fm.async.CallbackInterface;
+import com.soon.fm.async.FetchCurrent;
 import com.soon.fm.backend.event.PerformChangeVolumeApiCall;
 import com.soon.fm.backend.event.PerformMuteApiCall;
 import com.soon.fm.backend.event.PerformPauseApiCall;
 import com.soon.fm.backend.event.PerformSkipTrack;
 import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.Player;
+import com.soon.fm.backend.model.QueueItem;
 import com.soon.fm.backend.model.field.Duration;
 import com.soon.fm.helper.PreferencesHelper;
 import com.soon.fm.utils.CircleTransform;
+import com.soon.fm.utils.CurrentTrackCache;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 
 
@@ -72,14 +74,29 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     private Emitter.Listener onEndOfTrack = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            Log.i(TAG, "[Event listener] Track finished");
+            Log.i(TAG, "[listener.onEndOfTrack] Track finished");
             timer.cancel();
+            final CurrentTrack topTrack;
+            if(CurrentTrackCache.getQueue().isEmpty()) {
+                topTrack = null;
+            } else {  // get first from the queue and remove it from there
+                QueueItem item = CurrentTrackCache.getQueue().get(0);
+                topTrack = new CurrentTrack(item);
+                CurrentTrackCache.getQueue().remove(0);
+            }
+            Log.d(TAG, String.format("[listener.onEndOfTrack] hot track swap form the queue %s", topTrack));
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    updateCurrentTrack(topTrack);
+                }
+            });
         }
     };
     private Emitter.Listener onPause = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            Log.i(TAG, "[Event listener] Paused");
+            Log.i(TAG, "[listener.onPause] playing toggle updated");
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -91,14 +108,14 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     private Emitter.Listener onPlay = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            Log.i(TAG, "[Event listener] Playing");
+            Log.i(TAG, "[listener.onPlay] fetch track from backend");
             asyncFetchCurrentTrack();
         }
     };
     private Emitter.Listener onResume = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            Log.i(TAG, "[Event listener] Resumed");
+            Log.i(TAG, "[listener.onResume] playing toggle updated");
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -110,7 +127,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     private Emitter.Listener onMute = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
-            Log.i(TAG, "[Event listener] Mute");
+            Log.i(TAG, "[listener.onMute] set muted flag");
             try {
                 JSONObject json = (JSONObject) args[0];
                 final boolean muted = json.getBoolean("mute");
@@ -121,13 +138,15 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
                     }
                 });
             } catch (JSONException e) {
-                Log.e(TAG, String.format("[Event listener] invalid json %s", args[0]));
+                Log.e(TAG, String.format("[listener.onMute] invalid json %s", args[0]));
             }
         }
     };
 
     private Context context;
     private Toast flash;
+    private CurrentTrack currentTrack;
+    private LinearLayout footerCurrentTrack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,6 +170,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         togglePlay = (ToggleButton) findViewById(R.id.toggle_pause_play);
         skipButton = (ImageButton) findViewById(R.id.cnt_skip);
 
+        footerCurrentTrack = (LinearLayout) findViewById(R.id.footer);
         toggleMute.setOnClickListener(this);
         togglePlay.setOnClickListener(this);
         skipButton.setOnClickListener(this);
@@ -174,9 +194,23 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        asyncUpdateView();
-        asyncIsMuted();
-        asyncGetCurrentVolume();
+        currentTrack = CurrentTrackCache.getCurrentTrack();
+        isMute = CurrentTrackCache.getIsMuted();
+        volume = CurrentTrackCache.getVolume();
+
+//        if (currentTrack == null) {  // hide footer
+//            footerCurrentTrack.post(new Runnable(){
+//                public void run(){
+//                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
+//                    params.bottomMargin = -footerCurrentTrack.getHeight();
+//                    footerCurrentTrack.setLayoutParams(params);
+//                }
+//            });
+//        } else {
+//            updateCurrentTrack(currentTrack);
+//        }
+        updateCurrentTrack(currentTrack);
+        asyncFetchCurrentTrack();  // update current track anyway to sync progress bar
     }
 
     @Override
@@ -272,32 +306,62 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         new PerformSkipTrack(token).execute();
     }
 
-    private void asyncUpdateView() {
-        asyncFetchCurrentTrack();
-    }
-
     private void asyncFetchCurrentTrack() {
-        new FetchCurrent().execute();
+        new FetchCurrent(getString(R.string.fm_api), new CallbackInterface<CurrentTrack>() {
+            @Override
+            public void onSuccess(CurrentTrack obj) {
+                updateCurrentTrack(obj);
+            }
+
+            @Override
+            public void onFail() {
+
+            }
+        }).execute();
     }
 
-    private void asyncIsMuted() {
-        new IsMuted().execute();
-    }
+    private void updateCurrentTrack(final CurrentTrack track) {
+//        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
+//        if(track == null) {   // footer slide down
+//            final int initialHeight = footerCurrentTrack.getHeight();
+//            Animation anim = new Animation() {
+//                @Override
+//                public boolean willChangeBounds() {
+//                    return true;
+//                }
+//
+//                @Override
+//                protected void applyTransformation(float interpolatedTime, Transformation t) {
+//                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
+//                    params.bottomMargin = (int) - (initialHeight * interpolatedTime);
+//                    footerCurrentTrack.setLayoutParams(params);
+//                }
+//            };
+//            anim.setDuration(500);
+//            footerCurrentTrack.startAnimation(anim);
+//            this.currentTrack = null;
+//            return;
+//        }
+        if (track == null) {  // TODO nothing to play
+            return;
+        }
 
-    private void asyncGetCurrentVolume() {
-        new GetCurrentVolume().execute();
-    }
-
-    private void updateCurrentTrack(final CurrentTrack currentTrack) {
-        final Duration trackDuration = currentTrack.getTrack().getDuration();
+        final Duration trackDuration = track.getTrack().getDuration();
 
         totalTime.setText(trackDuration.toString());
-        trackName.setText(currentTrack.getTrack().getName());
-        artistName.setText(TextUtils.join(", ", currentTrack.getTrack().getArtists()));
-        albumName.setText(currentTrack.getTrack().getAlbum().getName());
+        trackName.setText(track.getTrack().getName());
+        artistName.setText(TextUtils.join(", ", track.getTrack().getArtists()));
+        albumName.setText(track.getTrack().getAlbum().getName());
 
-        Picasso.with(context).load(currentTrack.getUser().getAvatarUrl()).transform(new CircleTransform()).into(userImage);
-        Picasso.with(context).load(currentTrack.getTrack().getAlbum().getImages().get(0).getUrl()).into(albumImage);
+        Picasso.with(context)
+                .load(track.getUser().getAvatarUrl())
+                .placeholder(R.drawable.ic_person)
+                .transform(new CircleTransform())
+                .into(userImage);
+        Picasso.with(context)
+                .load(track.getTrack().getAlbum().getImages().get(2).getUrl())
+                .placeholder(R.drawable.ic_album)
+                .into(albumImage);
 
         if (timer != null) {
             timer.cancel();
@@ -307,8 +371,8 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
             @Override
             public void onTick(long millisUntilFinished_) {
-                Player player = currentTrack.getPlayer();
-                int trackDuration = currentTrack.getTrack().getDuration().getMillis();
+                Player player = track.getPlayer();
+                int trackDuration = track.getTrack().getDuration().getMillis();
 
                 if (currentMilliseconds == 0) {
                     currentMilliseconds = player.getElapsedTime();
@@ -326,8 +390,28 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
             }
         }.start();
-    }
 
+//        if(params.bottomMargin < 0) {  // footer slide up
+//            final int initialHeight = footerCurrentTrack.getHeight();
+//            Animation anim = new Animation() {
+//                @Override
+//                public boolean willChangeBounds() {
+//                    return true;
+//                }
+//
+//                @Override
+//                protected void applyTransformation(float interpolatedTime, Transformation t) {
+//                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
+//                    params.bottomMargin = (int) (initialHeight * interpolatedTime) - initialHeight;
+//                    footerCurrentTrack.setLayoutParams(params);
+//                }
+//            };
+//            anim.setDuration(500);
+//            footerCurrentTrack.startAnimation(anim);
+//        }
+        this.currentTrack = track;
+    }
+    
     private void setMuteToggle(Boolean state) {
         isMute = state;
         toggleMute.setChecked(isMute);
@@ -336,58 +420,6 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     private void setPlayToggle(Boolean state) {
         isPlaying = state;
         togglePlay.setChecked(!isPlaying);
-    }
-
-    private class FetchCurrent extends AsyncTask<Void, Void, com.soon.fm.backend.model.CurrentTrack> {
-
-        protected CurrentTrack doInBackground(Void... params) {
-            try {
-                BackendHelper backend = new BackendHelper(Constants.FM_API);
-                return backend.getCurrentTrack();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-        protected void onPostExecute(com.soon.fm.backend.model.CurrentTrack currentTrack) {
-            if (currentTrack != null) {
-                updateCurrentTrack(currentTrack);
-            }
-        }
-    }
-
-    private class IsMuted extends AsyncTask<Void, Void, Boolean> {
-
-        protected Boolean doInBackground(Void... params) {
-            BackendHelper backend = new BackendHelper(Constants.FM_API);
-            Boolean isMuted = false;
-            try {
-                isMuted = backend.isMuted();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return isMuted;
-        }
-
-        protected void onPostExecute(Boolean muted) {
-            setMuteToggle(muted);
-        }
-
-    }
-
-    private class GetCurrentVolume extends AsyncTask<Void, Void, Void> {
-
-        protected Void doInBackground(Void... params) {
-            BackendHelper backend = new BackendHelper(Constants.FM_API);
-            try {
-                volume = backend.getVolume();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
     }
 
 }
