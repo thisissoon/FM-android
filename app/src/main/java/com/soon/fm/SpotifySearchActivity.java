@@ -9,26 +9,26 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.soon.fm.spotify.SearchAdapter;
 import com.soon.fm.spotify.SpotifyHelper;
-import com.soon.fm.spotify.api.model.Item;
 import com.soon.fm.spotify.api.model.Search;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class SpotifySearchActivity extends BaseActivity {
 
     private static final String TAG = SpotifySearchActivity.class.getName();
-    private String query;
+
     private EditText searchInput;
     private RecyclerView searchResultList;
     private Context context;
+
+    private Search spotifyResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,11 +39,27 @@ public class SpotifySearchActivity extends BaseActivity {
         context = getApplicationContext();
 
         this.searchResultList = (RecyclerView) this.findViewById(R.id.cs_result_list);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         searchResultList.setLayoutManager(linearLayoutManager);
+        searchResultList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
 
+                if (dy > 0) {
+                    SearchAdapter adapter = (SearchAdapter) recyclerView.getAdapter();
+
+                    hideKeyboard(recyclerView);
+                    int totalItemCount = linearLayoutManager.getItemCount();
+                    int lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
+                    if (totalItemCount <= (lastVisibleItem + adapter.getItemCount())) {
+                        adapter.loadMore();
+                    }
+                }
+            }
+
+        });
         implementSearchTextListener();
-
         ImageView customBarReturn = (ImageView) this.findViewById(R.id.custom_bar_return);
         customBarReturn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,6 +67,12 @@ public class SpotifySearchActivity extends BaseActivity {
                 finish();
             }
         });
+    }
+
+    public void hideKeyboard(View v) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+        searchInput.clearFocus();
     }
 
     private void implementSearchTextListener() {
@@ -64,8 +86,8 @@ public class SpotifySearchActivity extends BaseActivity {
             @Override
             public void onTextChanged(final CharSequence s, int start, int before, int count) {
                 if (!"".equals(searchInput.getText().toString())) {
-                    query = searchInput.getText().toString();
-                    mapResultsFromCustomProviderToList();
+                    String query = searchInput.getText().toString();
+                    mapResultsFromCustomProviderToList(query);
                 } else {
                     searchResultList.setAdapter(null);
                 }
@@ -79,35 +101,33 @@ public class SpotifySearchActivity extends BaseActivity {
         });
     }
 
-    private void mapResultsFromCustomProviderToList() {
-        new AsyncTask<Void, Void, List<Item>>() {
+    private void mapResultsFromCustomProviderToList(final String query) {
+        new AsyncTask<Void, Void, Search>() {
             @Override
-            protected List<Item> doInBackground(Void[] params) {
-                List<Item> resultList = new ArrayList<>();
+            protected Search doInBackground(Void... params) {
                 SpotifyHelper spotifyHelper = new SpotifyHelper();
+                spotifyResult = null;
                 try {
-                    Search spotifyResult = spotifyHelper.search(query, 10);
+                    spotifyResult = spotifyHelper.search(query, 25);
 //                    if (spotifyResult.getAlbums() != null) {
 //                        resultList.addAll(spotifyResult.getAlbums().getItems());
 //                    }
 //                    if (spotifyResult.getArtists() != null) {
 //                        resultList.addAll(spotifyResult.getArtists().getItems());
 //                    }
-                    if (spotifyResult.getTracks() != null) {
-                        resultList.addAll(spotifyResult.getTracks().getItems());
-                    }
+
                 } catch (IOException e) {
                     Log.e(TAG, String.format("Something went wrong %s", e.getMessage()));
                 } catch (NullPointerException e) {
                     // Nothing has been found
                 }
-                return resultList;
+                return spotifyResult;
             }
 
             @Override
-            protected void onPostExecute(List<Item> resultList) {
-                if (resultList != null) {
-                    SearchAdapter adapter = new SearchAdapter(context, resultList);
+            protected void onPostExecute(Search result) {
+                if (result != null) {
+                    SearchAdapter adapter = new SearchAdapter(context, result);
                     searchResultList.setAdapter(adapter);
                 }
             }
