@@ -71,32 +71,6 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
     private Socket mSocket;
     private CountDownTimer timer;
-
-    /* socket listeners */
-    private Emitter.Listener onEndOfTrack = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-            Log.i(TAG, "[listener.onEndOfTrack] Track finished");
-            if (timer != null) {
-                timer.cancel();
-            }
-            final CurrentTrack topTrack;
-            if(CurrentTrackCache.getQueue().isEmpty()) {
-                topTrack = null;
-            } else {  // get first from the queue and remove it from there
-                QueueItem item = CurrentTrackCache.getQueue().get(0);
-                topTrack = new CurrentTrack(item);
-                CurrentTrackCache.getQueue().remove(0);
-            }
-            Log.d(TAG, String.format("[listener.onEndOfTrack] hot track swap form the queue %s", topTrack));
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    updateCurrentTrack(topTrack);
-                }
-            });
-        }
-    };
     private Emitter.Listener onPause = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -107,13 +81,6 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
                     setPlayToggle(false);
                 }
             });
-        }
-    };
-    private Emitter.Listener onPlay = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-            Log.i(TAG, "[listener.onPlay] fetch track from backend");
-            asyncFetchCurrentTrack();
         }
     };
     private Emitter.Listener onResume = new Emitter.Listener() {
@@ -146,10 +113,41 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
             }
         }
     };
-
     private Context context;
     private Toast flash;
     private CurrentTrack currentTrack;
+    /* socket listeners */
+    private Emitter.Listener onEndOfTrack = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            Log.i(TAG, "[listener.onEndOfTrack] Track finished");
+            if (timer != null) {
+                timer.cancel();
+            }
+            final CurrentTrack topTrack;
+            if (CurrentTrackCache.getQueue().isEmpty()) {
+                topTrack = null;
+            } else {  // get first from the queue and remove it from there
+                QueueItem item = CurrentTrackCache.getQueue().get(0);
+                topTrack = new CurrentTrack(item);
+                CurrentTrackCache.getQueue().remove(0);
+            }
+            Log.d(TAG, String.format("[listener.onEndOfTrack] hot track swap form the queue %s", topTrack));
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    updateCurrentTrack(topTrack);
+                }
+            });
+        }
+    };
+    private Emitter.Listener onPlay = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            Log.i(TAG, "[listener.onPlay] fetch track from backend");
+            asyncFetchCurrentTrack();
+        }
+    };
     private LinearLayout footerCurrentTrack;
 
     @Override
@@ -387,15 +385,8 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         artistName.setText(TextUtils.join(", ", track.getTrack().getArtists()));
         albumName.setText(track.getTrack().getAlbum().getName());
 
-        Picasso.with(context)
-                .load(track.getUser().getAvatarUrl())
-                .placeholder(R.drawable.ic_person)
-                .transform(new CircleTransform())
-                .into(userImage);
-        Picasso.with(context)
-                .load(track.getTrack().getAlbum().getImages().get(2).getUrl())
-                .placeholder(R.drawable.ic_album)
-                .into(albumImage);
+        Picasso.with(context).load(track.getUser().getAvatarUrl()).placeholder(R.drawable.ic_person).transform(new CircleTransform()).into(userImage);
+        Picasso.with(context).load(track.getTrack().getAlbum().getImages().get(2).getUrl()).placeholder(R.drawable.ic_album).into(albumImage);
 
         if (timer != null) {
             timer.cancel();

@@ -14,10 +14,6 @@ public abstract class BaseAsync<T> extends AsyncTask<Void, Void, T> {
         backend = new BackendHelper(backendUrl);
     }
 
-    protected void onPostExecute(T obj) {
-        this.callback.onSuccess(obj);
-    }
-
     public abstract T performOperation() throws Exception;
 
     protected T doInBackground(Void... params) {
@@ -27,6 +23,10 @@ public abstract class BaseAsync<T> extends AsyncTask<Void, Void, T> {
             callback.onFail();
         }
         return null;
+    }
+
+    protected void onPostExecute(T obj) {
+        this.callback.onSuccess(obj);
     }
 
     public BackendHelper getBackend() {

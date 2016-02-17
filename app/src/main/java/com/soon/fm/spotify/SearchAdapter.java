@@ -3,33 +3,44 @@ package com.soon.fm.spotify;
 import android.content.Context;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.soon.fm.R;
 import com.soon.fm.async.CallbackInterface;
 import com.soon.fm.backend.event.PerformAddTrack;
 import com.soon.fm.helper.PreferencesHelper;
 import com.soon.fm.spotify.api.model.Item;
+import com.soon.fm.spotify.api.model.Search;
+import com.soon.fm.spotify.async.SearchTask;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
 public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    private static final String TAG = SearchAdapter.class.getName();
     private final Context context;
     private final PreferencesHelper preferences;
-    private List<Item> dataSet;
+    private final Search result;
+    private List<Item> dataSet = new ArrayList<>();
     private View view;
 
-    public SearchAdapter(Context context, List<Item> dataSet) {
-        this.dataSet = dataSet;
+    private boolean loading = false;
+
+    public SearchAdapter(Context context, Search result) {
+        this.result = result;
         this.context = context;
         preferences = new PreferencesHelper(context);
+
+        dataSet.addAll(result.getTracks().getItems());
     }
 
     @Override
@@ -103,6 +114,30 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public Item getItem(Integer position) {
         return dataSet.get(position);
+    }
+
+    public void loadMore() {
+        String next = result.getTracks().getNext();
+        if (!loading && next != null) {
+            loading = true;
+            new SearchTask(next, new CallbackInterface<Search>() {
+                @Override
+                public void onSuccess(Search obj) {
+                    if (obj != null) {
+                        dataSet.addAll(obj.getTracks().getItems());
+                        notifyDataSetChanged();
+                        Log.d(TAG, String.format("new %d items added to adapter. # of items %s", obj.getTracks().getItems().size(), dataSet.size()));
+                    }
+                    loading = false;
+                }
+
+                @Override
+                public void onFail() {
+                    loading = false;
+                    Toast.makeText(context, "Something wrong", Toast.LENGTH_SHORT).show();
+                }
+            }).execute();
+        }
     }
 
     private static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
