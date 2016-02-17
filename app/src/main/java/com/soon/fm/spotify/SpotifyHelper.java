@@ -24,4 +24,9 @@ public class SpotifyHelper {
         return response.body();
     }
 
+    public Search search(String url) throws IOException {
+        Response<Search> response = service.paginatedSearch(url).execute();
+        return response.body();
+    }
+
 }

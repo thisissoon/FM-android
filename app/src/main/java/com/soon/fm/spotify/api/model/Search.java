@@ -8,15 +8,15 @@ public class Search {
 
     @SerializedName("albums")
     @Expose
-    private Albums albums;
+    private Albums albums = new Albums();
 
     @SerializedName("artists")
     @Expose
-    private Artists artists;
+    private Artists artists = new Artists();
 
     @SerializedName("tracks")
     @Expose
-    private Tracks tracks;
+    private Tracks tracks = new Tracks();
 
     public Albums getAlbums() {
         return albums;
