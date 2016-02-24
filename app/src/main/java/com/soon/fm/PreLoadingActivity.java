@@ -32,7 +32,7 @@ public class PreLoadingActivity extends BaseActivity {
 
     private void goToQueueIfLoaded() {
         if (CurrentTrackCache.isEverythingSet()) {
-            changeActivity(CurrentTrackActivity.class);
+            changeActivity(QueueActivity.class);
             finish();
         }
     }

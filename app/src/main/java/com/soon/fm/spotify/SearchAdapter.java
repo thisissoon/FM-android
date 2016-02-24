@@ -74,6 +74,14 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return dataSet.size();
     }
 
+    private void loadImageFromCacheTo(String url, ImageView image) {
+        Picasso.with(context).load(url).placeholder(R.drawable.ic_album).into(image);
+    }
+
+    public Item getItem(Integer position) {
+        return dataSet.get(position);
+    }
+
     private void performAddTrack(final Item item) {
         Snackbar snackbar = Snackbar.make(view, String.format("%s - %s added", item.getTitle(), item.getSubTitle()), Snackbar.LENGTH_LONG).setCallback(new Snackbar.Callback() {
             @Override
@@ -106,14 +114,6 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }
         });
         snackbar.show();
-    }
-
-    private void loadImageFromCacheTo(String url, ImageView image) {
-        Picasso.with(context).load(url).placeholder(R.drawable.ic_album).into(image);
-    }
-
-    public Item getItem(Integer position) {
-        return dataSet.get(position);
     }
 
     public void loadMore() {

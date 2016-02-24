@@ -1,15 +1,14 @@
-package com.soon.fm;
+package com.soon.fm.fragment;
 
+import android.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -20,8 +19,8 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
+import com.soon.fm.R;
 import com.soon.fm.async.CallbackInterface;
 import com.soon.fm.async.FetchCurrent;
 import com.soon.fm.backend.event.PerformChangeVolumeApiCall;
@@ -37,13 +36,7 @@ import com.soon.fm.utils.CircleTransform;
 import com.soon.fm.utils.CurrentTrackCache;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.net.URISyntaxException;
-
-
-public class CurrentTrackActivity extends BaseActivity implements View.OnClickListener {
+public class QueueViewFragment extends Fragment implements View.OnClickListener {
 
     private static final String TAG = "CurrentTrackActivity";
 
@@ -70,48 +63,48 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
     private Socket mSocket;
     private CountDownTimer timer;
-    private Emitter.Listener onPause = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-            Log.i(TAG, "[listener.onPause] playing toggle updated");
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setPlayToggle(false);
-                }
-            });
-        }
-    };
-    private Emitter.Listener onResume = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-            Log.i(TAG, "[listener.onResume] playing toggle updated");
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setPlayToggle(true);
-                }
-            });
-        }
-    };
-    private Emitter.Listener onMute = new Emitter.Listener() {
-        @Override
-        public void call(final Object... args) {
-            Log.i(TAG, "[listener.onMute] set muted flag");
-            try {
-                JSONObject json = (JSONObject) args[0];
-                final boolean muted = json.getBoolean("mute");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        setMuteToggle(muted);
-                    }
-                });
-            } catch (JSONException e) {
-                Log.e(TAG, String.format("[listener.onMute] invalid json %s", args[0]));
-            }
-        }
-    };
+    //        private Emitter.Listener onPause = new Emitter.Listener() {
+//            @Override
+//            public void call(Object... args) {
+//                Log.i(TAG, "[listener.onPause] playing toggle updated");
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        setPlayToggle(false);
+//                    }
+//                });
+//            }
+//        };
+//        private Emitter.Listener onResume = new Emitter.Listener() {
+//            @Override
+//            public void call(Object... args) {
+//                Log.i(TAG, "[listener.onResume] playing toggle updated");
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        setPlayToggle(true);
+//                    }
+//                });
+//            }
+//        };
+//        private Emitter.Listener onMute = new Emitter.Listener() {
+//            @Override
+//            public void call(final Object... args) {
+//                Log.i(TAG, "[listener.onMute] set muted flag");
+//                try {
+//                    JSONObject json = (JSONObject) args[0];
+//                    final boolean muted = json.getBoolean("mute");
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            setMuteToggle(muted);
+//                        }
+//                    });
+//                } catch (JSONException e) {
+//                    Log.e(TAG, String.format("[listener.onMute] invalid json %s", args[0]));
+//                }
+//            }
+//        };
     private Context context;
     private Toast flash;
     private CurrentTrack currentTrack;
@@ -132,12 +125,12 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
                 CurrentTrackCache.getQueue().remove(0);
             }
             Log.d(TAG, String.format("[listener.onEndOfTrack] hot track swap form the queue %s", topTrack));
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    updateCurrentTrack(topTrack);
-                }
-            });
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    updateCurrentTrack(topTrack);
+//                }
+//            });
         }
     };
     private Emitter.Listener onPlay = new Emitter.Listener() {
@@ -150,76 +143,71 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     private LinearLayout footerCurrentTrack;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        if (!isDeviceOnline()) {
-            showFlash("Device is not online");
-        }
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.queue_fragment, container, false);
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_current_track);
+        totalTime = (TextView) rootView.findViewById(R.id.total_time);
+        trackName = (TextView) rootView.findViewById(R.id.track_name);
+        artistName = (TextView) rootView.findViewById(R.id.artist_name);
+        albumName = (TextView) rootView.findViewById(R.id.album_name);
+        progressBar = (ProgressBar) rootView.findViewById(R.id.progress_bar);
+        txtElapsedTime = (TextView) rootView.findViewById(R.id.elapsed_time);
+        userImage = (ImageView) rootView.findViewById(R.id.img_user);
+        albumImage = (ImageView) rootView.findViewById(R.id.img_album);
 
-        totalTime = (TextView) findViewById(R.id.total_time);
-        trackName = (TextView) findViewById(R.id.track_name);
-        artistName = (TextView) findViewById(R.id.artist_name);
-        albumName = (TextView) findViewById(R.id.album_name);
-        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        txtElapsedTime = (TextView) findViewById(R.id.elapsed_time);
-        userImage = (ImageView) findViewById(R.id.img_user);
-        albumImage = (ImageView) findViewById(R.id.img_album);
+        toggleMute = (ToggleButton) rootView.findViewById(R.id.toggle_mute_unmute);
+        togglePlay = (ToggleButton) rootView.findViewById(R.id.toggle_pause_play);
+        skipButton = (ImageButton) rootView.findViewById(R.id.cnt_skip);
 
-        toggleMute = (ToggleButton) findViewById(R.id.toggle_mute_unmute);
-        togglePlay = (ToggleButton) findViewById(R.id.toggle_pause_play);
-        skipButton = (ImageButton) findViewById(R.id.cnt_skip);
+        volumeBar = (SeekBar) rootView.findViewById(R.id.volumeBar);
 
-        volumeBar = (SeekBar) findViewById(R.id.volumeBar);
+        footerCurrentTrack = (LinearLayout) rootView.findViewById(R.id.footer);
+//        toggleMute.setOnClickListener(this);
+//        togglePlay.setOnClickListener(this);
+//        skipButton.setOnClickListener(this);
+//        volumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//            @Override
+//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//
+//            }
+//
+//            @Override
+//            public void onStartTrackingTouch(SeekBar seekBar) {
+//
+//            }
+//
+//            @Override
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//                int vol = seekBar.getProgress();
+//                if (volume != vol) {
+//                    changeVolume(vol);
+//                }
+//            }
+//        });
 
-        footerCurrentTrack = (LinearLayout) findViewById(R.id.footer);
-        toggleMute.setOnClickListener(this);
-        togglePlay.setOnClickListener(this);
-        skipButton.setOnClickListener(this);
-        volumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//        try {
+//            mSocket = IO.socket(getString(R.string.socket));
+//        } catch (URISyntaxException e) {
+//            throw new RuntimeException(e);
+//        }
 
-            }
+//        mSocket.on(getString(R.string.socket_events_end), onEndOfTrack);
+//        mSocket.on(getString(R.string.socket_events_play), onPlay);
+//            mSocket.on(getString(R.string.socket_events_pause), onPause);
+//            mSocket.on(getString(R.string.socket_events_resume), onResume);
+//            mSocket.on(getString(R.string.socket_events_set_mute), onMute);
+//        mSocket.connect();
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
+//        context = rootView.getContext();
+//        preferences = new PreferencesHelper(context);
 
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                int vol = seekBar.getProgress();
-                if (volume != vol) {
-                    changeVolume(vol);
-                }
-            }
-        });
-
-        try {
-            mSocket = IO.socket(getString(R.string.socket));
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-
-        mSocket.on(getString(R.string.socket_events_end), onEndOfTrack);
-        mSocket.on(getString(R.string.socket_events_play), onPlay);
-        mSocket.on(getString(R.string.socket_events_pause), onPause);
-        mSocket.on(getString(R.string.socket_events_resume), onResume);
-        mSocket.on(getString(R.string.socket_events_set_mute), onMute);
-        mSocket.connect();
-
-        context = getApplicationContext();
-        preferences = new PreferencesHelper(this);
-
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
 
-        currentTrack = CurrentTrackCache.getCurrentTrack();
-        isMute = CurrentTrackCache.getIsMuted();
-        volume = CurrentTrackCache.getVolume();
-        updateVolumeBar(volume);
+//        currentTrack = CurrentTrackCache.getCurrentTrack();
+//        isMute = CurrentTrackCache.getIsMuted();
+//        volume = CurrentTrackCache.getVolume();
+//        updateVolumeBar(volume);
 
 //        if (currentTrack == null) {  // hide footer
 //            footerCurrentTrack.post(new Runnable(){
@@ -232,8 +220,10 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 //        } else {
 //            updateCurrentTrack(currentTrack);
 //        }
-        updateCurrentTrack(currentTrack);
-        asyncFetchCurrentTrack();  // update current track anyway to sync progress bar
+//        updateCurrentTrack(currentTrack);
+//        asyncFetchCurrentTrack();  // update current track anyway to sync progress bar
+
+        return rootView;
     }
 
     @Override
@@ -241,9 +231,9 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         super.onDestroy();
         mSocket.off(getString(R.string.socket_events_end), onEndOfTrack);
         mSocket.off(getString(R.string.socket_events_play), onPlay);
-        mSocket.off(getString(R.string.socket_events_pause), onPause);
-        mSocket.off(getString(R.string.socket_events_resume), onResume);
-        mSocket.off(getString(R.string.socket_events_set_mute), onMute);
+//            mSocket.off(getString(R.string.socket_events_pause), onPause);
+//            mSocket.off(getString(R.string.socket_events_resume), onResume);
+//            mSocket.off(getString(R.string.socket_events_set_mute), onMute);
         mSocket.disconnect();
     }
 
@@ -251,7 +241,7 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         if (flash != null) {
             flash.cancel();
         }
-        flash = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
+        flash = Toast.makeText(context, text, Toast.LENGTH_LONG);
         flash.show();
     }
 
@@ -263,6 +253,20 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 
     private void updateVolumeBar(int volume) {
         volumeBar.setProgress(volume);
+    }
+
+    private void asyncFetchCurrentTrack() {
+        new FetchCurrent(getString(R.string.fm_api), new CallbackInterface<CurrentTrack>() {
+            @Override
+            public void onSuccess(CurrentTrack obj) {
+                updateCurrentTrack(obj);
+            }
+
+            @Override
+            public void onFail() {
+
+            }
+        }).execute();
     }
 
     private void updateCurrentTrack(final CurrentTrack track) {
@@ -349,20 +353,6 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         this.currentTrack = track;
     }
 
-    private void asyncFetchCurrentTrack() {
-        new FetchCurrent(getString(R.string.fm_api), new CallbackInterface<CurrentTrack>() {
-            @Override
-            public void onSuccess(CurrentTrack obj) {
-                updateCurrentTrack(obj);
-            }
-
-            @Override
-            public void onFail() {
-
-            }
-        }).execute();
-    }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -398,51 +388,51 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         new PerformSkipTrack(token).execute();
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-            switch (keyCode) {
-                case KeyEvent.KEYCODE_VOLUME_UP:
-                    volume = Math.min(volume + 5, 100);
-                    break;
-                case KeyEvent.KEYCODE_VOLUME_DOWN:
-                    volume = Math.max(volume - 5, 0);
-                    break;
-            }
-            changeVolume(volume);
-            return true;
-        } else {
-            return super.onKeyDown(keyCode, event);
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_current_track, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_search:
-                Intent intent = new Intent(this, SpotifySearchActivity.class);
-                this.startActivity(intent);
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private void setMuteToggle(Boolean state) {
-        isMute = state;
-        toggleMute.setChecked(isMute);
-    }
-
-    private void setPlayToggle(Boolean state) {
-        isPlaying = state;
-        togglePlay.setChecked(!isPlaying);
-    }
+//        @Override
+//        public boolean onKeyDown(int keyCode, KeyEvent event) {
+//            if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+//                switch (keyCode) {
+//                    case KeyEvent.KEYCODE_VOLUME_UP:
+//                        volume = Math.min(volume + 5, 100);
+//                        break;
+//                    case KeyEvent.KEYCODE_VOLUME_DOWN:
+//                        volume = Math.max(volume - 5, 0);
+//                        break;
+//                }
+//                changeVolume(volume);
+//                return true;
+//            } else {
+//                return super.onKeyDown(keyCode, event);
+//            }
+//        }
+//
+//        @Override
+//        public boolean onCreateOptionsMenu(Menu menu) {
+//            getMenuInflater().inflate(R.menu.menu_current_track, menu);
+//            return super.onCreateOptionsMenu(menu);
+//        }
+//
+//        @Override
+//        public boolean onOptionsItemSelected(MenuItem item) {
+//            switch (item.getItemId()) {
+//                case R.id.action_search:
+//                    Intent intent = new Intent(getApplicationContext(), SpotifySearchActivity.class);
+//                    this.startActivity(intent);
+//                    return true;
+//
+//                default:
+//                    return super.onOptionsItemSelected(item);
+//            }
+//        }
+//
+//        private void setMuteToggle(Boolean state) {
+//            isMute = state;
+//            toggleMute.setChecked(isMute);
+//        }
+//
+//        private void setPlayToggle(Boolean state) {
+//            isPlaying = state;
+//            togglePlay.setChecked(!isPlaying);
+//        }
 
 }

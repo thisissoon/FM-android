@@ -72,14 +72,6 @@ public class TrackItem implements Item {
     @Expose
     private String uri;
 
-    public Album getAlbum() {
-        return album;
-    }
-
-    public void setAlbum(Album album) {
-        this.album = album;
-    }
-
     public List<Artist> getArtists() {
         return artists;
     }
@@ -152,14 +144,6 @@ public class TrackItem implements Item {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public Integer getPopularity() {
         return popularity;
     }
@@ -197,9 +181,25 @@ public class TrackItem implements Item {
         return getName();
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public String getSubTitle() {
         return getAlbum().getName();
+    }
+
+    public Album getAlbum() {
+        return album;
+    }
+
+    public void setAlbum(Album album) {
+        this.album = album;
     }
 
     @Override

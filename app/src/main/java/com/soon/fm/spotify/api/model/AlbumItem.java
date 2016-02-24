@@ -84,14 +84,6 @@ public class AlbumItem implements Item {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getType() {
         return type;
     }
@@ -103,6 +95,14 @@ public class AlbumItem implements Item {
     @Override
     public String getTitle() {
         return getName();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override

@@ -1,40 +1,42 @@
 <android.support.v4.widget.DrawerLayout
+    android:id="@+id/drawer"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/drawer_layout"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
-    <!-- As the main content view, the view below consumes the entire
-         space available using match_parent in both dimensions. -->
-    <FrameLayout
-        android:id="@+id/content_frame"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-    </FrameLayout>
-
-    <!-- android:layout_gravity="start" tells DrawerLayout to treat
-         this as a sliding drawer on the left side for left-to-right
-         languages and on the right side for right-to-left languages.
-         The drawer is given a fixed width in dp and extends the full height of
-         the container. A solid background is used for contrast
-         with the content view. -->
-
-    <RelativeLayout
-        android:id="@+id/left_drawer"
         android:layout_height="match_parent"
-        android:layout_width="200dp"
-        android:layout_gravity="start"
-        >
+        android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="180dp"
-            android:layout_height="180dp"
-            android:id="@+id/imageView"
-            android:src="@drawable/ic_person"
-            android:layout_gravity="center_vertical"
-            android:layout_centerHorizontal="true"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            style="@style/header"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
             />
 
-    </RelativeLayout>
+        <fragment
+            android:id="@+id/content_frame"
+            android:name="com.soon.fm.fragment.QueueViewFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout="@layout/queue_fragment"/>
 
+    </LinearLayout>
+
+
+    <android.support.design.widget.NavigationView
+        android:id="@+id/navigation"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:headerLayout="@layout/drawer_header"
+        app:menu="@menu/my_navigation_items"/>
 </android.support.v4.widget.DrawerLayout>
+

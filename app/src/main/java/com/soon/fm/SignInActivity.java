@@ -56,13 +56,13 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
         }
     }
 
-    private void performSkip() {
-        changeActivity(CurrentTrackActivity.class);
-    }
-
     private void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    private void performSkip() {
+        changeActivity(CurrentTrackActivity.class);
     }
 
     @Override
