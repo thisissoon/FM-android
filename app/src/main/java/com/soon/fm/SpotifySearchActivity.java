@@ -48,7 +48,6 @@ public class SpotifySearchActivity extends BaseActivity {
 
                 if (dy > 0) {
                     SearchAdapter adapter = (SearchAdapter) recyclerView.getAdapter();
-
                     hideKeyboard(recyclerView);
                     int totalItemCount = linearLayoutManager.getItemCount();
                     int lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();

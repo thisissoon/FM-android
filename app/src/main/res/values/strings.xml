@@ -4,4 +4,8 @@
     <string name="google_login">Sign in</string>
     <string name="title_activity_my_child">MyChildActivity</string>
     <string name="action_search">Search</string>
+    <string name="drawer_open">open</string>
+    <string name="drawer_close">close</string>
+    <string name="navigation_drawer_open">open</string>
+    <string name="navigation_drawer_close">close</string>
 </resources>

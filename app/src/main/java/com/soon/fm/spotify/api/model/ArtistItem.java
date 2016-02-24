@@ -88,14 +88,6 @@ public class ArtistItem implements Item {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public Integer getPopularity() {
         return popularity;
     }
@@ -115,6 +107,14 @@ public class ArtistItem implements Item {
     @Override
     public String getTitle() {
         return getName();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override

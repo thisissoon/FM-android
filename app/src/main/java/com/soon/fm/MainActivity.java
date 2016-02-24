@@ -11,11 +11,11 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        this.changeActivity(QueueActivity.class);
         PreferencesHelper preferencesHelper = new PreferencesHelper(getApplicationContext());
         if (preferencesHelper.getUserApiToken() == null) {
             this.changeActivity(SignInActivity.class);
         } else {
-//            this.changeActivity(CurrentTrackActivity.class);
             this.changeActivity(PreLoadingActivity.class);
         }
     }
