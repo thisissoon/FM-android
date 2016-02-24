@@ -29,7 +29,8 @@ android {
         resValue "string", "socket_events_resume", "fm:player:resume"
         resValue "string", "socket_events_add", "fm:player:add"
         resValue "string", "socket_events_delete", "fm:player:deleted"
-        resValue "string", "socket_events_set_mute", "fm:player:setmute"
+        resValue "string", "socket_events_set_mute", "fm:player:setMute"
+        resValue "string", "socket_events_set_volume", "fm:player:setVolume"
     }
 
     buildTypes {
@@ -54,7 +55,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:recyclerview-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
-    compile 'com.android.support:multidex:1.0.0'
+    compile 'com.android.support:multidex:1.0.1'
     compile 'com.google.android.gms:play-services:8.4.0'
     compile 'com.google.android.gms:play-services-auth:8.4.0'
     compile 'com.squareup.retrofit:retrofit:2.0.0-beta2'

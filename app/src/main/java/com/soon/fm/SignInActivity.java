@@ -3,6 +3,7 @@ package com.soon.fm;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -38,7 +39,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestServerAuthCode(serverClientId, false).requestEmail().build();
         mGoogleApiClient = new GoogleApiClient.Builder(this).enableAutoManage(this, new GoogleApiClient.OnConnectionFailedListener() {
             @Override
-            public void onConnectionFailed(ConnectionResult connectionResult) {
+            public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
                 Log.d(TAG, "[Google::onConnectionFailed] " + connectionResult.isSuccess());
             }
         }).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
@@ -62,7 +63,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
     }
 
     private void performSkip() {
-        changeActivity(CurrentTrackActivity.class);
+        changeActivity(QueueActivity.class);
     }
 
     @Override
@@ -105,7 +106,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
                 if (progress != null && progress.isShowing()) {
                     progress.dismiss();
                 }
-                Toast.makeText(getApplicationContext(), "Cannot log you in", Toast.LENGTH_LONG);
+                Toast.makeText(getApplicationContext(), "Cannot log you in", Toast.LENGTH_LONG).show();
             }
         }).execute(acct.getServerAuthCode());
     }
