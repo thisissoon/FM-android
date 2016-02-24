@@ -2,14 +2,19 @@ package com.soon.fm;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
 import com.soon.fm.backend.event.PerformChangeVolumeApiCall;
 import com.soon.fm.helper.PreferencesHelper;
+import com.soon.fm.utils.CircleTransform;
 import com.soon.fm.utils.CurrentTrackCache;
+
+import static com.squareup.picasso.Picasso.with;
 
 public class QueueActivity extends BaseActivity {
 
@@ -26,6 +31,13 @@ public class QueueActivity extends BaseActivity {
 
         preferences = new PreferencesHelper(this);
         volume = CurrentTrackCache.getVolume();
+
+        String avatarUrl = preferences.getUserAvatar();
+        if (avatarUrl != null) {
+            NavigationView navigation = (NavigationView) findViewById(R.id.navigation);
+            ImageView avatar = (ImageView) navigation.getHeaderView(0).findViewById(R.id.img_user_avatar);
+            setAvatar(avatarUrl, avatar);
+        }
     }
 
     @Override
@@ -44,6 +56,10 @@ public class QueueActivity extends BaseActivity {
         } else {
             return super.onKeyDown(keyCode, event);
         }
+    }
+
+    private void setAvatar(String url, ImageView avatar) {
+        with(getApplicationContext()).load(url).transform(new CircleTransform()).placeholder(R.drawable.ic_person).into(avatar);
     }
 
     private void changeVolume(int volume) {

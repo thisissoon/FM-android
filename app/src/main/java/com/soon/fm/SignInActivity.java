@@ -21,7 +21,7 @@ import com.soon.fm.helper.PreferencesHelper;
 
 public class SignInActivity extends BaseActivity implements View.OnClickListener {
 
-    private static final String TAG = "SignInActivity";
+    private static final String TAG = SignInActivity.class.getName();
 
     private static final int RC_SIGN_IN = 0;
     private GoogleApiClient mGoogleApiClient;
@@ -87,7 +87,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
         }
     }
 
-    private void performBackendAuthorisation(GoogleSignInAccount acct) {
+    private void performBackendAuthorisation(final GoogleSignInAccount acct) {
         showSigningInDialog();
         new Authorize(new CallbackInterface<AccessToken>() {
             @Override
@@ -97,7 +97,8 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
                 }
 
                 PreferencesHelper preferences = new PreferencesHelper(getApplicationContext());
-                preferences.saveUserApiToken((obj).getAccessToken());
+                preferences.saveUserApiToken(obj.getAccessToken());
+                preferences.saveUserAvatar(acct.getPhotoUrl().toString());
                 changeActivity(PreLoadingActivity.class);
             }
 
