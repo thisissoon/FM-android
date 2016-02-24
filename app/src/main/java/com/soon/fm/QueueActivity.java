@@ -3,6 +3,8 @@ package com.soon.fm;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -28,6 +30,7 @@ public class QueueActivity extends BaseActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        drawerArrowToggle(toolbar);
 
         preferences = new PreferencesHelper(this);
         volume = CurrentTrackCache.getVolume();
@@ -38,6 +41,15 @@ public class QueueActivity extends BaseActivity {
             ImageView avatar = (ImageView) navigation.getHeaderView(0).findViewById(R.id.img_user_avatar);
             setAvatar(avatarUrl, avatar);
         }
+    }
+
+    private void drawerArrowToggle(Toolbar toolbar) {
+        DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer);
+        ActionBarDrawerToggle mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        mDrawerToggle.syncState();
     }
 
     @Override

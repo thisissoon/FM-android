@@ -16,7 +16,10 @@
 
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
     </style>
+
 
     <style name="header" parent="AppTheme">
         <item name="android:background">@color/secondaryForeground</item>
@@ -28,6 +31,11 @@
 
     <style name="footer" parent="AppTheme">
         <item name="android:background">@color/backgroundColor</item>
+    </style>
+
+    <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="spinBars">true</item>
+        <item name="color">@android:color/white</item>
     </style>
 
     <style name="singleLineText">
