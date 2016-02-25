@@ -1,14 +1,23 @@
-apply plugin: 'com.android.application'
-apply plugin: 'com.github.triplet.play'
+apply plugin: "com.android.application"
+apply plugin: "com.github.triplet.play"
+
+def gitVersion() {
+    if (!System.getenv('CI')) {
+        return 1
+    }
+    def cmd = 'git rev-list HEAD --first-parent --count'
+    cmd.execute().text.trim().toInteger()
+}
 
 android {
     compileSdkVersion 23
-    buildToolsVersion '23.0.2'
+    buildToolsVersion "23.0.2"
 
     ext {
         versionMajor = 1
         versionMinor = 0
         versionPatch = 2
+        versionGit = gitVersion()
     }
 
     defaultConfig {
@@ -16,12 +25,12 @@ android {
         minSdkVersion 21
         targetSdkVersion 23
 
-        versionCode = versionMajor * 10000 + versionMinor * 100 + versionPatch
-        versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
+        versionCode = versionMajor * 10000000 + versionMinor * 100000 + versionPatch * 1000 + versionGit
+        versionName = "${versionMajor}.${versionMinor}.${versionPatch}.${versionGit}"
 
         multiDexEnabled true
 
-        resValue "string", "server_client_id", System.getenv('SERVER_CLIENT_ID') ?: ""
+        resValue "string", "server_client_id", System.getenv("SERVER_CLIENT_ID")
         resValue "string", "fm_api", "https://api.thisissoon.fm/"
         resValue "string", "socket", "https://sockets.thisissoon.fm/"
         resValue "string", "socket_events_play", "fm:player:play"
@@ -53,8 +62,8 @@ android {
 
     play {
         serviceAccountEmail = System.getenv('SERVICE_ACCOUNT_EMAIL') ?: ""
-        pk12File = rootProject.file('../keys/play-store.p12')
-        track = 'beta'
+        pk12File = rootProject.file('keys/play-store.p12')
+        track = "${track}"
     }
 }
 
