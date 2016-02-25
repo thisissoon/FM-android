@@ -14,8 +14,6 @@ public abstract class BaseAsync<T> extends AsyncTask<Void, Void, T> {
         backend = new BackendHelper(backendUrl);
     }
 
-    public abstract T performOperation() throws Exception;
-
     protected T doInBackground(Void... params) {
         try {
             return performOperation();
@@ -24,6 +22,8 @@ public abstract class BaseAsync<T> extends AsyncTask<Void, Void, T> {
         }
         return null;
     }
+
+    public abstract T performOperation() throws Exception;
 
     protected void onPostExecute(T obj) {
         this.callback.onSuccess(obj);

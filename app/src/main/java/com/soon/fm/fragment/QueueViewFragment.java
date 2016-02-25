@@ -1,28 +1,27 @@
-package com.soon.fm;
+package com.soon.fm.fragment;
 
+import android.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
+import com.soon.fm.R;
 import com.soon.fm.async.CallbackInterface;
 import com.soon.fm.async.FetchCurrent;
 import com.soon.fm.backend.event.PerformChangeVolumeApiCall;
@@ -43,10 +42,11 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 
+import static com.google.android.gms.internal.zzir.runOnUiThread;
 
-public class CurrentTrackActivity extends BaseActivity implements View.OnClickListener {
+public class QueueViewFragment extends Fragment implements View.OnClickListener {
 
-    private static final String TAG = "CurrentTrackActivity";
+    private static final String TAG = QueueViewFragment.class.getName();
 
     /* System */
     private PreferencesHelper preferences;
@@ -113,8 +113,26 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
             }
         }
     };
+
+    private Emitter.Listener onVolume = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            Log.i(TAG, String.format("[listener.onVolume] set muted flag: %s", args[0]));
+            try {
+                JSONObject json = (JSONObject) args[0];
+                final int volume = json.getInt("volume");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateVolumeBar(volume);
+                    }
+                });
+            } catch (JSONException e) {
+                Log.e(TAG, String.format("[listener.onMute] invalid json %s", args[0]));
+            }
+        }
+    };
     private Context context;
-    private Toast flash;
     private CurrentTrack currentTrack;
     /* socket listeners */
     private Emitter.Listener onEndOfTrack = new Emitter.Listener() {
@@ -151,30 +169,25 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
     private LinearLayout footerCurrentTrack;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        if (!isDeviceOnline()) {
-            showFlash("Device is not online");
-        }
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.queue_fragment, container, false);
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_current_track);
+        totalTime = (TextView) rootView.findViewById(R.id.total_time);
+        trackName = (TextView) rootView.findViewById(R.id.track_name);
+        artistName = (TextView) rootView.findViewById(R.id.artist_name);
+        albumName = (TextView) rootView.findViewById(R.id.album_name);
+        progressBar = (ProgressBar) rootView.findViewById(R.id.progress_bar);
+        txtElapsedTime = (TextView) rootView.findViewById(R.id.elapsed_time);
+        userImage = (ImageView) rootView.findViewById(R.id.img_user);
+        albumImage = (ImageView) rootView.findViewById(R.id.img_album);
 
-        totalTime = (TextView) findViewById(R.id.total_time);
-        trackName = (TextView) findViewById(R.id.track_name);
-        artistName = (TextView) findViewById(R.id.artist_name);
-        albumName = (TextView) findViewById(R.id.album_name);
-        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        txtElapsedTime = (TextView) findViewById(R.id.elapsed_time);
-        userImage = (ImageView) findViewById(R.id.img_user);
-        albumImage = (ImageView) findViewById(R.id.img_album);
+        toggleMute = (ToggleButton) rootView.findViewById(R.id.toggle_mute_unmute);
+        togglePlay = (ToggleButton) rootView.findViewById(R.id.toggle_pause_play);
+        skipButton = (ImageButton) rootView.findViewById(R.id.cnt_skip);
 
-        toggleMute = (ToggleButton) findViewById(R.id.toggle_mute_unmute);
-        togglePlay = (ToggleButton) findViewById(R.id.toggle_pause_play);
-        skipButton = (ImageButton) findViewById(R.id.cnt_skip);
+        volumeBar = (SeekBar) rootView.findViewById(R.id.volumeBar);
 
-        volumeBar = (SeekBar) findViewById(R.id.volumeBar);
-
-        footerCurrentTrack = (LinearLayout) findViewById(R.id.footer);
+        footerCurrentTrack = (LinearLayout) rootView.findViewById(R.id.footer);
         toggleMute.setOnClickListener(this);
         togglePlay.setOnClickListener(this);
         skipButton.setOnClickListener(this);
@@ -209,32 +222,32 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         mSocket.on(getString(R.string.socket_events_pause), onPause);
         mSocket.on(getString(R.string.socket_events_resume), onResume);
         mSocket.on(getString(R.string.socket_events_set_mute), onMute);
+        mSocket.on(getString(R.string.socket_events_set_volume), onVolume);
         mSocket.connect();
 
-        context = getApplicationContext();
-        preferences = new PreferencesHelper(this);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        context = rootView.getContext();
+        preferences = new PreferencesHelper(context);
 
         currentTrack = CurrentTrackCache.getCurrentTrack();
         isMute = CurrentTrackCache.getIsMuted();
         volume = CurrentTrackCache.getVolume();
         updateVolumeBar(volume);
 
-//        if (currentTrack == null) {  // hide footer
-//            footerCurrentTrack.post(new Runnable(){
-//                public void run(){
-//                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
-//                    params.bottomMargin = -footerCurrentTrack.getHeight();
-//                    footerCurrentTrack.setLayoutParams(params);
-//                }
-//            });
-//        } else {
-//            updateCurrentTrack(currentTrack);
-//        }
+        if (currentTrack == null) {  // hide footer
+            footerCurrentTrack.post(new Runnable() {
+                public void run() {
+                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) footerCurrentTrack.getLayoutParams();
+                    params.bottomMargin = -footerCurrentTrack.getHeight();
+                    footerCurrentTrack.setLayoutParams(params);
+                }
+            });
+        } else {
+            updateCurrentTrack(currentTrack);
+        }
         updateCurrentTrack(currentTrack);
         asyncFetchCurrentTrack();  // update current track anyway to sync progress bar
+
+        return rootView;
     }
 
     @Override
@@ -245,72 +258,8 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         mSocket.off(getString(R.string.socket_events_pause), onPause);
         mSocket.off(getString(R.string.socket_events_resume), onResume);
         mSocket.off(getString(R.string.socket_events_set_mute), onMute);
+        mSocket.off(getString(R.string.socket_events_set_volume), onVolume);
         mSocket.disconnect();
-    }
-
-    private void showFlash(String text) {
-        if (flash != null) {
-            flash.cancel();
-        }
-        flash = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
-        flash.show();
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.toggle_mute_unmute:
-                Log.d(TAG, "Clicked on mute/unmute toggle");
-                performMute(((ToggleButton) v).isChecked());
-                break;
-
-            case R.id.toggle_pause_play:
-                Log.d(TAG, "Clicked on play/pause toggle");
-                performPause((ToggleButton) v);
-                break;
-
-            case R.id.cnt_skip:
-                Log.d(TAG, "Clicked on skip");
-                performSkip();
-                break;
-        }
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-            switch (keyCode) {
-                case KeyEvent.KEYCODE_VOLUME_UP:
-                    volume = Math.min(volume + 5, 100);
-                    break;
-                case KeyEvent.KEYCODE_VOLUME_DOWN:
-                    volume = Math.max(volume - 5, 0);
-                    break;
-            }
-            changeVolume(volume);
-            return true;
-        } else {
-            return super.onKeyDown(keyCode, event);
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_current_track, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_search:
-                Intent intent = new Intent(this, SpotifySearchActivity.class);
-                this.startActivity(intent);
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     private void changeVolume(int volume) {
@@ -319,37 +268,8 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
         new PerformChangeVolumeApiCall(token, volume).execute();
     }
 
-    private void performPause(ToggleButton btn) {
-        String token = preferences.getUserApiToken();
-        new PerformPauseApiCall(token, btn.isChecked()).execute();
-    }
-
-    private void performMute(boolean mute) {
-        String token = preferences.getUserApiToken();
-        new PerformMuteApiCall(token, mute).execute();
-    }
-
-    private void performSkip() {
-        String token = preferences.getUserApiToken();
-        new PerformSkipTrack(token).execute();
-    }
-
     private void updateVolumeBar(int volume) {
         volumeBar.setProgress(volume);
-    }
-
-    private void asyncFetchCurrentTrack() {
-        new FetchCurrent(getString(R.string.fm_api), new CallbackInterface<CurrentTrack>() {
-            @Override
-            public void onSuccess(CurrentTrack obj) {
-                updateCurrentTrack(obj);
-            }
-
-            @Override
-            public void onFail() {
-
-            }
-        }).execute();
     }
 
     private void updateCurrentTrack(final CurrentTrack track) {
@@ -434,6 +354,55 @@ public class CurrentTrackActivity extends BaseActivity implements View.OnClickLi
 //            footerCurrentTrack.startAnimation(anim);
 //        }
         this.currentTrack = track;
+    }
+
+    private void asyncFetchCurrentTrack() {
+        new FetchCurrent(getString(R.string.fm_api), new CallbackInterface<CurrentTrack>() {
+            @Override
+            public void onSuccess(CurrentTrack obj) {
+                updateCurrentTrack(obj);
+            }
+
+            @Override
+            public void onFail() {
+
+            }
+        }).execute();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.toggle_mute_unmute:
+                Log.d(TAG, "Clicked on mute/unmute toggle");
+                performMute(((ToggleButton) v).isChecked());
+                break;
+
+            case R.id.toggle_pause_play:
+                Log.d(TAG, "Clicked on play/pause toggle");
+                performPause((ToggleButton) v);
+                break;
+
+            case R.id.cnt_skip:
+                Log.d(TAG, "Clicked on skip");
+                performSkip();
+                break;
+        }
+    }
+
+    private void performMute(boolean mute) {
+        String token = preferences.getUserApiToken();
+        new PerformMuteApiCall(token, mute).execute();
+    }
+
+    private void performPause(ToggleButton btn) {
+        String token = preferences.getUserApiToken();
+        new PerformPauseApiCall(token, btn.isChecked()).execute();
+    }
+
+    private void performSkip() {
+        String token = preferences.getUserApiToken();
+        new PerformSkipTrack(token).execute();
     }
 
     private void setMuteToggle(Boolean state) {

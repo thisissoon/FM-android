@@ -18,23 +18,19 @@
             android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity android:name=".SignInActivity"/>
         <activity
-            android:name=".CurrentTrackActivity"
-            android:screenOrientation="portrait"/>
-        <activity
             android:name=".SpotifySearchActivity"
             android:screenOrientation="portrait"/>
         <activity
             android:name=".PreLoadingActivity"
-            android:screenOrientation="portrait"/><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
-     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version"/>
+            android:screenOrientation="portrait"/>
+        <activity android:name=".QueueActivity">
+        </activity>
     </application>
 
 </manifest>

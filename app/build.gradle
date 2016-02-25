@@ -1,13 +1,14 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.github.triplet.play'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion '23.0.0'
+    buildToolsVersion '23.0.2'
 
     ext {
         versionMajor = 1
         versionMinor = 0
-        versionPatch = 1
+        versionPatch = 2
     }
 
     defaultConfig {
@@ -20,7 +21,7 @@ android {
 
         multiDexEnabled true
 
-        resValue "string", "server_client_id", ""
+        resValue "string", "server_client_id", System.getenv('SERVER_CLIENT_ID') ?: ""
         resValue "string", "fm_api", "https://api.thisissoon.fm/"
         resValue "string", "socket", "https://sockets.thisissoon.fm/"
         resValue "string", "socket_events_play", "fm:player:play"
@@ -29,37 +30,52 @@ android {
         resValue "string", "socket_events_resume", "fm:player:resume"
         resValue "string", "socket_events_add", "fm:player:add"
         resValue "string", "socket_events_delete", "fm:player:deleted"
-        resValue "string", "socket_events_set_mute", "fm:player:setmute"
+        resValue "string", "socket_events_set_mute", "fm:player:setMute"
+        resValue "string", "socket_events_set_volume", "fm:player:setVolume"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('../keys/fm.jks')
+            storePassword System.getenv('STORE_PASSWORD') ?: ""
+            keyAlias System.getenv('KEY_ALIAS') ?: ""
+            keyPassword System.getenv('KEY_PASSWORD') ?: ""
+        }
     }
 
     buildTypes {
-
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
+    }
+
+    play {
+        serviceAccountEmail = System.getenv('SERVICE_ACCOUNT_EMAIL') ?: ""
+        pk12File = rootProject.file('../keys/play-store.p12')
+        track = 'beta'
     }
 }
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-
     compile('com.github.nkzawa:socket.io-client:0.3.0') {
         exclude group: 'org.json'
     }
     testCompile 'junit:junit:4.12'
     testCompile 'org.robolectric:robolectric:3.0'
-    testCompile 'org.mockito:mockito-core:1.+'
+    testCompile 'org.mockito:mockito-core:1.10.19'
     testCompile 'org.json:json:20141113'
-    compile 'com.android.support:appcompat-v7:23.1.1'
-    compile 'com.android.support:recyclerview-v7:23.1.1'
-    compile 'com.android.support:design:23.1.1'
-    compile 'com.android.support:multidex:1.0.0'
+    compile 'com.android.support:appcompat-v7:23.2.0'
+    compile 'com.android.support:recyclerview-v7:23.2.0'
+    compile 'com.android.support:design:23.2.0'
     compile 'com.google.android.gms:play-services:8.4.0'
     compile 'com.google.android.gms:play-services-auth:8.4.0'
     compile 'com.squareup.retrofit:retrofit:2.0.0-beta2'
     compile 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
     compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.android.support:multidex:1.0.1'
 }
 
 gradle.projectsEvaluated {

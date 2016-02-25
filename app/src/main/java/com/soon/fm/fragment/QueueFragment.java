@@ -328,6 +328,16 @@ public class QueueFragment extends Fragment {
                 animationView.setLayoutParams(params);
             }
 
+            private void swipeRemove(final View v) {
+                DisplayMetrics metrics = getResources().getDisplayMetrics();
+                holder.mainView.animate().translationX(metrics.widthPixels).setDuration(200).withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        deleteCell(v, holder);
+                    }
+                });
+            }
+
             private void swipeBack(final View v) {
                 View animationView = holder.mainView;
                 final RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) animationView.getLayoutParams();
@@ -342,16 +352,6 @@ public class QueueFragment extends Fragment {
                 });
                 animator.setDuration(300);
                 animator.start();
-            }
-
-            private void swipeRemove(final View v) {
-                DisplayMetrics metrics = getResources().getDisplayMetrics();
-                holder.mainView.animate().translationX(metrics.widthPixels).setDuration(200).withEndAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        deleteCell(v, holder);
-                    }
-                });
             }
         }
 

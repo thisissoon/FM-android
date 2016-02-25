@@ -3,6 +3,7 @@ package com.soon.fm;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -20,7 +21,7 @@ import com.soon.fm.helper.PreferencesHelper;
 
 public class SignInActivity extends BaseActivity implements View.OnClickListener {
 
-    private static final String TAG = "SignInActivity";
+    private static final String TAG = SignInActivity.class.getName();
 
     private static final int RC_SIGN_IN = 0;
     private GoogleApiClient mGoogleApiClient;
@@ -38,7 +39,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestServerAuthCode(serverClientId, false).requestEmail().build();
         mGoogleApiClient = new GoogleApiClient.Builder(this).enableAutoManage(this, new GoogleApiClient.OnConnectionFailedListener() {
             @Override
-            public void onConnectionFailed(ConnectionResult connectionResult) {
+            public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
                 Log.d(TAG, "[Google::onConnectionFailed] " + connectionResult.isSuccess());
             }
         }).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
@@ -56,13 +57,13 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
         }
     }
 
-    private void performSkip() {
-        changeActivity(CurrentTrackActivity.class);
-    }
-
     private void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    private void performSkip() {
+        changeActivity(QueueActivity.class);
     }
 
     @Override
@@ -86,7 +87,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
         }
     }
 
-    private void performBackendAuthorisation(GoogleSignInAccount acct) {
+    private void performBackendAuthorisation(final GoogleSignInAccount acct) {
         showSigningInDialog();
         new Authorize(new CallbackInterface<AccessToken>() {
             @Override
@@ -96,7 +97,8 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
                 }
 
                 PreferencesHelper preferences = new PreferencesHelper(getApplicationContext());
-                preferences.saveUserApiToken((obj).getAccessToken());
+                preferences.saveUserApiToken(obj.getAccessToken());
+                preferences.saveUserAvatar(acct.getPhotoUrl().toString());
                 changeActivity(PreLoadingActivity.class);
             }
 
@@ -105,7 +107,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
                 if (progress != null && progress.isShowing()) {
                     progress.dismiss();
                 }
-                Toast.makeText(getApplicationContext(), "Cannot log you in", Toast.LENGTH_LONG);
+                Toast.makeText(getApplicationContext(), "Cannot log you in", Toast.LENGTH_LONG).show();
             }
         }).execute(acct.getServerAuthCode());
     }
