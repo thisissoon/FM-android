@@ -8,7 +8,7 @@ android {
     ext {
         versionMajor = 1
         versionMinor = 0
-        versionPatch = 1
+        versionPatch = 2
     }
 
     defaultConfig {
@@ -55,7 +55,6 @@ android {
         serviceAccountEmail = System.getenv('SERVICE_ACCOUNT_EMAIL') ?: ""
         pk12File = rootProject.file('../keys/play-store.p12')
         track = 'beta'
-        uploadImages = true
     }
 }
 
