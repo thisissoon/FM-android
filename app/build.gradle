@@ -21,7 +21,7 @@ android {
 
         multiDexEnabled true
 
-        resValue "string", "server_client_id", System.getenv('SERVER_CLIENT_ID')
+        resValue "string", "server_client_id", System.getenv('SERVER_CLIENT_ID') ?: ""
         resValue "string", "fm_api", "https://api.thisissoon.fm/"
         resValue "string", "socket", "https://sockets.thisissoon.fm/"
         resValue "string", "socket_events_play", "fm:player:play"
@@ -37,9 +37,9 @@ android {
     signingConfigs {
         release {
             storeFile file('../keys/fm.jks')
-            storePassword System.getenv('STORE_PASSWORD')
-            keyAlias System.getenv('KEY_ALIAS')
-            keyPassword System.getenv('KEY_PASSWORD')
+            storePassword System.getenv('STORE_PASSWORD') ?: ""
+            keyAlias System.getenv('KEY_ALIAS') ?: ""
+            keyPassword System.getenv('KEY_PASSWORD') ?: ""
         }
     }
 
@@ -52,7 +52,7 @@ android {
     }
 
     play {
-//        serviceAccountEmail = rootProject.ext.serviceAccountEmail
+        serviceAccountEmail = System.getenv('SERVICE_ACCOUNT_EMAIL') ?: ""
         pk12File = rootProject.file('../keys/play-store.p12')
         track = 'beta'
         uploadImages = true
