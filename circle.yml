@@ -1,0 +1,26 @@
+dependencies:
+  pre:
+    - echo y | android update sdk --no-ui --all --filter tool,extra-android-m2repository,extra-android-support,extra-google-google_play_services,extra-google-m2repository,android-23
+    - echo y | android update sdk --no-ui --all --filter build-tools-23.0.2
+
+
+test:
+  override:
+    - ./gradlew :app:test
+  post:
+    - openssl aes-256-cbc -d -k "$FILE_PASSWORD" -in keys/fm.jks.enc -out keys/fm.jks
+    - openssl aes-256-cbc -d -k "$FILE_PASSWORD" -in keys/play-store.p12.enc -out keys/play-store.p12
+
+
+deployment:
+  production:
+    branch: master
+    commands:
+      - ./gradlew publishApkRelease
+        -Dorg.gradle.project.track=beta
+
+  beta:
+    branch: develop
+    commands:
+      - ./gradlew publishApkRelease
+        -Dorg.gradle.project.track=alfa
