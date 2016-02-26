@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Artists {
+public class Artists implements Results<ArtistItem> {
 
     @SerializedName("href")
     @Expose

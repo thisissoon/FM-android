@@ -1,4 +1,4 @@
-package com.soon.fm.spotify;
+package com.soon.fm.spotify.adapter;
 
 import android.content.Context;
 import android.support.design.widget.Snackbar;
@@ -16,6 +16,7 @@ import com.soon.fm.async.CallbackInterface;
 import com.soon.fm.backend.event.PerformAddTrack;
 import com.soon.fm.helper.PreferencesHelper;
 import com.soon.fm.spotify.api.model.Item;
+import com.soon.fm.spotify.api.model.Results;
 import com.soon.fm.spotify.api.model.Search;
 import com.soon.fm.spotify.async.SearchTask;
 import com.squareup.picasso.Picasso;
@@ -24,23 +25,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public abstract class SearchAdapter<I extends Item> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = SearchAdapter.class.getName();
     private final Context context;
     private final PreferencesHelper preferences;
-    private final Search result;
-    private List<Item> dataSet = new ArrayList<>();
+    protected Results<I> results;
+    protected final List<Item> items = new ArrayList<>();
     private View view;
 
     private boolean loading = false;
 
-    public SearchAdapter(Context context, Search result) {
-        this.result = result;
+    public SearchAdapter(Context context, Results<I> results) {
         this.context = context;
-        preferences = new PreferencesHelper(context);
-
-        dataSet.addAll(result.getTracks().getItems());
+        this.preferences = new PreferencesHelper(context);
+        this.results = results;
+        this.items.addAll(results.getItems());
     }
 
     @Override
@@ -71,7 +71,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemCount() {
-        return dataSet.size();
+        return items.size();
     }
 
     private void loadImageFromCacheTo(String url, ImageView image) {
@@ -79,7 +79,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     public Item getItem(Integer position) {
-        return dataSet.get(position);
+        return items.get(position);
     }
 
     private void performAddTrack(final Item item) {
@@ -117,16 +117,16 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     public void loadMore() {
-        String next = result.getTracks().getNext();
+        String next = results.getNext();
         if (!loading && next != null) {
             loading = true;
             new SearchTask(next, new CallbackInterface<Search>() {
                 @Override
                 public void onSuccess(Search obj) {
                     if (obj != null) {
-                        dataSet.addAll(obj.getTracks().getItems());
+//                        result.getItems().addAll(obj.getTracks().getItems());
                         notifyDataSetChanged();
-                        Log.d(TAG, String.format("new %d items added to adapter. # of items %s", obj.getTracks().getItems().size(), dataSet.size()));
+                        Log.d(TAG, String.format("new %d items added to adapter. # of items %s", obj.getTracks().getItems().size(), items.size()));
                     }
                     loading = false;
                 }

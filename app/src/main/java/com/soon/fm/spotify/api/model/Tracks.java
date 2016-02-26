@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Tracks {
+public class Tracks implements Results<TrackItem> {
 
     @SerializedName("href")
     @Expose
@@ -44,6 +44,7 @@ public class Tracks {
         this.href = href;
     }
 
+    @Override
     public List<TrackItem> getItems() {
         return items;
     }

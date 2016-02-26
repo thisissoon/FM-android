@@ -9,8 +9,8 @@ import retrofit.http.Url;
 
 public interface SpotifyService {
 
-    @GET("/v1/search?market=GB&type=album,artist,track")
-    Call<Search> search(@Query("q") String q, @Query("limit") Integer limit);
+    @GET("/v1/search?market=GB")
+    Call<Search> search(@Query("q") String q, @Query("type") String type, @Query("limit") Integer limit);
 
     @GET
     Call<Search> paginatedSearch(@Url String url);

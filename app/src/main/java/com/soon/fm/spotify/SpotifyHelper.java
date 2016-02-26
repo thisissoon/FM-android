@@ -1,6 +1,7 @@
 package com.soon.fm.spotify;
 
 import com.soon.fm.spotify.api.SpotifyService;
+import com.soon.fm.spotify.api.Type;
 import com.soon.fm.spotify.api.model.Search;
 
 import java.io.IOException;
@@ -19,8 +20,8 @@ public class SpotifyHelper {
         service = retrofit.create(SpotifyService.class);
     }
 
-    public Search search(String q, Integer limit) throws IOException {
-        Response<Search> response = service.search(q, limit).execute();
+    public Search search(String q, Integer limit, Type type) throws IOException {
+        Response<Search> response = service.search(q, type.getValue(), limit).execute();
         return response.body();
     }
 
