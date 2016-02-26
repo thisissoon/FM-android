@@ -5,7 +5,7 @@ def gitVersion() {
     if (!System.getenv('CI')) {
         return 1
     }
-    def cmd = 'git rev-list HEAD --first-parent --count'
+    def cmd = 'git rev-list HEAD --merges --count'
     cmd.execute().text.trim().toInteger()
 }
 
