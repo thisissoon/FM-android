@@ -36,6 +36,8 @@ public abstract class SearchAdapter<I extends Item> extends RecyclerView.Adapter
 
     private boolean loading = false;
 
+    protected final int PLACEHOLDER = R.drawable.ic_album;
+
     public SearchAdapter(Context context, Results<I> results) {
         this.context = context;
         this.preferences = new PreferencesHelper(context);
@@ -61,7 +63,11 @@ public abstract class SearchAdapter<I extends Item> extends RecyclerView.Adapter
         ViewHolder viewHolder = (ViewHolder) holder;
         viewHolder.title.setText(getItem(position).getTitle());
         viewHolder.subtitle.setText(getItem(position).getSubTitle());
-        loadImageFromCacheTo(getItem(position).getImages().get(2).getUrl(), viewHolder.image);
+        try {
+            loadImageFromCacheTo(getItem(position).getImages().get(2).getUrl(), viewHolder.image);
+        } catch (IndexOutOfBoundsException ex) {
+            viewHolder.image.setImageResource(PLACEHOLDER);
+        }
     }
 
     @Override
@@ -75,7 +81,7 @@ public abstract class SearchAdapter<I extends Item> extends RecyclerView.Adapter
     }
 
     private void loadImageFromCacheTo(String url, ImageView image) {
-        Picasso.with(context).load(url).placeholder(R.drawable.ic_album).into(image);
+        Picasso.with(context).load(url).placeholder(PLACEHOLDER).into(image);
     }
 
     public Item getItem(Integer position) {

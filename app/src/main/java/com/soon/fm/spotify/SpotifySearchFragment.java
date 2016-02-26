@@ -63,10 +63,10 @@ public class SpotifySearchFragment extends Fragment {
                             adapter = new TrackAdapter(context, result.getTracks());
                             break;
                         case ALBUMS:
-                            adapter = new AlbumAdapter(context, result.getTracks());
+                            adapter = new AlbumAdapter(context, result.getAlbums());
                             break;
                         case ARTISTS:
-                            adapter = new ArtistsAdapter(context, result.getTracks());
+                            adapter = new ArtistsAdapter(context, result.getArtists());
                             break;
                     }
                     if (adapter != null) {

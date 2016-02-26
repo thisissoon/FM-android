@@ -2,13 +2,16 @@ package com.soon.fm.spotify.adapter;
 
 import android.content.Context;
 
+import com.soon.fm.R;
+import com.soon.fm.spotify.api.model.ArtistItem;
 import com.soon.fm.spotify.api.model.Results;
-import com.soon.fm.spotify.api.model.TrackItem;
 
 
-public class ArtistsAdapter extends SearchAdapter<TrackItem> {
+public class ArtistsAdapter extends SearchAdapter<ArtistItem> {
 
-    public ArtistsAdapter(Context context, Results<TrackItem> result) {
+    protected final int PLACEHOLDER = R.drawable.ic_person;
+
+    public ArtistsAdapter(Context context, Results<ArtistItem> result) {
         super(context, result);
     }
 
