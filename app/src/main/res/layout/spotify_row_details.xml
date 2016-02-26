@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:orientation="horizontal"
+                android:paddingBottom="5dp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingTop="5dp"
+    >
+
+    <ImageView
+        android:id="@+id/item_image"
+        style="@style/album_icon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_album"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/item_image"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:id="@+id/item_title"
+            style="@style/singleLineText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ivory"/>
+
+        <TextView
+            android:id="@+id/item_subtitle"
+            style="@style/secondaryText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="Movement"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="yellow">#fffd00</color>
+    <color name="text">#ffffff</color>
+    <color name="backgroundColor">#1a1a1a</color>
+    <color name="secondaryForeground">#000000</color>
+    <color name="secondaryText">#777777</color>
+
+    <style name="AppTheme" parent="@style/Theme.AppCompat.NoActionBar">
+        <item name="android:colorForeground">@color/backgroundColor</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="colorAccent">@color/yellow</item>
+        <item name="colorPrimary">#FF000000</item>
+        <item name="android:colorBackground">@color/backgroundColor</item>
+
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+    </style>
+
+
+    <style name="header" parent="AppTheme">
+        <item name="android:background">@color/secondaryForeground</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:paddingTop">5dp</item>
+    </style>
+
+    <style name="footer" parent="AppTheme">
+        <item name="android:background">@color/backgroundColor</item>
+    </style>
+
+    <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="spinBars">true</item>
+        <item name="color">@android:color/white</item>
+    </style>
+
+    <style name="singleLineText">
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="secondaryText" parent="singleLineText">
+        <item name="android:textColor">@color/secondaryText</item>
+    </style>
+
+    <style name="control">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:textColor">@color/secondaryText</item>
+        <item name="android:textSize">32dp</item>
+    </style>
+
+    <style name="user_avatar">
+        <item name="android:layout_width">30dp</item>
+        <item name="android:layout_height">30dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginRight">10dp</item>
+    </style>
+
+    <style name="album_icon">
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_marginRight">10dp</item>
+    </style>
+
+    <style name="control_button">
+        <item name="android:layout_width">35dp</item>
+        <item name="android:layout_height">35dp</item>
+        <item name="android:background">@color/secondaryForeground</item>
+        <item name="android:layout_margin">10dp</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:padding">5dp</item>
+    </style>
+
+</resources>

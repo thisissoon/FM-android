@@ -1,0 +1,15 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="android:Theme.Holo.NoActionBar.Fullscreen">
+        <item name="colorAccent">@color/yellow</item>
+        <item name="colorPrimary">#FF000000</item>
+        <item name="android:colorBackground">@color/backgroundColor</item>
+
+        <!-- To Make Navigation Drawer Fill Status Bar and become Transparent Too -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
+    </style>
+
+</resources>
