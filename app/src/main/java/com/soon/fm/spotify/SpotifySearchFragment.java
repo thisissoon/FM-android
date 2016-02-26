@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 
 import com.soon.fm.R;
 import com.soon.fm.spotify.adapter.AlbumAdapter;
@@ -110,9 +111,9 @@ public class SpotifySearchFragment extends Fragment {
         return view;
     }
 
-    private void hideKeyboard(RecyclerView recyclerView) {
-//        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-//        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+    private void hideKeyboard(RecyclerView v) {
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 //        searchInput.clearFocus();
     }
 

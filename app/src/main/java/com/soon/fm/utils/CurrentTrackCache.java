@@ -3,7 +3,6 @@ package com.soon.fm.utils;
 import com.soon.fm.backend.model.CurrentTrack;
 import com.soon.fm.backend.model.QueueItem;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CurrentTrackCache {
@@ -16,7 +15,7 @@ public class CurrentTrackCache {
 
     private static Integer volume = 0;
 
-    private static List<QueueItem> queue = new ArrayList();
+    private static List<QueueItem> queue = null;
 
     private CurrentTrackCache() {
     }

@@ -28,13 +28,13 @@ import java.util.List;
 public abstract class SearchAdapter<I extends Item> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = SearchAdapter.class.getName();
-    private final Context context;
-    private final PreferencesHelper preferences;
+    protected final Context context;
+    protected final PreferencesHelper preferences;
     protected Results<I> results;
     protected final List<Item> items = new ArrayList<>();
-    private View view;
+    protected View view;
 
-    private boolean loading = false;
+    protected boolean loading = false;
 
     protected final int PLACEHOLDER = R.drawable.ic_album;
 
@@ -53,7 +53,7 @@ public abstract class SearchAdapter<I extends Item> extends RecyclerView.Adapter
         return new ViewHolder(view, new ViewHolder.SearchResultHolderClicks() {
             public void onRow(View caller, int layoutPosition) {
                 Item item = getItem(layoutPosition);
-                performAddTrack(item);
+                performClickOnItem(item);
             }
         });
     }
@@ -87,6 +87,8 @@ public abstract class SearchAdapter<I extends Item> extends RecyclerView.Adapter
     public Item getItem(Integer position) {
         return items.get(position);
     }
+
+    protected abstract void performClickOnItem(final Item item);
 
     private void performAddTrack(final Item item) {
         Snackbar snackbar = Snackbar.make(view, String.format("%s - %s added", item.getTitle(), item.getSubTitle()), Snackbar.LENGTH_LONG).setCallback(new Snackbar.Callback() {
