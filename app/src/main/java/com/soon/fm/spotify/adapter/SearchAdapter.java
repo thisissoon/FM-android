@@ -1,7 +1,7 @@
 package com.soon.fm.spotify.adapter;
 
 import android.content.Context;
-import android.support.design.widget.Snackbar;
+import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,7 +13,6 @@ import android.widget.Toast;
 
 import com.soon.fm.R;
 import com.soon.fm.async.CallbackInterface;
-import com.soon.fm.backend.event.PerformAddTrack;
 import com.soon.fm.helper.PreferencesHelper;
 import com.soon.fm.spotify.api.model.Item;
 import com.soon.fm.spotify.api.model.Results;
@@ -31,7 +30,7 @@ public abstract class SearchAdapter<I extends Item> extends RecyclerView.Adapter
     protected final Context context;
     protected final PreferencesHelper preferences;
     protected Results<I> results;
-    protected final List<Item> items = new ArrayList<>();
+    protected final List<I> items = new ArrayList<>();
     protected View view;
 
     protected boolean loading = false;
@@ -51,9 +50,9 @@ public abstract class SearchAdapter<I extends Item> extends RecyclerView.Adapter
         final View view = inflater.inflate(R.layout.spotify_row_details, parent, false);
         this.view = view;
         return new ViewHolder(view, new ViewHolder.SearchResultHolderClicks() {
-            public void onRow(View caller, int layoutPosition) {
+            public void onRow(ImageView sharedView, int layoutPosition) {
                 Item item = getItem(layoutPosition);
-                performClickOnItem(item);
+                performClickOnItem(sharedView, item);
             }
         });
     }
@@ -61,8 +60,14 @@ public abstract class SearchAdapter<I extends Item> extends RecyclerView.Adapter
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         ViewHolder viewHolder = (ViewHolder) holder;
-        viewHolder.title.setText(getItem(position).getTitle());
-        viewHolder.subtitle.setText(getItem(position).getSubTitle());
+        Item item = getItem(position);
+        viewHolder.title.setText(item.getTitle());
+        viewHolder.subtitle.setText(item.getSubTitle());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            viewHolder.image.setTransitionName(item.getTitle());
+        }
+        viewHolder.image.setTag(item.getTitle());
         try {
             loadImageFromCacheTo(getItem(position).getImages().get(2).getUrl(), viewHolder.image);
         } catch (IndexOutOfBoundsException ex) {
@@ -88,41 +93,7 @@ public abstract class SearchAdapter<I extends Item> extends RecyclerView.Adapter
         return items.get(position);
     }
 
-    protected abstract void performClickOnItem(final Item item);
-
-    private void performAddTrack(final Item item) {
-        Snackbar snackbar = Snackbar.make(view, String.format("%s - %s added", item.getTitle(), item.getSubTitle()), Snackbar.LENGTH_LONG).setCallback(new Snackbar.Callback() {
-            @Override
-            public void onDismissed(Snackbar snackbar, int event) {
-                super.onDismissed(snackbar, event);
-                if (event == DISMISS_EVENT_CONSECUTIVE || event == DISMISS_EVENT_TIMEOUT) {
-                    new PerformAddTrack(preferences.getUserApiToken(), item, new CallbackInterface<Item>() {
-                        @Override
-                        public void onSuccess(Item obj) {
-
-                        }
-
-                        @Override
-                        public void onFail() {
-
-                        }
-                    }).execute();
-                }
-            }
-
-            @Override
-            public void onShown(Snackbar snackbar) {
-                super.onShown(snackbar);
-            }
-        }).setAction("UNDO", new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar snackbarUndo = Snackbar.make(view, "Track removed from the queue!", Snackbar.LENGTH_SHORT);
-                snackbarUndo.show();
-            }
-        });
-        snackbar.show();
-    }
+    protected abstract void performClickOnItem(View sharedView, final Item item);
 
     public void loadMore() {
         String next = results.getNext();
@@ -151,8 +122,8 @@ public abstract class SearchAdapter<I extends Item> extends RecyclerView.Adapter
     private static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public final TextView title;
-        private final TextView subtitle;
-        private final ImageView image;
+        public final TextView subtitle;
+        public final ImageView image;
 
         public SearchResultHolderClicks mListener;
 
@@ -168,12 +139,12 @@ public abstract class SearchAdapter<I extends Item> extends RecyclerView.Adapter
         }
 
         public interface SearchResultHolderClicks {
-            void onRow(View caller, int layoutPosition);
+            void onRow(ImageView sharedItem, int layoutPosition);
         }
 
         @Override
         public void onClick(View v) {
-            mListener.onRow(v, this.getLayoutPosition());
+            mListener.onRow(image, this.getLayoutPosition());
         }
 
     }

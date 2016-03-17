@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AlbumItem implements Item {
+public class AlbumListItem implements Item {
 
     @SerializedName("album_type")
     @Expose
@@ -84,6 +84,22 @@ public class AlbumItem implements Item {
         this.id = id;
     }
 
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getType() {
         return type;
     }
@@ -97,34 +113,16 @@ public class AlbumItem implements Item {
         return getName();
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @Override
     public String getSubTitle() {
         return "";
     }
 
-    @Override
     public String getUri() {
         return uri;
-    }
-
-    public List<Image> getImages() {
-        return images;
-    }
-
-    public void setImages(List<Image> images) {
-        this.images = images;
     }
 
     public void setUri(String uri) {
         this.uri = uri;
     }
-
 }

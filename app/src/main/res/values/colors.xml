@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="yellow">#fffd00</color>
+    <color name="text">#ffffff</color>
+    <color name="backgroundColor">#1a1a1a</color>
+    <color name="secondaryForeground">#000000</color>
+    <color name="secondaryText">#777777</color>
+
+    <color name="background_image_photo_tint">#777777</color>
+    <color name="album_image_photo_tint">#777777</color>
+</resources>

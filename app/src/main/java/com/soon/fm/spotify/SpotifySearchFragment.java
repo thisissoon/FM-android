@@ -25,6 +25,7 @@ import java.io.IOException;
 public class SpotifySearchFragment extends Fragment {
 
     private static final String TAG = SpotifySearchFragment.class.getName();
+    public static final int SPOTIFY_ITEM_LIMIT = 25;
     private final Type type;
     private RecyclerView rw;
     private Context context;
@@ -37,6 +38,7 @@ public class SpotifySearchFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreateView");
     }
 
     public void triggerSearching(final String value){
@@ -46,7 +48,7 @@ public class SpotifySearchFragment extends Fragment {
                 SpotifyHelper spotifyHelper = new SpotifyHelper();
                 Search spotifyResult = null;
                 try {
-                    spotifyResult = spotifyHelper.search(value, 25, type);
+                    spotifyResult = spotifyHelper.search(value, SPOTIFY_ITEM_LIMIT, type);
                 } catch (IOException e) {
                     Log.e(TAG, String.format("Something went wrong %s", e.getMessage()));
                 } catch (NullPointerException e) {
@@ -64,7 +66,7 @@ public class SpotifySearchFragment extends Fragment {
                             adapter = new TrackAdapter(context, result.getTracks());
                             break;
                         case ALBUMS:
-                            adapter = new AlbumAdapter(context, result.getAlbums());
+                            adapter = new AlbumAdapter(getActivity(), context, result.getAlbums());
                             break;
                         case ARTISTS:
                             adapter = new ArtistsAdapter(context, result.getArtists());
@@ -77,7 +79,6 @@ public class SpotifySearchFragment extends Fragment {
                     Log.e(TAG, "result is null");
                 }
             }
-
         }.execute();
     }
 
@@ -86,6 +87,8 @@ public class SpotifySearchFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_queue_list, container, false);
         context = inflater.getContext();
         rw = (RecyclerView) view.findViewById(R.id.rw_track_queue);
+
+        Log.d(TAG, String.format("onCreateView: %s", type.getValue()));
 
         final LinearLayoutManager llm = new LinearLayoutManager(context);
         llm.setOrientation(LinearLayoutManager.VERTICAL);

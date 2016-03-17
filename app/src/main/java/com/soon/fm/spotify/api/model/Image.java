@@ -3,7 +3,9 @@ package com.soon.fm.spotify.api.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Image {
+import java.io.Serializable;
+
+public class Image implements Serializable {
 
     @SerializedName("height")
     @Expose

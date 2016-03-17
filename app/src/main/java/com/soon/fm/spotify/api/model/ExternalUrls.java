@@ -3,7 +3,9 @@ package com.soon.fm.spotify.api.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class ExternalUrls {
+import java.io.Serializable;
+
+public class ExternalUrls implements Serializable {
 
     @SerializedName("spotify")
     @Expose

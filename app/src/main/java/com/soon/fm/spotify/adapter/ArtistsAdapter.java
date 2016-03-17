@@ -1,6 +1,7 @@
 package com.soon.fm.spotify.adapter;
 
 import android.content.Context;
+import android.view.View;
 
 import com.soon.fm.R;
 import com.soon.fm.spotify.api.model.ArtistItem;
@@ -17,7 +18,7 @@ public class ArtistsAdapter extends SearchAdapter<ArtistItem> {
     }
 
     @Override
-    protected void performClickOnItem(Item item) {
+    protected void performClickOnItem(View view, Item item) {
 
     }
 

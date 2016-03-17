@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.soon.fm.AlbumActivity"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/details_header_container"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="#000"
+        android:transitionGroup="true">
+
+        <ImageView
+            android:id="@+id/details_background_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:tint="@color/background_image_photo_tint"
+            tools:ignore="ContentDescription"/>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="15dp">
+
+            <ImageView
+                android:id="@+id/details_album_image"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_gravity="start|bottom"
+                android:background="@drawable/ic_person"
+                tools:ignore="ContentDescription"
+                android:layout_alignParentBottom="true"
+                android:layout_marginRight="15dp"
+                />
+
+            <LinearLayout
+                android:id="@+id/details_text_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:transitionGroup="true"
+                android:layout_alignTop="@+id/details_album_image"
+                android:layout_toEndOf="@+id/details_album_image">
+
+                <TextView
+                    android:id="@+id/album_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="The Wall"
+                    android:textAppearance="@android:style/TextAppearance.Material.Title"
+                    android:textSize="40sp"/>
+
+                <TextView
+                    android:id="@+id/artist_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pink Floyd"
+                    android:textAppearance="@android:style/TextAppearance.Material.Medium"
+                    android:textSize="20sp"/>
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </FrameLayout>
+
+</LinearLayout>
+

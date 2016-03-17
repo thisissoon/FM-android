@@ -10,7 +10,7 @@ public class TrackItem implements Item {
 
     @SerializedName("album")
     @Expose
-    private Album album;
+    private AlbumListItem album;
 
     @SerializedName("artists")
     @Expose
@@ -194,11 +194,11 @@ public class TrackItem implements Item {
         return getAlbum().getName();
     }
 
-    public Album getAlbum() {
+    public AlbumListItem getAlbum() {
         return album;
     }
 
-    public void setAlbum(Album album) {
+    public void setAlbum(AlbumListItem album) {
         this.album = album;
     }
 

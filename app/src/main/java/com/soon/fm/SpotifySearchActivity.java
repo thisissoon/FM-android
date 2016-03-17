@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class SpotifySearchActivity extends BaseActivity {
+public class SpotifySearchActivity extends AppCompatActivity {
 
     private EditText searchInput;
     private TabLayout tabLayout;
@@ -82,8 +83,8 @@ public class SpotifySearchActivity extends BaseActivity {
 
     public void setupViewPager(ViewPager upViewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new SpotifySearchFragment(Type.TRACKS), "Tracks");
         adapter.addFragment(new SpotifySearchFragment(Type.ALBUMS), "Albums");
+        adapter.addFragment(new SpotifySearchFragment(Type.TRACKS), "Tracks");
         adapter.addFragment(new SpotifySearchFragment(Type.ARTISTS), "Artists");
         upViewPager.setAdapter(adapter);
     }
@@ -107,6 +108,7 @@ public class SpotifySearchActivity extends BaseActivity {
         }
 
         public void addFragment(Fragment fragment, String title) {
+            fragment.setRetainInstance(true);
             mFragmentList.add(fragment);
             mFragmentTitleList.add(title);
         }
@@ -116,4 +118,5 @@ public class SpotifySearchActivity extends BaseActivity {
             return mFragmentTitleList.get(position);
         }
     }
+
 }

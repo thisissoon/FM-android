@@ -18,7 +18,7 @@ public class TrackAdapter extends SearchAdapter<TrackItem> {
     }
 
     @Override
-    protected void performClickOnItem(Item item) {
+    protected void performClickOnItem(View view, Item item) {
         performAddTrack(item);
     }
 

@@ -22,7 +22,7 @@ android {
 
     defaultConfig {
         applicationId "com.soon.fm"
-        minSdkVersion 21
+        minSdkVersion 19
         targetSdkVersion 23
 
         versionCode = versionMajor * 10000000 + versionMinor * 100000 + versionPatch * 1000 + versionGit
@@ -72,8 +72,8 @@ dependencies {
     compile('com.github.nkzawa:socket.io-client:0.3.0') {
         exclude group: 'org.json'
     }
-    testCompile 'junit:junit:4.12'
     testCompile 'org.robolectric:robolectric:3.0'
+    testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:1.10.19'
     testCompile 'org.json:json:20141113'
     compile 'com.android.support:appcompat-v7:23.2.0'
